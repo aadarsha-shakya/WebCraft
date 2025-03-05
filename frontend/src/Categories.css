@@ -1,0 +1,33 @@
+.categories-container {
+    padding: 20px;
+}
+
+.categories-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.add-category-form input[type='text'],
+.add-category-form input[type='file'] {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.categories-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.categories-table th, .categories-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.categories-table img {
+    width: 50px;
+    height: auto;
+}
+

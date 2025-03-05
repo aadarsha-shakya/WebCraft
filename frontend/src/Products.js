@@ -6,6 +6,7 @@ function Products() {
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  
   const [formData, setFormData] = useState({
     productName: '',
     categories: '',

@@ -1,6 +1,8 @@
 const express = require("express");
 const mysql = require('mysql');
 const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
 
 const app = express();
 app.use(cors());
@@ -194,6 +196,88 @@ app.post('/api/storedetails', (req, res) => {
       }
     });
   });
+
+  // Set up multer for image uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    // Store uploaded images in the 'uploads/' folder
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    // Generate a unique filename for each image using timestamp
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
+
+// New API to add or update category details
+app.post('/api/categories', upload.single('categoryImage'), (req, res) => {
+    const { userId, categoryName } = req.body;
+    const image = req.file ? req.file.filename : null;
+
+    if (!userId || !categoryName || !image) {
+        return res.status(400).json({ status: "error", message: "Missing required fields." });
+    }
+
+    const checkSql = "SELECT * FROM categories WHERE user_id = ? AND category_name = ?";
+    
+    // Check if the category already exists for the user
+    db.query(checkSql, [userId, categoryName], (err, data) => {
+        if (err) {
+            console.error("Error checking category:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+
+        if (data.length > 0) {
+            // Update existing category if it already exists
+            const updateSql = "UPDATE categories SET image = ? WHERE user_id = ? AND category_name = ?";
+            
+            db.query(updateSql, [image, userId, categoryName], (err, result) => {
+                if (err) {
+                    console.error("Error updating category:", err);
+                    return res.status(500).json({ status: "error", message: "Failed to update category" });
+                }
+                return res.json({ status: "updated", message: "Category updated successfully" });
+            });
+        } else {
+            // Insert new category if it doesn't exist
+            const insertSql = "INSERT INTO categories (user_id, category_name, image) VALUES (?, ?, ?)";
+            
+            db.query(insertSql, [userId, categoryName, image], (err, result) => {
+                if (err) {
+                    console.error("Error inserting category:", err);
+                    return res.status(500).json({ status: "error", message: "Failed to create category" });
+                }
+                return res.json({ status: "created", message: "Category created successfully" });
+            });
+        }
+    });
+});
+
+// Get all categories by user ID
+app.get('/api/categories/:userId', (req, res) => {
+    const sql = "SELECT * FROM categories WHERE user_id = ?";
+    db.query(sql, [req.params.userId], (err, data) => {
+        if (err) {
+            console.error("Error fetching categories:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        return res.json(data);
+    });
+});
+
+// Delete a category
+app.delete('/api/categories/:id', (req, res) => {
+    const sql = "DELETE FROM categories WHERE id = ?";
+    db.query(sql, [req.params.id], (err, result) => {
+        if (err) {
+            console.error("Error deleting category:", err);
+            return res.status(500).json({ status: "error", message: "Failed to delete category" });
+        }
+        return res.json({ status: "deleted", message: "Category deleted successfully" });
+    });
+});
 
 app.listen(8081, () => {
     console.log("listening");
