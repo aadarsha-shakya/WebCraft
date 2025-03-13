@@ -1,8 +1,9 @@
+/* General Reset */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Arial', sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f5f5f5;
+  background-color: #f9f9f9;
 }
 
 .products-container {
@@ -10,13 +11,15 @@ body {
   margin: 20px auto;
   padding: 20px;
   background-color: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }
 
 h1 {
   text-align: center;
   color: #333;
+  font-size: 2rem;
+  margin-bottom: 20px;
 }
 
 .tabs {
@@ -33,6 +36,8 @@ h1 {
   cursor: pointer;
   transition: background-color 0.3s;
   border-radius: 4px;
+  font-size: 1rem;
+  color: #333;
 }
 
 .tabs button.active {
@@ -52,6 +57,7 @@ h1 {
   width: 300px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  font-size: 1rem;
 }
 
 .search-bar button {
@@ -61,6 +67,7 @@ h1 {
   color: white;
   cursor: pointer;
   border-radius: 4px;
+  font-size: 1rem;
   transition: background-color 0.3s;
 }
 
@@ -74,14 +81,18 @@ h1 {
   margin-bottom: 20px;
 }
 
-.product-table th, .product-table td {
-  padding: 10px;
+.product-table th,
+.product-table td {
+  padding: 12px;
   border: 1px solid #ddd;
   text-align: left;
+  font-size: 0.9rem;
 }
 
 .product-table th {
   background-color: #f4f4f4;
+  color: #333;
+  font-weight: bold;
 }
 
 .product-table tr:nth-child(even) {
@@ -98,11 +109,13 @@ h1 {
   background-color: #4caf50;
   color: white;
   font-weight: bold;
+  font-size: 0.9rem;
 }
 
 .pagination {
   display: flex;
   justify-content: center;
+  margin-top: 20px;
 }
 
 .pagination button {
@@ -113,32 +126,39 @@ h1 {
   cursor: pointer;
   transition: background-color 0.3s;
   border-radius: 4px;
+  font-size: 1rem;
 }
 
 .pagination button:hover {
   background-color: #ddd;
 }
 
+/* Modal Styling */
 .modal {
+  display: none; /* Hidden by default */
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1000; /* Ensure it appears above other elements */
+}
+
+.modal.show {
+  display: flex; /* Display the modal */
 }
 
 .modal-content {
   background-color: white;
   padding: 20px;
   border-radius: 8px;
-  width: 80%;
-  max-width: 600px;
+  width: 50%; /* Adjust width as needed */
+  max-width: 600px; /* Maximum width */
   position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .close-button {
@@ -147,8 +167,13 @@ h1 {
   right: 10px;
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 1.5rem;
   cursor: pointer;
+  color: #aaa;
+  transition: color 0.3s;
+}
+
+.close-button:hover {
   color: #333;
 }
 
@@ -175,11 +200,13 @@ h1 {
   border-radius: 50%;
   border: 1px solid #ccc;
   margin-bottom: 5px;
+  font-size: 1rem;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .step p {
   margin: 0;
-  font-size: 14px;
+  font-size: 0.9rem;
   color: #666;
 }
 
@@ -187,6 +214,8 @@ h1 {
   display: block;
   margin-top: 10px;
   font-weight: bold;
+  font-size: 1rem;
+  color: #333;
 }
 
 .modal-content input[type="text"],
@@ -197,10 +226,20 @@ h1 {
   margin-top: 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.modal-content input[type="text"]:focus,
+.modal-content input[type="number"]:focus,
+.modal-content textarea:focus {
+  border-color: #007bff;
+  outline: none;
 }
 
 .modal-content textarea {
   resize: vertical;
+  min-height: 80px;
 }
 
 .modal-content table {
@@ -209,14 +248,18 @@ h1 {
   margin-top: 10px;
 }
 
-.modal-content table th, .modal-content table td {
+.modal-content table th,
+.modal-content table td {
   padding: 10px;
   border: 1px solid #ddd;
   text-align: left;
+  font-size: 0.9rem;
 }
 
 .modal-content table th {
   background-color: #f4f4f4;
+  color: #333;
+  font-weight: bold;
 }
 
 .modal-content table tr:nth-child(even) {
@@ -231,6 +274,7 @@ h1 {
   color: white;
   cursor: pointer;
   border-radius: 4px;
+  font-size: 1rem;
   transition: background-color 0.3s;
 }
 

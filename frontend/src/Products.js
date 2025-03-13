@@ -6,84 +6,131 @@ function Products() {
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  
+  const [imagePreviews, setImagePreviews] = useState([]);
+
+  // Form Data State
   const [formData, setFormData] = useState({
     productName: '',
-    categories: '',
+    category: '', 
     productDescription: '',
     productImages: [],
-    variants: [],
-    customFields: []
+    variants: []
   });
 
+  // Categories State
+  const [categories, setCategories] = useState([]);
+
+  // Variants and Sizes State
+  const [variants, setVariants] = useState([]);
+  const [sizes, setSizes] = useState([]);
+  const [variantCombinations, setVariantCombinations] = useState([]);
+
+  // Fetch products and categories on component load
   useEffect(() => {
-    // Example: Fetch products from an API
-    fetch('/api/products')
+    fetch('http://localhost:8081/api/products')
       .then(response => response.json())
       .then(data => setProducts(data))
       .catch(error => console.error('Error fetching products:', error));
+
+    const userId = localStorage.getItem('userId'); // Assuming userId is stored in localStorage
+    if (userId) {
+      fetch(`http://localhost:8081/api/categories/${userId}`)
+        .then(response => response.json())
+        .then(data => setCategories(data))
+        .catch(error => console.error('Error fetching categories:', error));
+    }
   }, []);
 
+  // Generate variant combinations
+  useEffect(() => {
+    const combinations = variants.flatMap(variant =>
+      sizes.map(size => ({ variant, size }))
+    );
+    setVariantCombinations(combinations);
+  }, [variants, sizes]);
+
+  // Handle tab change
   const handleTabChange = (tab) => {
     setSelectedTab(tab);
   };
 
+  // Open modal
   const openModal = () => {
     setShowModal(true);
   };
 
+  // Close modal
   const closeModal = () => {
     setShowModal(false);
     setCurrentStep(1);
     setFormData({
       productName: '',
-      categories: '',
+      category: '',
       productDescription: '',
       productImages: [],
-      variants: [],
-      customFields: []
+      variants: []
     });
+    setImagePreviews([]);
+    setVariants([]);
+    setSizes([]);
+    setVariantCombinations([]);
   };
 
+  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  // Handle image upload
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     setFormData({ ...formData, productImages: [...formData.productImages, ...files] });
+
+    const previews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews([...imagePreviews, ...previews]);
   };
 
-  const handleAddVariant = () => {
-    const variant = {
-      variantName: '',
-      crossedPrice: 0,
-      sellingPrice: 0,
-      costPrice: 0,
-      weight: 0,
-      quantity: 0,
-      sku: ''
-    };
-    setFormData({ ...formData, variants: [...formData.variants, variant] });
+  // Add variant
+  const addVariant = () => {
+    const variantInput = document.getElementById('variantInput').value.trim();
+    if (variantInput && !variants.includes(variantInput)) {
+      setVariants([...variants, variantInput]);
+      document.getElementById('variantInput').value = '';
+    }
   };
 
-  const handleAddCustomField = () => {
-    const customField = {
-      type: '',
-      label: '',
-      placeholder: '',
-      required: false
-    };
-    setFormData({ ...formData, customFields: [...formData.customFields, customField] });
+  // Add size
+  const addSize = () => {
+    const sizeInput = document.getElementById('sizeInput').value.trim();
+    if (sizeInput && !sizes.includes(sizeInput)) {
+      setSizes([...sizes, sizeInput]);
+      document.getElementById('sizeInput').value = '';
+    }
   };
 
+  // Handle form submission
   const handleSubmit = () => {
-    // Add logic to submit the form data
-    console.log(formData);
+    const variantDetails = variantCombinations.map((combination, index) => ({
+      variant: combination.variant,
+      size: combination.size,
+      crossedPrice: document.querySelectorAll('input[type="number"]')[index * 6]?.value || 0,
+      sellingPrice: document.querySelectorAll('input[type="number"]')[index * 6 + 1]?.value || 0,
+      costPrice: document.querySelectorAll('input[type="number"]')[index * 6 + 2]?.value || 0,
+      weight: document.querySelectorAll('input[type="number"]')[index * 6 + 3]?.value || 0,
+      quantity: document.querySelectorAll('input[type="number"]')[index * 6 + 4]?.value || 0,
+      sku: document.querySelectorAll('input[type="text"]')[index]?.value || ''
+    }));
+
+    const finalData = {
+      ...formData,
+      category: formData.category, // Ensure category is included
+      variants: variantDetails
+    };
+
+    console.log(finalData);
     closeModal();
-    // Example: Add product to the list
-    setProducts([...products, formData]);
+    setProducts([...products, finalData]);
   };
 
   return (
@@ -96,7 +143,7 @@ function Products() {
       </div>
       <div className="search-bar">
         <input type="text" placeholder="Search..." />
-        <button onClick={openModal}>+ Add Products</button>
+        <button onClick={openModal}>+ Add Product</button>
       </div>
       <table className="product-table">
         <thead>
@@ -112,14 +159,14 @@ function Products() {
         </thead>
         <tbody>
           {products.length > 0 ? (
-            products.map((product) => (
-              <tr key={product.id}>
-                <td>{product.id}</td>
-                <td>{product.name}</td>
-                <td>{product.price}</td>
-                <td>{product.inventory}</td>
-                <td><span className="status">{product.status}</span></td>
-                <td>{product.created}</td>
+            products.map((product, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{product.productName}</td>
+                <td>{product.variants[0]?.sellingPrice || 'N/A'}</td>
+                <td>{product.variants[0]?.quantity || 'N/A'}</td>
+                <td><span className="status">{selectedTab}</span></td>
+                <td>{new Date().toLocaleDateString()}</td>
                 <td>...</td>
               </tr>
             ))
@@ -130,14 +177,9 @@ function Products() {
           )}
         </tbody>
       </table>
-      <div className="pagination">
-        <button>.</button>
-        <button>1</button>
-        <button>.</button>
-      </div>
 
       {showModal && (
-        <div className="modal">
+        <div className={`modal ${showModal ? 'show' : ''}`}>
           <div className="modal-content">
             <h2>Add Product</h2>
             <button className="close-button" onClick={closeModal}>X</button>
@@ -150,106 +192,111 @@ function Products() {
                 <span>2</span>
                 <p>Variants & Inventory</p>
               </div>
-              <div className={`step ${currentStep >= 3 ? 'completed' : ''}`}>
-                <span>3</span>
-                <p>Custom Fields</p>
-              </div>
             </div>
             {currentStep === 1 && (
               <div>
                 <label htmlFor="productName">Product Name *</label>
-                <input type="text" id="productName" name="productName" value={formData.productName} onChange={handleInputChange} />
+                <input
+                  type="text"
+                  id="productName"
+                  name="productName"
+                  value={formData.productName}
+                  onChange={handleInputChange}
+                  required
+                />
 
-                <label htmlFor="categories">Categories</label>
-                <input type="text" id="categories" name="categories" value={formData.categories} onChange={handleInputChange} />
+                <label htmlFor="category">Category *</label>
+                <select
+                  id="category"
+                  name="category"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  required
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.category_name}>
+                      {category.category_name}
+                    </option>
+                  ))}
+                </select>
 
                 <label htmlFor="productDescription">Product Description *</label>
-                <textarea id="productDescription" name="productDescription" value={formData.productDescription} onChange={handleInputChange}></textarea>
+                <textarea
+                  id="productDescription"
+                  name="productDescription"
+                  value={formData.productDescription}
+                  onChange={handleInputChange}
+                  required
+                ></textarea>
 
                 <label htmlFor="productImages">Product Images *</label>
-                <input type="file" id="productImages" name="productImages" multiple onChange={handleImageUpload} />
+                <input
+                  type="file"
+                  id="productImages"
+                  name="productImages"
+                  multiple
+                  onChange={handleImageUpload}
+                  required
+                />
+                <div>
+                  {imagePreviews.map((preview, index) => (
+                    <img key={index} src={preview} alt="Preview" width="50" />
+                  ))}
+                </div>
 
                 <button onClick={() => setCurrentStep(2)}>Next: Variants & Inventory</button>
               </div>
             )}
             {currentStep === 2 && (
               <div>
-                <label htmlFor="enableVariants">Enable Product Variants</label>
-                <input type="checkbox" id="enableVariants" name="enableVariants" checked={true} readOnly />
+                <h3>Variants</h3>
+                <input type="text" id="variantInput" placeholder="Enter variant (e.g., Red)" />
+                <button onClick={addVariant}>Add Variant</button>
+                <ul>
+                  {variants.map((variant, index) => (
+                    <li key={index}>{variant}</li>
+                  ))}
+                </ul>
 
-                <label htmlFor="chooseVariant">Choose Variant</label>
-                <input type="text" id="chooseVariant" name="chooseVariant" />
+                <h3>Sizes</h3>
+                <input type="text" id="sizeInput" placeholder="Enter size (e.g., M)" />
+                <button onClick={addSize}>Add Size</button>
+                <ul>
+                  {sizes.map((size, index) => (
+                    <li key={index}>{size}</li>
+                  ))}
+                </ul>
 
-                <label htmlFor="chooseSize">Choose Size</label>
-                <input type="text" id="chooseSize" name="chooseSize" />
-
+                <h3>Variant Combinations</h3>
                 <table>
                   <thead>
                     <tr>
-                      <th>VARIANT</th>
-                      <th>CROSSED PRICE</th>
-                      <th>SELLING PRICE</th>
-                      <th>COST PRICE</th>
-                      <th>WEIGHT</th>
-                      <th>QUANTITY</th>
+                      <th>Variant/Size</th>
+                      <th>Crossed Price</th>
+                      <th>Selling Price</th>
+                      <th>Cost Price</th>
+                      <th>Weight</th>
+                      <th>Quantity</th>
                       <th>SKU</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {formData.variants.map((variant, index) => (
+                    {variantCombinations.map((combination, index) => (
                       <tr key={index}>
-                        <td>{variant.variantName}</td>
-                        <td><input type="number" value={variant.crossedPrice} /></td>
-                        <td><input type="number" value={variant.sellingPrice} /></td>
-                        <td><input type="number" value={variant.costPrice} /></td>
-                        <td><input type="number" value={variant.weight} /></td>
-                        <td><input type="number" value={variant.quantity} /></td>
-                        <td><input type="text" value={variant.sku} /></td>
+                        <td>{`${combination.variant}/${combination.size}`}</td>
+                        <td><input type="number" /></td>
+                        <td><input type="number" /></td>
+                        <td><input type="number" /></td>
+                        <td><input type="number" /></td>
+                        <td><input type="number" /></td>
+                        <td><input type="text" /></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
 
-                <button onClick={handleAddVariant}>Add Variant</button>
-
-                <button onClick={() => setCurrentStep(1)}>Previous: General Information</button>
-                <button onClick={() => setCurrentStep(3)}>Next: Custom Fields</button>
-              </div>
-            )}
-            {currentStep === 3 && (
-              <div>
-                <label htmlFor="enableCustomFields">Enable Custom Fields?</label>
-                <input type="checkbox" id="enableCustomFields" name="enableCustomFields" checked={true} readOnly />
-
-                <table>
-                  <thead>
-                    <tr>
-                      <th>SN</th>
-                      <th>Type</th>
-                      <th>Label</th>
-                      <th>Placeholder</th>
-                      <th>Required</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {formData.customFields.map((customField, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td><select value={customField.type}><option value="text">Text</option></select></td>
-                        <td><input type="text" value={customField.label} /></td>
-                        <td><input type="text" value={customField.placeholder} /></td>
-                        <td><input type="checkbox" checked={customField.required} /></td>
-                        <td><button>Delete</button></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                <button onClick={handleAddCustomField}>Add Custom Field</button>
-
-                <button onClick={() => setCurrentStep(2)}>Previous: Variants & Inventory</button>
-                <button onClick={handleSubmit}>Confirm Add Product</button>
+                <button onClick={handleSubmit}>Save Product</button>
               </div>
             )}
           </div>
