@@ -110,7 +110,7 @@ function Products() {
   };
 
   // Handle form submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const variantDetails = variantCombinations.map((combination, index) => ({
       variant: combination.variant,
       size: combination.size,
@@ -121,16 +121,37 @@ function Products() {
       quantity: document.querySelectorAll('input[type="number"]')[index * 6 + 4]?.value || 0,
       sku: document.querySelectorAll('input[type="text"]')[index]?.value || ''
     }));
-
-    const finalData = {
-      ...formData,
-      category: formData.category, // Ensure category is included
-      variants: variantDetails
-    };
-
-    console.log(finalData);
-    closeModal();
-    setProducts([...products, finalData]);
+  
+    const formDataToSend = new FormData();
+    formDataToSend.append('userId', localStorage.getItem('userId'));
+    formDataToSend.append('productName', formData.productName);
+    formDataToSend.append('category', formData.category);
+    formDataToSend.append('productDescription', formData.productDescription);
+    formDataToSend.append('variants', JSON.stringify(variantDetails));
+  
+    // Append product images
+    formData.productImages.forEach((file) => {
+      formDataToSend.append('productImages', file);
+    });
+  
+    try {
+      const response = await fetch('http://localhost:8081/api/products', {
+        method: 'POST',
+        body: formDataToSend
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      const result = await response.json();
+      console.log(result.message);
+      closeModal();
+      alert("Product added successfully!");
+    } catch (error) {
+      console.error("Error adding product:", error);
+      alert("Failed to add product. Please try again later.");
+    }
   };
 
   return (

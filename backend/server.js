@@ -3,6 +3,7 @@ const mysql = require('mysql');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 app.use(cors());
@@ -276,6 +277,81 @@ app.delete('/api/categories/:id', (req, res) => {
             return res.status(500).json({ status: "error", message: "Failed to delete category" });
         }
         return res.json({ status: "deleted", message: "Category deleted successfully" });
+    });
+});
+
+// Serve uploaded images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Create uploads directory if it doesn't exist
+if (!fs.existsSync('./uploads')) {
+    fs.mkdirSync('./uploads');
+}
+
+//// Fetch all products for a user
+app.get('/api/products', (req, res) => {
+    const userId = req.query.userId; // Assuming userId is passed as a query parameter
+    const sql = `
+        SELECT p.*, v.* 
+        FROM products p
+        LEFT JOIN variants v ON p.id = v.product_id
+        WHERE p.user_id = ?
+    `;
+    db.query(sql, [userId], (err, data) => {
+        if (err) {
+            console.error("Error fetching products:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+        return res.json(data);
+    });
+});
+
+// Add a new product
+app.post('/api/products', upload.array('productImages'), (req, res) => {
+    console.log("Request Body:", req.body); // Log the request body
+    console.log("Uploaded Files:", req.files); // Log uploaded files
+    const { userId, productName, category, productDescription, variants } = req.body;
+    const productImages = req.files.map(file => file.filename);
+
+    // Insert product into the database
+    const productSql = `
+        INSERT INTO products(user_id, product_name, category_name, product_description, product_images)
+        VALUES (?, ?, ?, ?, ?)
+    `;
+    db.query(productSql, [userId, productName, category, productDescription, JSON.stringify(productImages)], (err, result) => {
+        if (err) {
+            console.error("Error adding product:", err);
+            return res.status(500).json({ error: "Failed to add product" });
+        }
+
+        const productId = result.insertId;
+
+        // Insert variants into the database
+        const parsedVariants = JSON.parse(variants);
+        const variantSql = `
+            INSERT INTO variants(product_id, variant_name, size, crossed_price, selling_price, cost_price, weight, quantity, sku)
+            VALUES ?
+        `;
+        const variantValues = parsedVariants.map(variant => [
+            productId,
+            variant.variant,
+            variant.size,
+            variant.crossedPrice,
+            variant.sellingPrice,
+            variant.costPrice,
+            variant.weight,
+            variant.quantity,
+            variant.sku
+        ]);
+
+        db.query(variantSql, [variantValues], (err) => {
+            if (err) {
+                console.error("Error adding variants:", err);
+                return res.status(500).json({ error: "Failed to add variants" });
+            }
+
+            return res.json({ status: "created", message: "Product added successfully" });
+        });
     });
 });
 
