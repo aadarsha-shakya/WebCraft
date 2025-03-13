@@ -11,7 +11,7 @@ function Products() {
   // Form Data State
   const [formData, setFormData] = useState({
     productName: '',
-    category: '', 
+    category: '',
     productDescription: '',
     productImages: [],
     variants: []
@@ -27,13 +27,13 @@ function Products() {
 
   // Fetch products and categories on component load
   useEffect(() => {
-    fetch('http://localhost:8081/api/products')
-      .then(response => response.json())
-      .then(data => setProducts(data))
-      .catch(error => console.error('Error fetching products:', error));
-
     const userId = localStorage.getItem('userId'); // Assuming userId is stored in localStorage
     if (userId) {
+      fetch(`http://localhost:8081/api/products?userId=${userId}`)
+        .then(response => response.json())
+        .then(data => setProducts(data))
+        .catch(error => console.error('Error fetching products:', error));
+
       fetch(`http://localhost:8081/api/categories/${userId}`)
         .then(response => response.json())
         .then(data => setCategories(data))
@@ -86,7 +86,6 @@ function Products() {
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     setFormData({ ...formData, productImages: [...formData.productImages, ...files] });
-
     const previews = files.map(file => URL.createObjectURL(file));
     setImagePreviews([...imagePreviews, ...previews]);
   };
@@ -121,33 +120,42 @@ function Products() {
       quantity: document.querySelectorAll('input[type="number"]')[index * 6 + 4]?.value || 0,
       sku: document.querySelectorAll('input[type="text"]')[index]?.value || ''
     }));
-  
+
     const formDataToSend = new FormData();
     formDataToSend.append('userId', localStorage.getItem('userId'));
     formDataToSend.append('productName', formData.productName);
     formDataToSend.append('category', formData.category);
     formDataToSend.append('productDescription', formData.productDescription);
     formDataToSend.append('variants', JSON.stringify(variantDetails));
-  
+
     // Append product images
     formData.productImages.forEach((file) => {
       formDataToSend.append('productImages', file);
     });
-  
+
     try {
       const response = await fetch('http://localhost:8081/api/products', {
         method: 'POST',
         body: formDataToSend
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-  
+
       const result = await response.json();
       console.log(result.message);
       closeModal();
       alert("Product added successfully!");
+
+      // Refetch products after adding a new product
+      const userId = localStorage.getItem('userId');
+      if (userId) {
+        fetch(`http://localhost:8081/api/products?userId=${userId}`)
+          .then(response => response.json())
+          .then(data => setProducts(data))
+          .catch(error => console.error('Error fetching products:', error));
+      }
     } catch (error) {
       console.error("Error adding product:", error);
       alert("Failed to add product. Please try again later.");
@@ -183,12 +191,15 @@ function Products() {
             products.map((product, index) => (
               <tr key={index}>
                 <td>{index + 1}</td>
-                <td>{product.productName}</td>
-                <td>{product.variants[0]?.sellingPrice || 'N/A'}</td>
-                <td>{product.variants[0]?.quantity || 'N/A'}</td>
+                <td>{product.product_name}</td>
+                <td>{product.selling_price || 'N/A'}</td>
+                <td>{product.quantity || 'N/A'}</td>
                 <td><span className="status">{selectedTab}</span></td>
-                <td>{new Date().toLocaleDateString()}</td>
-                <td>...</td>
+                <td>{new Date(product.created_at).toLocaleDateString()}</td>
+                <td>
+                  <button>Edit</button>
+                  <button>Delete</button>
+                </td>
               </tr>
             ))
           ) : (
@@ -214,6 +225,7 @@ function Products() {
                 <p>Variants & Inventory</p>
               </div>
             </div>
+
             {currentStep === 1 && (
               <div>
                 <label htmlFor="productName">Product Name *</label>
@@ -225,7 +237,6 @@ function Products() {
                   onChange={handleInputChange}
                   required
                 />
-
                 <label htmlFor="category">Category *</label>
                 <select
                   id="category"
@@ -241,7 +252,6 @@ function Products() {
                     </option>
                   ))}
                 </select>
-
                 <label htmlFor="productDescription">Product Description *</label>
                 <textarea
                   id="productDescription"
@@ -250,7 +260,6 @@ function Products() {
                   onChange={handleInputChange}
                   required
                 ></textarea>
-
                 <label htmlFor="productImages">Product Images *</label>
                 <input
                   type="file"
@@ -265,10 +274,10 @@ function Products() {
                     <img key={index} src={preview} alt="Preview" width="50" />
                   ))}
                 </div>
-
                 <button onClick={() => setCurrentStep(2)}>Next: Variants & Inventory</button>
               </div>
             )}
+
             {currentStep === 2 && (
               <div>
                 <h3>Variants</h3>
@@ -316,7 +325,6 @@ function Products() {
                     ))}
                   </tbody>
                 </table>
-
                 <button onClick={handleSubmit}>Save Product</button>
               </div>
             )}
