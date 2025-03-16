@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import './Appearance.css';
@@ -7,7 +7,30 @@ import Logo from './assets/WebCraft.png';
 function Appearance() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('branding'); // State to track active tab
+  const [branding, setBranding] = useState({
+    primaryColor: '',
+    brandName: '',
+    brandLogo: '',
+    fontFamily: '',
+    brandFavicon: '',
+    imageRatio: '',
+    popupModalMessage: ''
+  });
+  const [components, setComponents] = useState({
+    topBarText: '',
+    navigationType: '',
+    footerContent: '',
+    facebookUrl: '',
+    instagramUrl: '',
+    tiktokUrl: ''
+  });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const userId = localStorage.getItem('userId'); // Assume userId is stored in localStorage
+    fetchBranding(userId);
+    fetchComponents(userId);
+  }, []);
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prevState) => !prevState); // Toggle state on each click
@@ -18,32 +41,176 @@ function Appearance() {
     navigate('/Login'); // Redirect to login page
   };
 
+  const fetchBranding = (userId) => {
+    fetch(`/api/branding/${userId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data) {
+          setBranding(data);
+        }
+      })
+      .catch(error => console.error("Error fetching branding:", error));
+  };
+
+  const fetchComponents = (userId) => {
+    fetch(`/api/components/${userId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data) {
+          setComponents(data);
+        }
+      })
+      .catch(error => console.error("Error fetching components:", error));
+  };
+
+  const handleBrandingChange = (e) => {
+    const { name, value } = e.target;
+    setBranding(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleComponentsChange = (e) => {
+    const { name, value } = e.target;
+    setComponents(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const saveBranding = () => {
+    const userId = localStorage.getItem('userId'); // Assume userId is stored in localStorage
+    fetch('/api/branding', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ...branding,
+        userId
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message);
+    })
+    .catch(error => console.error("Error saving branding:", error));
+  };
+
+  const saveComponents = () => {
+    const userId = localStorage.getItem('userId'); // Assume userId is stored in localStorage
+    fetch('/api/components', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ...components,
+        userId
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message);
+    })
+    .catch(error => console.error("Error saving components:", error));
+  };
+
+  const handleImageUpload = (e, type) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('image', file);
+    fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (type === 'brandLogo') {
+        setBranding(prevState => ({
+          ...prevState,
+          brandLogo: data.filename
+        }));
+      } else if (type === 'brandFavicon') {
+        setBranding(prevState => ({
+          ...prevState,
+          brandFavicon: data.filename
+        }));
+      }
+    })
+    .catch(error => console.error("Error uploading image:", error));
+  };
+
+  const removeImage = (type) => {
+    if (type === 'brandLogo') {
+      setBranding(prevState => ({
+        ...prevState,
+        brandLogo: ''
+      }));
+    } else if (type === 'brandFavicon') {
+      setBranding(prevState => ({
+        ...prevState,
+        brandFavicon: ''
+      }));
+    }
+  };
+
   const renderBrandingContent = () => (
     <div className="tab-content">
       <div className="box">
         <span>Primary Color</span>
-        <i className="fas fa-edit"></i>
+        <select name="primaryColor" value={branding.primaryColor} onChange={handleBrandingChange}>
+          <option value="">Select Color</option>
+          <option value="red">Red</option>
+          <option value="black">Black</option>
+          <option value="blue">Blue</option>
+          {/* Add more colors as needed */}
+        </select>
       </div>
       <div className="box">
         <span>Brand Name</span>
-        <i className="fas fa-edit"></i>
+        <input type="text" name="brandName" value={branding.brandName} onChange={handleBrandingChange} />
       </div>
       <div className="box">
         <span>Brand Logo</span>
-        <i className="fas fa-edit"></i>
+        <input type="file" onChange={(e) => handleImageUpload(e, 'brandLogo')} />
+        {branding.brandLogo && (
+          <div>
+            <img src={`/uploads/${branding.brandLogo}`} alt="Brand Logo" style={{ width: '100px', height: 'auto' }} />
+            <button onClick={() => removeImage('brandLogo')}>Remove Image</button>
+          </div>
+        )}
       </div>
       <div className="box">
         <span>Font Family</span>
-        <i className="fas fa-edit"></i>
+        <select name="fontFamily" value={branding.fontFamily} onChange={handleBrandingChange}>
+          <option value="">Select Font</option>
+          <option value="Montserrat">Montserrat</option>
+          <option value="Arial">Arial</option>
+          <option value="Roboto">Roboto</option>
+          {/* Add more fonts as needed */}
+        </select>
       </div>
       <div className="box">
         <span>Brand Favicon</span>
-        <i className="fas fa-edit"></i>
+        <input type="file" onChange={(e) => handleImageUpload(e, 'brandFavicon')} />
+        {branding.brandFavicon && (
+          <div>
+            <img src={`/uploads/${branding.brandFavicon}`} alt="Brand Favicon" style={{ width: '32px', height: '32px' }} />
+            <button onClick={() => removeImage('brandFavicon')}>Remove Image</button>
+          </div>
+        )}
       </div>
       <div className="box">
         <span>Image Ratio</span>
-        <i className="fas fa-edit"></i>
+        <input type="text" name="imageRatio" value={branding.imageRatio} onChange={handleBrandingChange} />
       </div>
+      <div className="box">
+        <span>Popup Modal Message</span>
+        <textarea name="popupModalMessage" value={branding.popupModalMessage} onChange={handleBrandingChange} />
+      </div>
+      <button onClick={saveBranding}>Save Branding</button>
     </div>
   );
 
@@ -51,16 +218,34 @@ function Appearance() {
     <div className="tab-content">
       <div className="box">
         <span>Top Bar Text</span>
-        <i className="fas fa-edit"></i>
+        <input type="text" name="topBarText" value={components.topBarText} onChange={handleComponentsChange} />
       </div>
       <div className="box">
-        <span>Navigation</span>
-        <i className="fas fa-edit"></i>
+        <span>Navigation Type</span>
+        <select name="navigationType" value={components.navigationType} onChange={handleComponentsChange}>
+          <option value="">Select Navigation Type</option>
+          <option value="basic">Navbar Basic</option>
+          <option value="withCategories">Navbar with Categories</option>
+          <option value="centeredLogo">Navbar Centered Logo</option>
+        </select>
       </div>
       <div className="box">
-        <span>Footer Favicon</span>
-        <i className="fas fa-cog"></i>
+        <span>Footer Content</span>
+        <textarea name="footerContent" value={components.footerContent} onChange={handleComponentsChange} />
       </div>
+      <div className="box">
+        <span>Facebook URL</span>
+        <input type="text" name="facebookUrl" value={components.facebookUrl} onChange={handleComponentsChange} />
+      </div>
+      <div className="box">
+        <span>Instagram URL</span>
+        <input type="text" name="instagramUrl" value={components.instagramUrl} onChange={handleComponentsChange} />
+      </div>
+      <div className="box">
+        <span>TikTok URL</span>
+        <input type="text" name="tiktokUrl" value={components.tiktokUrl} onChange={handleComponentsChange} />
+      </div>
+      <button onClick={saveComponents}>Save Components</button>
     </div>
   );
 
