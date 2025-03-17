@@ -13,24 +13,38 @@ function Appearance() {
     brandLogo: '',
     fontFamily: '',
     brandFavicon: '',
-    imageRatio: '',
-    popupModalMessage: ''
+    popupModalImage: '',
+    popupModalLink: '',
+    popupModalEnabled: false
   });
   const [components, setComponents] = useState({
-    topBarText: '',
-    navigationType: '',
-    footerContent: '',
-    facebookUrl: '',
-    instagramUrl: '',
-    tiktokUrl: ''
+    navigationType: ''
   });
+  const [footerSettings, setFooterSettings] = useState({
+    footerStyle: '',
+    useThemeColor: true,
+    backgroundColor: '',
+    textColor: '',
+    logo: '',
+    detailText: '',
+    links: []
+  });
+  const [showFooterModal, setShowFooterModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const userId = localStorage.getItem('userId'); // Assume userId is stored in localStorage
-    fetchBranding(userId);
-    fetchComponents(userId);
-  }, []);
+    console.log("User ID:", userId); // Log the userId to verify it
+    if (userId) {
+      fetchBranding(userId);
+      fetchComponents(userId);
+      fetchFooterSettings(userId);
+    } else {
+      console.error("User ID not found in localStorage");
+      alert("User ID not found. Please log in again.");
+      navigate('/Login');
+    }
+  }, [navigate]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prevState) => !prevState); // Toggle state on each click
@@ -43,31 +57,66 @@ function Appearance() {
 
   const fetchBranding = (userId) => {
     fetch(`/api/branding/${userId}`)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         if (data) {
           setBranding(data);
         }
       })
-      .catch(error => console.error("Error fetching branding:", error));
+      .catch(error => {
+        console.error("Error fetching branding:", error);
+        alert("Failed to fetch branding settings. Please try again later.");
+      });
   };
 
   const fetchComponents = (userId) => {
     fetch(`/api/components/${userId}`)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         if (data) {
           setComponents(data);
         }
       })
-      .catch(error => console.error("Error fetching components:", error));
+      .catch(error => {
+        console.error("Error fetching components:", error);
+        alert("Failed to fetch component settings. Please try again later.");
+      });
+  };
+
+  const fetchFooterSettings = (userId) => {
+    fetch(`/api/footer/${userId}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data) {
+          setFooterSettings(data);
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching footer settings:", error);
+        alert("Failed to fetch footer settings. Please try again later.");
+      });
   };
 
   const handleBrandingChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setBranding(prevState => ({
       ...prevState,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -77,6 +126,43 @@ function Appearance() {
       ...prevState,
       [name]: value
     }));
+  };
+
+  const handleFooterChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFooterSettings(prevState => ({
+      ...prevState,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleFooterLinksChange = (index, field, value) => {
+    setFooterSettings(prevState => {
+      const newLinks = [...prevState.links];
+      newLinks[index][field] = value;
+      return {
+        ...prevState,
+        links: newLinks
+      };
+    });
+  };
+
+  const addFooterLink = () => {
+    setFooterSettings(prevState => ({
+      ...prevState,
+      links: [...prevState.links, { label: '', url: '' }]
+    }));
+  };
+
+  const removeFooterLink = (index) => {
+    setFooterSettings(prevState => {
+      const newLinks = [...prevState.links];
+      newLinks.splice(index, 1);
+      return {
+        ...prevState,
+        links: newLinks
+      };
+    });
   };
 
   const saveBranding = () => {
@@ -91,11 +177,20 @@ function Appearance() {
         userId
       })
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then(data => {
       alert(data.message);
+      fetchBranding(userId);
     })
-    .catch(error => console.error("Error saving branding:", error));
+    .catch(error => {
+      console.error("Error saving branding:", error);
+      alert("Failed to save branding settings. Please try again later.");
+    });
   };
 
   const saveComponents = () => {
@@ -110,11 +205,49 @@ function Appearance() {
         userId
       })
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then(data => {
       alert(data.message);
+      fetchComponents(userId);
     })
-    .catch(error => console.error("Error saving components:", error));
+    .catch(error => {
+      console.error("Error saving components:", error);
+      alert("Failed to save component settings. Please try again later.");
+    });
+  };
+
+  const saveFooterSettings = () => {
+    const userId = localStorage.getItem('userId'); // Assume userId is stored in localStorage
+    fetch('/api/footer', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ...footerSettings,
+        userId
+      })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      alert(data.message);
+      fetchFooterSettings(userId);
+      setShowFooterModal(false);
+    })
+    .catch(error => {
+      console.error("Error saving footer settings:", error);
+      alert("Failed to save footer settings. Please try again later.");
+    });
   };
 
   const handleImageUpload = (e, type) => {
@@ -125,7 +258,12 @@ function Appearance() {
       method: 'POST',
       body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then(data => {
       if (type === 'brandLogo') {
         setBranding(prevState => ({
@@ -137,9 +275,22 @@ function Appearance() {
           ...prevState,
           brandFavicon: data.filename
         }));
+      } else if (type === 'popupModalImage') {
+        setBranding(prevState => ({
+          ...prevState,
+          popupModalImage: data.filename
+        }));
+      } else if (type === 'footerLogo') {
+        setFooterSettings(prevState => ({
+          ...prevState,
+          logo: data.filename
+        }));
       }
     })
-    .catch(error => console.error("Error uploading image:", error));
+    .catch(error => {
+      console.error("Error uploading image:", error);
+      alert("Failed to upload image. Please try again later.");
+    });
   };
 
   const removeImage = (type) => {
@@ -153,6 +304,16 @@ function Appearance() {
         ...prevState,
         brandFavicon: ''
       }));
+    } else if (type === 'popupModalImage') {
+      setBranding(prevState => ({
+        ...prevState,
+        popupModalImage: ''
+      }));
+    } else if (type === 'footerLogo') {
+      setFooterSettings(prevState => ({
+        ...prevState,
+        logo: ''
+      }));
     }
   };
 
@@ -162,10 +323,11 @@ function Appearance() {
         <span>Primary Color</span>
         <select name="primaryColor" value={branding.primaryColor} onChange={handleBrandingChange}>
           <option value="">Select Color</option>
+          <option value="darkgray">Dark Gray</option>
           <option value="red">Red</option>
-          <option value="black">Black</option>
-          <option value="blue">Blue</option>
-          {/* Add more colors as needed */}
+          <option value="violet">Violet</option>
+          <option value="indigo">Indigo</option>
+          <option value="brown">Brown</option>
         </select>
       </div>
       <div className="box">
@@ -189,7 +351,6 @@ function Appearance() {
           <option value="Montserrat">Montserrat</option>
           <option value="Arial">Arial</option>
           <option value="Roboto">Roboto</option>
-          {/* Add more fonts as needed */}
         </select>
       </div>
       <div className="box">
@@ -203,23 +364,29 @@ function Appearance() {
         )}
       </div>
       <div className="box">
-        <span>Image Ratio</span>
-        <input type="text" name="imageRatio" value={branding.imageRatio} onChange={handleBrandingChange} />
+        <span>Popup Modal Enabled</span>
+        <input type="checkbox" name="popupModalEnabled" checked={branding.popupModalEnabled} onChange={handleBrandingChange} />
       </div>
-      <div className="box">
-        <span>Popup Modal Message</span>
-        <textarea name="popupModalMessage" value={branding.popupModalMessage} onChange={handleBrandingChange} />
-      </div>
+      {branding.popupModalEnabled && (
+        <div className="box">
+          <span>Popup Modal Image</span>
+          <input type="file" onChange={(e) => handleImageUpload(e, 'popupModalImage')} />
+          {branding.popupModalImage && (
+            <div>
+              <img src={`/uploads/${branding.popupModalImage}`} alt="Popup Modal" style={{ width: '100px', height: 'auto' }} />
+              <button onClick={() => removeImage('popupModalImage')}>Remove Image</button>
+            </div>
+          )}
+          <span>Popup Modal Link</span>
+          <input type="text" name="popupModalLink" value={branding.popupModalLink} onChange={handleBrandingChange} />
+        </div>
+      )}
       <button onClick={saveBranding}>Save Branding</button>
     </div>
   );
 
   const renderComponentsContent = () => (
     <div className="tab-content">
-      <div className="box">
-        <span>Top Bar Text</span>
-        <input type="text" name="topBarText" value={components.topBarText} onChange={handleComponentsChange} />
-      </div>
       <div className="box">
         <span>Navigation Type</span>
         <select name="navigationType" value={components.navigationType} onChange={handleComponentsChange}>
@@ -229,23 +396,75 @@ function Appearance() {
           <option value="centeredLogo">Navbar Centered Logo</option>
         </select>
       </div>
-      <div className="box">
-        <span>Footer Content</span>
-        <textarea name="footerContent" value={components.footerContent} onChange={handleComponentsChange} />
-      </div>
-      <div className="box">
-        <span>Facebook URL</span>
-        <input type="text" name="facebookUrl" value={components.facebookUrl} onChange={handleComponentsChange} />
-      </div>
-      <div className="box">
-        <span>Instagram URL</span>
-        <input type="text" name="instagramUrl" value={components.instagramUrl} onChange={handleComponentsChange} />
-      </div>
-      <div className="box">
-        <span>TikTok URL</span>
-        <input type="text" name="tiktokUrl" value={components.tiktokUrl} onChange={handleComponentsChange} />
-      </div>
       <button onClick={saveComponents}>Save Components</button>
+      <button onClick={() => setShowFooterModal(true)}>Footer Settings</button>
+    </div>
+  );
+
+  const renderFooterModal = () => (
+    <div className="modal" style={{ display: showFooterModal ? 'block' : 'none' }}>
+      <div className="modal-content">
+        <span className="close" onClick={() => setShowFooterModal(false)}>&times;</span>
+        <h2>Footer Settings</h2>
+        <div className="box">
+          <span>Style Selection</span>
+          <select name="footerStyle" value={footerSettings.footerStyle} onChange={handleFooterChange}>
+            <option value="">Select Footer Style</option>
+            <option value="style1">Style 1</option>
+            <option value="style2">Style 2</option>
+            <option value="style3">Style 3</option>
+          </select>
+        </div>
+        <div className="box">
+          <span>Color Customization</span>
+          <label>
+            <input type="checkbox" name="useThemeColor" checked={footerSettings.useThemeColor} onChange={handleFooterChange} />
+            Use theme color as background
+          </label>
+          {!footerSettings.useThemeColor && (
+            <>
+              <input type="color" name="backgroundColor" value={footerSettings.backgroundColor} onChange={handleFooterChange} />
+              <input type="color" name="textColor" value={footerSettings.textColor} onChange={handleFooterChange} />
+            </>
+          )}
+        </div>
+        <div className="box">
+          <span>Logo Customization</span>
+          <input type="file" onChange={(e) => handleImageUpload(e, 'footerLogo')} />
+          {footerSettings.logo && (
+            <div>
+              <img src={`/uploads/${footerSettings.logo}`} alt="Footer Logo" style={{ width: '100px', height: 'auto' }} />
+              <button onClick={() => removeImage('footerLogo')}>Remove Image</button>
+            </div>
+          )}
+        </div>
+        <div className="box">
+          <span>Detail Text Adjustment</span>
+          <textarea name="detailText" value={footerSettings.detailText} onChange={handleFooterChange} />
+        </div>
+        <div className="box">
+          <span>Link Management</span>
+          {footerSettings.links.map((link, index) => (
+            <div key={index}>
+              <input
+                type="text"
+                placeholder="Label"
+                value={link.label}
+                onChange={(e) => handleFooterLinksChange(index, 'label', e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="URL"
+                value={link.url}
+                onChange={(e) => handleFooterLinksChange(index, 'url', e.target.value)}
+              />
+              <button onClick={() => removeFooterLink(index)}>Remove</button>
+            </div>
+          ))}
+          <button onClick={addFooterLink}>Add Link</button>
+        </div>
+        <button onClick={saveFooterSettings}>Save Changes</button>
+      </div>
     </div>
   );
 
@@ -340,7 +559,6 @@ function Appearance() {
           </li>
         </ul>
       </aside>
-
       {/* MAIN CONTENT AREA */}
       <div className="main-content">
         {/* HEADER PANEL */}
@@ -381,7 +599,6 @@ function Appearance() {
             </div>
           </div>
         </header>
-
         {/* CONTENT */}
         <main className="content">
           <h1>Appearance</h1>
@@ -400,9 +617,9 @@ function Appearance() {
               Components
             </button>
           </div>
-
           {/* Render Content Based on Active Tab */}
           {activeTab === 'branding' ? renderBrandingContent() : renderComponentsContent()}
+          {renderFooterModal()}
         </main>
       </div>
     </div>
