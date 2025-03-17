@@ -4,6 +4,99 @@ import './Dashboard.css';
 import './Appearance.css';
 import Logo from './assets/WebCraft.png';
 
+const FooterEditor = ({ footer, onFooterChange }) => {
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        onFooterChange({ ...footer, [name]: value });
+    };
+
+    return (
+        <div className="footer-editor">
+            <div className="box">
+                <span>Description</span>
+                <textarea
+                    name="description"
+                    value={footer.description}
+                    onChange={handleChange}
+                    placeholder="Write footer description here"
+                />
+            </div>
+            <div className="box">
+                <span>Copyright Information</span>
+                <input
+                    type="text"
+                    name="copyright"
+                    value={footer.copyright}
+                    onChange={handleChange}
+                    placeholder="Enter copyright information"
+                />
+            </div>
+            <div className="box">
+                <span>Links</span>
+                <input
+                    type="text"
+                    name="shippingPolicy"
+                    value={footer.shippingPolicy}
+                    onChange={handleChange}
+                    placeholder="Shipping Policy URL"
+                />
+                <input
+                    type="text"
+                    name="refundPolicy"
+                    value={footer.refundPolicy}
+                    onChange={handleChange}
+                    placeholder="Refund Policy URL"
+                />
+                <input
+                    type="text"
+                    name="privacyPolicy"
+                    value={footer.privacyPolicy}
+                    onChange={handleChange}
+                    placeholder="Privacy Policy URL"
+                />
+                <input
+                    type="text"
+                    name="termsOfService"
+                    value={footer.termsOfService}
+                    onChange={handleChange}
+                    placeholder="Terms of Service URL"
+                />
+            </div>
+            <div className="box">
+                <span>Social Media Links</span>
+                <input
+                    type="text"
+                    name="facebook"
+                    value={footer.facebook}
+                    onChange={handleChange}
+                    placeholder="Facebook URL"
+                />
+                <input
+                    type="text"
+                    name="youtube"
+                    value={footer.youtube}
+                    onChange={handleChange}
+                    placeholder="YouTube URL"
+                />
+                <input
+                    type="text"
+                    name="instagram"
+                    value={footer.instagram}
+                    onChange={handleChange}
+                    placeholder="Instagram URL"
+                />
+                <input
+                    type="text"
+                    name="whatsapp"
+                    value={footer.whatsapp}
+                    onChange={handleChange}
+                    placeholder="WhatsApp URL"
+                />
+            </div>
+        </div>
+    );
+};
+
 function Appearance() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('branding'); // State to track active tab
@@ -20,6 +113,18 @@ function Appearance() {
     const [components, setComponents] = useState({
         navigationType: ''
     });
+    const [footer, setFooter] = useState({
+        description: '',
+        copyright: '',
+        shippingPolicy: '',
+        refundPolicy: '',
+        privacyPolicy: '',
+        termsOfService: '',
+        facebook: '',
+        youtube: '',
+        instagram: '',
+        whatsapp: ''
+    });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -28,6 +133,7 @@ function Appearance() {
         if (userId) {
             fetchBranding(userId);
             fetchComponents(userId);
+            fetchFooter(userId);
         } else {
             console.error("User ID not found in localStorage");
             alert("User ID not found. Please log in again.");
@@ -82,6 +188,25 @@ function Appearance() {
             });
     };
 
+    const fetchFooter = (userId) => {
+        fetch(`http://localhost:8081/api/footer/${userId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data) {
+                    setFooter(data);
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching footer:", error);
+                alert("Failed to fetch footer settings. Please try again later.");
+            });
+    };
+
     const handleBrandingChange = (e) => {
         const { name, value, type, checked } = e.target;
         setBranding(prevState => ({
@@ -96,6 +221,10 @@ function Appearance() {
             ...prevState,
             [name]: value
         }));
+    };
+
+    const handleFooterChange = (updatedFooter) => {
+        setFooter(updatedFooter);
     };
 
     const handleImageUpload = (e, type) => {
@@ -164,7 +293,6 @@ function Appearance() {
         formData.append('fontFamily', branding.fontFamily);
         formData.append('popupModalEnabled', branding.popupModalEnabled);
         formData.append('popupModalLink', branding.popupModalLink);
-
         if (document.getElementById('brandLogo').files[0]) {
             formData.append('brandLogo', document.getElementById('brandLogo').files[0]);
         }
@@ -174,7 +302,6 @@ function Appearance() {
         if (document.getElementById('popupModalImage').files[0]) {
             formData.append('popupModalImage', document.getElementById('popupModalImage').files[0]);
         }
-
         fetch('http://localhost:8081/api/branding', {
             method: 'POST',
             body: formData
@@ -220,6 +347,34 @@ function Appearance() {
         .catch(error => {
             console.error("Error saving components:", error);
             alert("Failed to save component settings. Please try again later.");
+        });
+    };
+
+    const saveFooter = () => {
+        const userId = localStorage.getItem('userId'); // Assume userId is stored in localStorage
+        fetch('http://localhost:8081/api/footer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                ...footer,
+                userId
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert(data.message);
+            fetchFooter(userId);
+        })
+        .catch(error => {
+            console.error("Error saving footer:", error);
+            alert("Failed to save footer settings. Please try again later.");
         });
     };
 
@@ -303,6 +458,13 @@ function Appearance() {
                 </select>
             </div>
             <button onClick={saveComponents}>Save Components</button>
+        </div>
+    );
+
+    const renderFooterContent = () => (
+        <div className="tab-content">
+            <FooterEditor footer={footer} onFooterChange={handleFooterChange} />
+            <button onClick={saveFooter}>Save Footer</button>
         </div>
     );
 
@@ -454,9 +616,15 @@ function Appearance() {
                         >
                             Components
                         </button>
+                        <button
+                            className={`tab-button ${activeTab === 'footer' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('footer')}
+                        >
+                            Footer
+                        </button>
                     </div>
                     {/* Render Content Based on Active Tab */}
-                    {activeTab === 'branding' ? renderBrandingContent() : renderComponentsContent()}
+                    {activeTab === 'branding' ? renderBrandingContent() : activeTab === 'components' ? renderComponentsContent() : renderFooterContent()}
                 </main>
             </div>
         </div>

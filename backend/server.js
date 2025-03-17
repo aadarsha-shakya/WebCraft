@@ -418,6 +418,76 @@ app.get('/api/components/:userId', (req, res) => {
     });
 });
 
+// Fetch Footer
+app.get('/api/footer/:userId', (req, res) => {
+    const userId = req.params.userId;
+    const query = 'SELECT * FROM footer WHERE userId = ?';
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching footer:', err);
+            res.status(500).send('Error fetching footer');
+            return;
+        }
+        if (results.length > 0) {
+            res.json(results[0]);
+        } else {
+            res.json({});
+        }
+    });
+});
+
+// Save Footer
+app.post('/api/footer', (req, res) => {
+    const userId = req.body.userId;
+    const footerData = {
+        description: req.body.description,
+        copyright: req.body.copyright,
+        shippingPolicy: req.body.shippingPolicy,
+        refundPolicy: req.body.refundPolicy,
+        privacyPolicy: req.body.privacyPolicy,
+        termsOfService: req.body.termsOfService,
+        facebook: req.body.facebook,
+        youtube: req.body.youtube,
+        instagram: req.body.instagram,
+        whatsapp: req.body.whatsapp
+    };
+
+    // Check if footer already exists for the user
+    const checkQuery = 'SELECT * FROM footer WHERE userId = ?';
+    db.query(checkQuery, [userId], (err, results) => {
+        if (err) {
+            console.error('Error checking footer:', err);
+            res.status(500).send('Error checking footer');
+            return;
+        }
+
+        if (results.length > 0) {
+            // Update existing footer
+            const updateQuery = 'UPDATE footer SET ? WHERE userId = ?';
+            db.query(updateQuery, [footerData, userId], (err, updateResults) => {
+                if (err) {
+                    console.error('Error updating footer:', err);
+                    res.status(500).send('Error updating footer');
+                    return;
+                }
+                res.json({ message: 'Footer updated successfully' });
+            });
+        } else {
+            // Insert new footer
+            const insertQuery = 'INSERT INTO footer SET ?';
+            db.query(insertQuery, { ...footerData, userId }, (err, insertResults) => {
+                if (err) {
+                    console.error('Error inserting footer:', err);
+                    res.status(500).send('Error inserting footer');
+                    return;
+                }
+                res.json({ message: 'Footer saved successfully' });
+            });
+        }
+    });
+});
+
+
 app.listen(8081, () => {
     console.log("Listening on port 8081");
 });
