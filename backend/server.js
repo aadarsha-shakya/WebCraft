@@ -487,6 +487,201 @@ app.post('/api/footer', (req, res) => {
     });
 });
 
+// Fetch Branding
+app.get('/api/branding/:userId', (req, res) => {
+    const userId = req.params.userId;
+    const query = 'SELECT * FROM branding WHERE user_id = ?';
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching branding:', err);
+            res.status(500).send('Error fetching branding');
+            return;
+        }
+        if (results.length > 0) {
+            res.json(results[0]);
+        } else {
+            res.json({});
+        }
+    });
+});
+
+// Save Branding
+app.post('/api/branding', (req, res) => {
+    const userId = req.body.userId;
+    const brandingData = {
+        primary_color: req.body.primaryColor,
+        brand_name: req.body.brandName,
+        brand_logo: req.body.brandLogo,
+        font_family: req.body.fontFamily,
+        brand_favicon: req.body.brandFavicon,
+        popup_modal_image: req.body.popupModalImage,
+        popup_modal_link: req.body.popupModalLink,
+        popup_modal_enabled: req.body.popupModalEnabled ? 1 : 0
+    };
+
+    // Check if branding already exists for the user
+    const checkQuery = 'SELECT * FROM branding WHERE user_id = ?';
+    db.query(checkQuery, [userId], (err, results) => {
+        if (err) {
+            console.error('Error checking branding:', err);
+            res.status(500).send('Error checking branding');
+            return;
+        }
+
+        if (results.length > 0) {
+            // Update existing branding
+            const updateQuery = 'UPDATE branding SET ? WHERE user_id = ?';
+            db.query(updateQuery, [brandingData, userId], (err, updateResults) => {
+                if (err) {
+                    console.error('Error updating branding:', err);
+                    res.status(500).send('Error updating branding');
+                    return;
+                }
+                res.json({ message: 'Branding updated successfully' });
+            });
+        } else {
+            // Insert new branding
+            const insertQuery = 'INSERT INTO branding SET ?';
+            db.query(insertQuery, { ...brandingData, user_id: userId }, (err, insertResults) => {
+                if (err) {
+                    console.error('Error inserting branding:', err);
+                    res.status(500).send('Error inserting branding');
+                    return;
+                }
+                res.json({ message: 'Branding saved successfully' });
+            });
+        }
+    });
+});
+
+// Fetch Components
+app.get('/api/components/:userId', (req, res) => {
+    const userId = req.params.userId;
+    const query = 'SELECT * FROM components WHERE user_id = ?';
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching components:', err);
+            res.status(500).send('Error fetching components');
+            return;
+        }
+        if (results.length > 0) {
+            res.json(results[0]);
+        } else {
+            res.json({});
+        }
+    });
+});
+
+// Save Components
+app.post('/api/components', (req, res) => {
+    const userId = req.body.userId;
+    const componentsData = {
+        navigation_type: req.body.navigationType
+    };
+
+    // Check if components already exist for the user
+    const checkQuery = 'SELECT * FROM components WHERE user_id = ?';
+    db.query(checkQuery, [userId], (err, results) => {
+        if (err) {
+            console.error('Error checking components:', err);
+            res.status(500).send('Error checking components');
+            return;
+        }
+
+        if (results.length > 0) {
+            // Update existing components
+            const updateQuery = 'UPDATE components SET ? WHERE user_id = ?';
+            db.query(updateQuery, [componentsData, userId], (err, updateResults) => {
+                if (err) {
+                    console.error('Error updating components:', err);
+                    res.status(500).send('Error updating components');
+                    return;
+                }
+                res.json({ message: 'Components updated successfully' });
+            });
+        } else {
+            // Insert new components
+            const insertQuery = 'INSERT INTO components SET ?';
+            db.query(insertQuery, { ...componentsData, user_id: userId }, (err, insertResults) => {
+                if (err) {
+                    console.error('Error inserting components:', err);
+                    res.status(500).send('Error inserting components');
+                    return;
+                }
+                res.json({ message: 'Components saved successfully' });
+            });
+        }
+    });
+});
+
+// Fetch Footer
+app.get('/api/footer/:userId', (req, res) => {
+    const userId = req.params.userId;
+    const query = 'SELECT * FROM footer WHERE userId = ?';
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching footer:', err);
+            res.status(500).send('Error fetching footer');
+            return;
+        }
+        if (results.length > 0) {
+            res.json(results[0]);
+        } else {
+            res.json({});
+        }
+    });
+});
+
+// Save Footer
+app.post('/api/footer', (req, res) => {
+    const userId = req.body.userId;
+    const footerData = {
+        description: req.body.description,
+        copyright: req.body.copyright,
+        shippingPolicy: req.body.shippingPolicy,
+        refundPolicy: req.body.refundPolicy,
+        privacyPolicy: req.body.privacyPolicy,
+        termsOfService: req.body.termsOfService,
+        facebook: req.body.facebook,
+        youtube: req.body.youtube,
+        instagram: req.body.instagram,
+        whatsapp: req.body.whatsapp
+    };
+
+    // Check if footer already exists for the user
+    const checkQuery = 'SELECT * FROM footer WHERE userId = ?';
+    db.query(checkQuery, [userId], (err, results) => {
+        if (err) {
+            console.error('Error checking footer:', err);
+            res.status(500).send('Error checking footer');
+            return;
+        }
+
+        if (results.length > 0) {
+            // Update existing footer
+            const updateQuery = 'UPDATE footer SET ? WHERE userId = ?';
+            db.query(updateQuery, [footerData, userId], (err, updateResults) => {
+                if (err) {
+                    console.error('Error updating footer:', err);
+                    res.status(500).send('Error updating footer');
+                    return;
+                }
+                res.json({ message: 'Footer updated successfully' });
+            });
+        } else {
+            // Insert new footer
+            const insertQuery = 'INSERT INTO footer SET ?';
+            db.query(insertQuery, { ...footerData, userId }, (err, insertResults) => {
+                if (err) {
+                    console.error('Error inserting footer:', err);
+                    res.status(500).send('Error inserting footer');
+                    return;
+                }
+                res.json({ message: 'Footer saved successfully' });
+            });
+        }
+    });
+});
 
 app.listen(8081, () => {
     console.log("Listening on port 8081");

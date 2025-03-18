@@ -1,0 +1,179 @@
+/* General Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}
+
+.your-web-container {
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    padding: 10px 20px;
+}
+
+.navbar-left, .navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-left .brand-link {
+    text-decoration: none;
+}
+
+.navbar-left .brand-logo {
+    max-width: 100px;
+    height: auto;
+}
+
+.navbar-right a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 18px;
+}
+
+.navbar-right a:hover {
+    text-decoration: underline;
+}
+
+.navbar-right .card-button {
+    background-color: #ff9900;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    margin-left: 15px;
+}
+
+.navbar-right .card-button:hover {
+    background-color: #e68a00;
+}
+
+.navbar-right .card-button i {
+    margin-right: 5px;
+}
+
+/* Header Styles */
+.your-web-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo-container img {
+    max-width: 100px;
+    height: auto;
+}
+
+.brand-info h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #fff;
+}
+
+/* Main Content Styles */
+.your-web-main {
+    flex: 1;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.your-web-main h1 {
+    font-size: 36px;
+    color: #333;
+}
+
+.your-web-main p {
+    font-size: 18px;
+    color: #666;
+}
+
+/* Footer Styles */
+.your-web-footer {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+.footer-description, .footer-copyright {
+    margin-bottom: 10px;
+}
+
+.footer-links a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 16px;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
+}
+
+.footer-socials a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+    font-size: 20px;
+}
+
+.footer-socials a:hover {
+    opacity: 0.7;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .navbar, .navbar-with-categories, .navbar-centered-logo {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .navbar-left, .navbar-right {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .navbar-left .brand-logo {
+        max-width: 80px;
+    }
+
+    .navbar-right a, .navbar-right .card-button {
+        margin: 10px 0;
+    }
+
+    .logo-container img {
+        max-width: 80px;
+    }
+
+    .brand-info h1 {
+        font-size: 20px;
+    }
+
+    .your-web-main h1 {
+        font-size: 30px;
+    }
+
+    .your-web-main p {
+        font-size: 16px;
+    }
+
+    .footer-links a, .footer-socials a {
+        font-size: 18px;
+    }
+}
