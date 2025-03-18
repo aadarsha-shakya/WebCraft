@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import './Issues.css';
-
 import Logo from './assets/WebCraft.png';
 
 function Issues() {
@@ -58,15 +57,14 @@ function Issues() {
       .catch(error => console.error("Error fetching issues:", error));
   };
 
-  const handleDragStart = (event, id, source) => {
-    event.dataTransfer.setData('text/plain', JSON.stringify({ id, source }));
+  const handleDragStart = (event, id) => {
+    event.dataTransfer.setData('text/plain', JSON.stringify({ id }));
   };
 
   const handleDrop = (event, target) => {
     event.preventDefault();
     const data = JSON.parse(event.dataTransfer.getData('text/plain'));
-    const { id, source } = data;
-
+    const { id } = data;
     // Update the issue status in the database
     fetch(`http://localhost:8081/api/issues/${id}`, {
       method: 'PUT',
@@ -90,7 +88,6 @@ function Issues() {
       alert("Please enter a description for the issue.");
       return;
     }
-
     fetch('http://localhost:8081/api/issues', {
       method: 'POST',
       headers: {
@@ -180,7 +177,6 @@ function Issues() {
             </Link>
           </li>
         </ul>
-
         <h2>Customizations</h2>
         <ul>
           <li>
@@ -210,7 +206,6 @@ function Issues() {
           </li>
         </ul>
       </aside>
-
       {/* MAIN CONTENT AREA */}
       <div className="main-content">
         {/* HEADER PANEL */}
@@ -221,13 +216,11 @@ function Issues() {
               <img src={Logo} alt="Logo" />
             </Link>
           </div>
-
           {/* Icons */}
           <div className="header-icons">
             <Link to="/YourWeb" className="header-icon">
               <i className="fas fa-globe"></i>
             </Link>
-
             {/* W Icon with Dropdown */}
             <div
               className={`header-icon w-icon ${isDropdownOpen ? "open" : ""}`}
@@ -253,23 +246,24 @@ function Issues() {
             </div>
           </div>
         </header>
-
         {/* CONTENT */}
         <main className="content">
           <h1>Issues</h1>
           <div className="issues-container">
             <div className="issue-section" onDrop={(e) => handleDrop(e, 'created')} onDragOver={(e) => e.preventDefault()}>
               <h2>Created</h2>
-              <button onClick={() => handleAddItem('created')}>+</button>
-              <input
-                type="text"
-                placeholder="Enter issue description"
-                value={newIssueText.created}
-                onChange={(e) => handleInputChange(e, 'created')}
-              />
+              <div className="input-container">
+                <input
+                  type="text"
+                  placeholder="Enter description"
+                  value={newIssueText.created}
+                  onChange={(e) => handleInputChange(e, 'created')}
+                />
+                <button onClick={() => handleAddItem('created')}>+</button>
+              </div>
               <div className="items">
                 {issues.created.map(issue => (
-                  <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id, 'created')}>
+                  <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id)}>
                     {issue.text}
                   </div>
                 ))}
@@ -277,16 +271,18 @@ function Issues() {
             </div>
             <div className="issue-section" onDrop={(e) => handleDrop(e, 'inProgress')} onDragOver={(e) => e.preventDefault()}>
               <h2>In Progress</h2>
-              <button onClick={() => handleAddItem('inProgress')}>+</button>
-              <input
-                type="text"
-                placeholder="Enter issue description"
-                value={newIssueText.inProgress}
-                onChange={(e) => handleInputChange(e, 'inProgress')}
-              />
+              <div className="input-container">
+                <input
+                  type="text"
+                  placeholder="Enter description"
+                  value={newIssueText.inProgress}
+                  onChange={(e) => handleInputChange(e, 'inProgress')}
+                />
+                <button onClick={() => handleAddItem('inProgress')}>+</button>
+              </div>
               <div className="items">
                 {issues.inProgress.map(issue => (
-                  <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id, 'inProgress')}>
+                  <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id)}>
                     {issue.text}
                   </div>
                 ))}
@@ -294,16 +290,18 @@ function Issues() {
             </div>
             <div className="issue-section" onDrop={(e) => handleDrop(e, 'review')} onDragOver={(e) => e.preventDefault()}>
               <h2>Review</h2>
-              <button onClick={() => handleAddItem('review')}>+</button>
-              <input
-                type="text"
-                placeholder="Enter issue description"
-                value={newIssueText.review}
-                onChange={(e) => handleInputChange(e, 'review')}
-              />
+              <div className="input-container">
+                <input
+                  type="text"
+                  placeholder="Enter description"
+                  value={newIssueText.review}
+                  onChange={(e) => handleInputChange(e, 'review')}
+                />
+                <button onClick={() => handleAddItem('review')}>+</button>
+              </div>
               <div className="items">
                 {issues.review.map(issue => (
-                  <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id, 'review')}>
+                  <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id)}>
                     {issue.text}
                   </div>
                 ))}
@@ -311,16 +309,18 @@ function Issues() {
             </div>
             <div className="issue-section" onDrop={(e) => handleDrop(e, 'resolved')} onDragOver={(e) => e.preventDefault()}>
               <h2>Resolved</h2>
-              <button onClick={() => handleAddItem('resolved')}>+</button>
-              <input
-                type="text"
-                placeholder="Enter issue description"
-                value={newIssueText.resolved}
-                onChange={(e) => handleInputChange(e, 'resolved')}
-              />
+              <div className="input-container">
+                <input
+                  type="text"
+                  placeholder="Enter description"
+                  value={newIssueText.resolved}
+                  onChange={(e) => handleInputChange(e, 'resolved')}
+                />
+                <button onClick={() => handleAddItem('resolved')}>+</button>
+              </div>
               <div className="items">
                 {issues.resolved.map(issue => (
-                  <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id, 'resolved')}>
+                  <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id)}>
                     {issue.text}
                   </div>
                 ))}
