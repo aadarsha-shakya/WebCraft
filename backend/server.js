@@ -492,6 +492,60 @@ app.post('/api/footer', (req, res) => {
     });
 });
 
+// Get all issues for a specific user
+app.get('/api/issues/:userId', (req, res) => {
+    const sql = "SELECT * FROM issues WHERE user_id = ?";
+    db.query(sql, [req.params.userId], (err, data) => {
+        if (err) {
+            return res.json("Error");
+        }
+        return res.json(data);
+    });
+});
+
+// Create a new issue for a specific user
+app.post('/api/issues', (req, res) => {
+    const sql = "INSERT INTO issues (`user_id`, `text`, `status`) VALUES (?, ?, ?)";
+    const values = [
+        req.body.user_id,
+        req.body.text,
+        req.body.status || 'created'
+    ];
+    db.query(sql, values, (err, data) => {
+        if (err) {
+            return res.json("Error");
+        }
+        return res.json(data);
+    });
+});
+
+// Update an issue's status
+app.put('/api/issues/:id', (req, res) => {
+    const sql = "UPDATE issues SET `status` = ? WHERE `id` = ?";
+    const values = [
+        req.body.status,
+        req.params.id
+    ];
+    db.query(sql, values, (err, data) => {
+        if (err) {
+            return res.json("Error");
+        }
+        return res.json(data);
+    });
+});
+
+// Delete an issue
+app.delete('/api/issues/:id', (req, res) => {
+    const sql = "DELETE FROM issues WHERE `id` = ?";
+    db.query(sql, [req.params.id], (err, data) => {
+        if (err) {
+            return res.json("Error");
+        }
+        return res.json(data);
+    });
+});
+
+
 app.listen(8081, () => {
     console.log("Listening on port 8081");
 });

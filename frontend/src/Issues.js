@@ -1,10 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
+import './Issues.css';
+
 import Logo from './assets/WebCraft.png';
 
 function Issues() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [issues, setIssues] = useState({
+    created: [],
+    inProgress: [],
+    review: [],
+    resolved: []
+  });
+  const [newIssueText, setNewIssueText] = useState({
+    created: '',
+    inProgress: '',
+    review: '',
+    resolved: ''
+  });
+  const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
 
   const toggleDropdown = () => {
@@ -14,6 +29,93 @@ function Issues() {
   const handleLogout = () => {
     // Perform logout actions if needed (e.g., clearing tokens)
     navigate('/Login'); // Redirect to login page
+  };
+
+  useEffect(() => {
+    // Simulate fetching user ID from local storage or context
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      setUserId(storedUserId);
+      fetchIssues(storedUserId);
+    }
+  }, []);
+
+  const fetchIssues = (userId) => {
+    fetch(`http://localhost:8081/api/issues/${userId}`)
+      .then(response => response.json())
+      .then(data => {
+        const newIssues = {
+          created: [],
+          inProgress: [],
+          review: [],
+          resolved: []
+        };
+        data.forEach(issue => {
+          newIssues[issue.status].push(issue);
+        });
+        setIssues(newIssues);
+      })
+      .catch(error => console.error("Error fetching issues:", error));
+  };
+
+  const handleDragStart = (event, id, source) => {
+    event.dataTransfer.setData('text/plain', JSON.stringify({ id, source }));
+  };
+
+  const handleDrop = (event, target) => {
+    event.preventDefault();
+    const data = JSON.parse(event.dataTransfer.getData('text/plain'));
+    const { id, source } = data;
+
+    // Update the issue status in the database
+    fetch(`http://localhost:8081/api/issues/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ status: target })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data) {
+        fetchIssues(userId); // Refresh the issues after updating
+      }
+    })
+    .catch(error => console.error("Error updating issue:", error));
+  };
+
+  const handleAddItem = (section) => {
+    const text = newIssueText[section];
+    if (!text.trim()) {
+      alert("Please enter a description for the issue.");
+      return;
+    }
+
+    fetch('http://localhost:8081/api/issues', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ user_id: userId, text, status: section })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data) {
+        fetchIssues(userId); // Refresh the issues after adding
+        setNewIssueText(prevState => ({
+          ...prevState,
+          [section]: '' // Clear the input field for the specific section
+        }));
+      }
+    })
+    .catch(error => console.error("Error adding issue:", error));
+  };
+
+  const handleInputChange = (event, section) => {
+    setNewIssueText(prevState => ({
+      ...prevState,
+      [section]: event.target.value
+    }));
   };
 
   return (
@@ -155,7 +257,76 @@ function Issues() {
         {/* CONTENT */}
         <main className="content">
           <h1>Issues</h1>
-          <p>this is a Issues page</p>
+          <div className="issues-container">
+            <div className="issue-section" onDrop={(e) => handleDrop(e, 'created')} onDragOver={(e) => e.preventDefault()}>
+              <h2>Created</h2>
+              <button onClick={() => handleAddItem('created')}>+</button>
+              <input
+                type="text"
+                placeholder="Enter issue description"
+                value={newIssueText.created}
+                onChange={(e) => handleInputChange(e, 'created')}
+              />
+              <div className="items">
+                {issues.created.map(issue => (
+                  <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id, 'created')}>
+                    {issue.text}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="issue-section" onDrop={(e) => handleDrop(e, 'inProgress')} onDragOver={(e) => e.preventDefault()}>
+              <h2>In Progress</h2>
+              <button onClick={() => handleAddItem('inProgress')}>+</button>
+              <input
+                type="text"
+                placeholder="Enter issue description"
+                value={newIssueText.inProgress}
+                onChange={(e) => handleInputChange(e, 'inProgress')}
+              />
+              <div className="items">
+                {issues.inProgress.map(issue => (
+                  <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id, 'inProgress')}>
+                    {issue.text}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="issue-section" onDrop={(e) => handleDrop(e, 'review')} onDragOver={(e) => e.preventDefault()}>
+              <h2>Review</h2>
+              <button onClick={() => handleAddItem('review')}>+</button>
+              <input
+                type="text"
+                placeholder="Enter issue description"
+                value={newIssueText.review}
+                onChange={(e) => handleInputChange(e, 'review')}
+              />
+              <div className="items">
+                {issues.review.map(issue => (
+                  <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id, 'review')}>
+                    {issue.text}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="issue-section" onDrop={(e) => handleDrop(e, 'resolved')} onDragOver={(e) => e.preventDefault()}>
+              <h2>Resolved</h2>
+              <button onClick={() => handleAddItem('resolved')}>+</button>
+              <input
+                type="text"
+                placeholder="Enter issue description"
+                value={newIssueText.resolved}
+                onChange={(e) => handleInputChange(e, 'resolved')}
+              />
+              <div className="items">
+                {issues.resolved.map(issue => (
+                  <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id, 'resolved')}>
+                    {issue.text}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </main>
       </div>
     </div>
