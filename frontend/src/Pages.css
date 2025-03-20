@@ -1,22 +1,114 @@
-/* Style for the Add Page button */
-.add-page-button {
-    background-color: #4caf50; /* Green background */
-    color: white; /* White text */
-    border: none; /* No border */
-    padding: 10px 20px; /* Padding for size */
-    font-size: 16px; /* Font size */
-    cursor: pointer; /* Pointer cursor on hover */
-    border-radius: 5px; /* Rounded corners */
-    margin-bottom: 10px; /* Space below the button */
-  }
-  
-  .add-page-button:hover {
-    background-color: #45a049; /* Darker green on hover */
-  }
-  
-  /* Style for the note */
-  .note {
-    font-size: 14px; /* Smaller font size */
-    color: #666; /* Grayish text color */
-    margin-top: 5px; /* Space above the note */
-  }
+/* General Styles */
+.content {
+  padding: 20px;
+}
+
+.add-section-button {
+  background-color: #5a00e6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.dropdown {
+  position: absolute;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  width: 300px;
+  z-index: 1000;
+  padding: 10px;
+}
+
+.dropdown h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.dropdown-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.dropdown-grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.dropdown-grid-item:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown-grid-item img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  margin-bottom: 5px;
+}
+
+.dropdown-grid-item span {
+  font-size: 14px;
+  text-align: center;
+}
+
+.sections-container {
+  min-height: 200px;
+}
+
+.added-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  transition: background-color 0.3s;
+  cursor: move; /* Indicate that the item is draggable */
+}
+
+.added-section img {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+.added-section span {
+  font-size: 16px;
+  flex: 1;
+}
+
+.added-section button {
+  background-color: transparent;
+  border: none;
+  color: #5a00e6;
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.added-section button:hover {
+  text-decoration: underline;
+}
+
+.added-section.is-dragging {
+  background-color: #f0f0f0;
+}
+
+.added-section:active {
+  background-color: #e0e0e0;
+}

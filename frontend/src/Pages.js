@@ -1,23 +1,84 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './Dashboard.css';
 import './Pages.css';
-
 import Logo from './assets/WebCraft.png';
 
 function Pages() {
+  const [sections, setSections] = useState([
+    { id: '1', type: 'Full Image', image: '/path/to/full-image.png', title: 'Full Image' },
+    { id: '2', type: 'Image with Content', image: '/path/to/image-with-content.png', title: 'Image with Content' },
+    { id: '3', type: 'FAQ', image: '/path/to/faq.png', title: 'FAQ' },
+    { id: '4', type: 'Category Grid', image: '/path/to/category-grid.png', title: 'Category Grid' },
+    { id: '5', type: 'Product Grid', image: '/path/to/product-grid.png', title: 'Product Grid' },
+    { id: '6', type: 'Single Product View', image: '/path/to/single-product.png', title: 'Single Product View' },
+    { id: '7', type: 'Image Slider', image: '/path/to/image-slider.png', title: 'Image Slider' },
+  ]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const navigate = useNavigate();
+  const [draggedIndex, setDraggedIndex] = useState(null);
+
+  const sectionTypes = [
+    { id: '1', type: 'Full Image', image: '/path/to/full-image.png', title: 'Full Image' },
+    { id: '2', type: 'Image with Content', image: '/path/to/image-with-content.png', title: 'Image with Content' },
+    { id: '3', type: 'FAQ', image: '/path/to/faq.png', title: 'FAQ' },
+    { id: '4', type: 'Category Grid', image: '/path/to/category-grid.png', title: 'Category Grid' },
+    { id: '5', type: 'Product Grid', image: '/path/to/product-grid.png', title: 'Product Grid' },
+    { id: '6', type: 'Single Product View', image: '/path/to/single-product.png', title: 'Single Product View' },
+    { id: '7', type: 'Image Slider', image: '/path/to/image-slider.png', title: 'Image Slider' },
+  ];
 
   const toggleDropdown = () => {
-    setIsDropdownOpen((prevState) => !prevState); // Toggle state on each click
+    setIsDropdownOpen((prevState) => !prevState);
+  };
+
+  const handleSectionAdd = (selectedSection) => {
+    // Show confirmation alert
+    const confirmAdd = window.confirm(`Add ${selectedSection.title}?`);
+    if (confirmAdd) {
+      setSections([...sections, selectedSection]);
+      setIsDropdownOpen(false);
+    }
+  };
+
+  const handleEditSection = (index) => {
+    // Placeholder for edit functionality
+    alert(`Edit ${sections[index].title}`);
+  };
+
+  const handleDeleteSection = (index) => {
+    // Confirm deletion
+    const confirmDelete = window.confirm(`Delete ${sections[index].title}?`);
+    if (confirmDelete) {
+      const newSections = sections.filter((_, i) => i !== index);
+      setSections(newSections);
+    }
   };
 
   const handleLogout = () => {
     // Perform logout actions if needed (e.g., clearing tokens)
-    navigate('/Login'); // Redirect to login page
+    alert('Logging out...');
+    // Redirect to login page or perform other actions
   };
-  
+
+  const handleDragStart = (index) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (index) => {
+    if (draggedIndex === null) return;
+
+    const newSections = [...sections];
+    const [removed] = newSections.splice(draggedIndex, 1);
+    newSections.splice(index, 0, removed);
+
+    setSections(newSections);
+    setDraggedIndex(null);
+  };
+
   return (
     <div className="dashboard-container">
       {/* SIDEBAR */}
@@ -157,12 +218,43 @@ function Pages() {
         <main className="content">
           <h1>Pages</h1>
           {/* Button to Add Page */}
-          <button className="add-page-button">+ Add Page</button>
-          {/* Note */}
-          <p className="note">
-            Note : Create a page and name it 'Landing' to replace the existing Default
-            Home Page.
-          </p>
+          <button className="add-section-button" onClick={toggleDropdown}>
+            + Add Section
+          </button>
+
+          {/* Dropdown for selecting section types */}
+          {isDropdownOpen && (
+            <div className="dropdown">
+              <h3>Select a section to add:</h3>
+              <div className="dropdown-grid">
+                {sectionTypes.map((section, index) => (
+                  <div key={index} className="dropdown-grid-item" onClick={() => handleSectionAdd(section)}>
+                    <img src={section.image} alt={section.title} />
+                    <span>{section.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Render added sections with drag-and-drop */}
+          <div className="sections-container">
+            {sections.map((section, index) => (
+              <div
+                key={section.id}
+                className="added-section"
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={handleDragOver}
+                onDrop={() => handleDrop(index)}
+              >
+                <img src={section.image} alt={section.title} />
+                <span>{section.title}</span>
+                <button onClick={() => handleEditSection(index)}>Edit</button>
+                <button onClick={() => handleDeleteSection(index)}>Delete</button>
+              </div>
+            ))}
+          </div>
         </main>
       </div>
     </div>
