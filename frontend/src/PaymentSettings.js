@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import Logo from './assets/WebCraft.png';
-import QRPaymentLogo from './assets/QRPayment.png'; // Add appropriate image paths
-import CardPaymentLogo from './assets/CardPayment.png';
 import KhaltiLogo from './assets/Khalti.png';
 import './PaymentSettings.css';
 
@@ -78,31 +76,6 @@ function PaymentSettings() {
 
         {/* CONTENT */}
         <main className="content">
-          <h1>Payment Settings</h1>
-          
-          <h2>WebCraft Payment Fulfillment Service</h2>
-          <div className="payment-box">
-            <img src={QRPaymentLogo} alt="QR Payment" className="payment-logo" />
-            <div className="payment-info">
-              <p>Supports all wallets and mobile banking applications</p>
-              <label className="switch">
-                <input type="checkbox" />
-                <span className="slider round"></span>
-              </label>
-            </div>
-          </div>
-
-          <div className="payment-box">
-            <img src={CardPaymentLogo} alt="Card Payment" className="payment-logo" />
-            <div className="payment-info">
-              <p>Supports all major cards of any country</p>
-              <label className="switch">
-                <input type="checkbox" />
-                <span className="slider round"></span>
-              </label>
-            </div>
-          </div>
-
           <h2>Self Purchased Payment Services</h2>
           <div className="payment-box">
             <img src={KhaltiLogo} alt="Khalti Payment" className="payment-logo" />

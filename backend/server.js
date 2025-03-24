@@ -545,6 +545,102 @@ app.delete('/api/issues/:id', (req, res) => {
     });
 });
 
+// Page routes
+app.get('/api/pages', (req, res) => {
+    const userId = req.query.userId;
+    const sql = "SELECT * FROM pages WHERE user_id = ?";
+    db.query(sql, [userId], (err, data) => {
+        if (err) {
+            console.error("Error fetching pages:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        // Ensure that the data returned is an array
+        if (!Array.isArray(data)) {
+            data = [];
+        }
+        return res.json(data);
+    });
+});
+
+app.post('/api/pages', (req, res) => {
+    const { userId, type, image, title, description, link, actionButtons, questions, categories, price } = req.body;
+    const sql = `
+        INSERT INTO pages(user_id, type, image, title, description, link, action_buttons, questions, categories, price)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const values = [
+        userId,
+        type,
+        image,
+        title,
+        description,
+        link,
+        JSON.stringify(actionButtons),
+        JSON.stringify(questions),
+        JSON.stringify(categories),
+        price
+    ];
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error("Error adding page:", err);
+            return res.status(500).json({ status: "error", message: "Failed to add page" });
+        }
+        return res.json({ status: "created", message: "Page added successfully", id: result.insertId });
+    });
+});
+
+app.put('/api/pages/:id', (req, res) => {
+    const { type, image, title, description, link, actionButtons, questions, categories, price } = req.body;
+    const sql = `
+        UPDATE pages 
+        SET type = ?, image = ?, title = ?, description = ?, link = ?, action_buttons = ?, questions = ?, categories = ?, price = ?
+        WHERE id = ?
+    `;
+    const values = [
+        type,
+        image,
+        title,
+        description,
+        link,
+        JSON.stringify(actionButtons),
+        JSON.stringify(questions),
+        JSON.stringify(categories),
+        price,
+        req.params.id
+    ];
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error("Error updating page:", err);
+            return res.status(500).json({ status: "error", message: "Failed to update page" });
+        }
+        return res.json({ status: "updated", message: "Page updated successfully" });
+    });
+});
+
+app.delete('/api/pages/:id', (req, res) => {
+    const sql = "DELETE FROM pages WHERE id = ?";
+    db.query(sql, [req.params.id], (err, result) => {
+        if (err) {
+            console.error("Error deleting page:", err);
+            return res.status(500).json({ status: "error", message: "Failed to delete page" });
+        }
+        return res.json({ status: "deleted", message: "Page deleted successfully" });
+    });
+});
+
+app.put('/api/pages/order', (req, res) => {
+    const { userId, sections } = req.body;
+    sections.forEach((section, index) => {
+        const sql = "UPDATE pages SET order_index = ? WHERE id = ? AND user_id = ?";
+        db.query(sql, [index, section.id, userId], (err, result) => {
+            if (err) {
+                console.error("Error updating section order:", err);
+                return res.status(500).json({ status: "error", message: "Failed to update section order" });
+            }
+        });
+    });
+    return res.json({ status: "updated", message: "Section order updated successfully" });
+});
 
 app.listen(8081, () => {
     console.log("Listening on port 8081");

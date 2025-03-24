@@ -21,6 +21,7 @@ import Accounts from './Accounts';
 import Subscription from './Subscription';
 import Pages from './Pages';
 import YourWeb from './YourWeb';
+import Checkout from './Checkout';
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
         <Route path="/Login" element={<Login />} />
 
         <Route path="/YourWeb" element={<YourWeb />} />
+        <Route path="/Checkout" element={<Checkout />} />
 
       </Routes>
     </BrowserRouter>
