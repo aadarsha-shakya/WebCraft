@@ -12,7 +12,7 @@ function Pages() {
   const [modalType, setModalType] = useState(null);
   const [modalIndex, setModalIndex] = useState(null);
   const [modalData, setModalData] = useState({
-    image: '',
+    image: [],
     title: '',
     description: '',
     link: '',
@@ -22,13 +22,13 @@ function Pages() {
     price: '',
   });
   const sectionTypes = [
-    { id: '1', type: 'Full Image', image: '/path/to/full-image.png', title: 'Full Image' },
-    { id: '2', type: 'Image with Content', image: '/path/to/image-with-content.png', title: 'Image with Content' },
-    { id: '3', type: 'FAQ', image: '/path/to/faq.png', title: 'FAQ' },
-    { id: '4', type: 'Category Grid', image: '/path/to/category-grid.png', title: 'Category Grid' },
-    { id: '5', type: 'Single Product View', image: '/path/to/single-product.png', title: 'Single Product View' },
-    { id: '6', type: 'Image Slider', image: '/path/to/image-slider.png', title: 'Image Slider' },
+    { id: '1', type: 'Full Image', title: 'Full Image' },
+    { id: '2', type: 'Image with Content', title: 'Image with Content' },
+    { id: '3', type: 'FAQ', title: 'FAQ' },
+    { id: '4', type: 'Category Grid', title: 'Category Grid' },
+    { id: '6', type: 'Image Slider', title: 'Image Slider' },
   ];
+  const [categoryOptions, setCategoryOptions] = useState([]);
   const navigate = useNavigate();
 
   const toggleDropdown = () => {
@@ -52,6 +52,7 @@ function Pages() {
         actionButtons: sections[index].actionButtons || [{ label: '', url: '' }, { label: '', url: '' }],
         questions: sections[index].questions || [],
         categories: sections[index].categories || [],
+        image: sections[index].image || [],
       });
     } else {
       console.error("Section is undefined at index:", index);
@@ -63,7 +64,7 @@ function Pages() {
     if (confirmDelete) {
       const newSections = sections.filter((_, i) => i !== index);
       setSections(newSections);
-      deleteSectionFromServer(sections[index].id);
+      deleteSectionFromServer(sections[index].id, sections[index].type);
     }
   };
 
@@ -93,7 +94,7 @@ function Pages() {
     setModalType(null);
     setModalIndex(null);
     setModalData({
-      image: '',
+      image: [],
       title: '',
       description: '',
       link: '',
@@ -104,15 +105,15 @@ function Pages() {
     });
   };
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     const newSections = [...sections];
     newSections[modalIndex] = { ...newSections[modalIndex], ...modalData };
     setSections(newSections);
     closeModal();
     if (modalIndex === null) {
-      addSectionToServer(modalData);
+      await addSectionToServer(modalData);
     } else {
-      updateSectionOnServer(modalData);
+      await updateSectionOnServer(modalData);
     }
   };
 
@@ -153,36 +154,21 @@ function Pages() {
     setModalData({ ...modalData, categories: newCategories });
   };
 
-  const categoryOptions = [
-    'Category 1',
-    'Category 2',
-    'Category 3',
-    'Category 4',
-    'Category 5',
-    'Category 6',
-    'Category 7',
-    'Category 8',
-  ];
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    setModalData({ ...modalData, image: [...modalData.image, ...files] });
+  };
+
+  const removeImage = (index) => {
+    const newImages = modalData.image.filter((_, i) => i !== index);
+    setModalData({ ...modalData, image: newImages });
+  };
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
     if (userId) {
-      fetch(`http://localhost:8081/api/pages?userId=${userId}`)
-        .then(response => response.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            setSections(data);
-            localStorage.setItem('sections', JSON.stringify(data));
-          } else {
-            console.error("Invalid data received from server:", data);
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching pages:', error);
-          // Fallback to local storage if server fetch fails
-          const storedSections = JSON.parse(localStorage.getItem('sections')) || [];
-          setSections(storedSections);
-        });
+      fetchSections(userId);
+      fetchCategories(userId);
     }
   }, []);
 
@@ -191,45 +177,133 @@ function Pages() {
     localStorage.setItem('sections', JSON.stringify(sections));
   }, [sections]);
 
-  const addSectionToServer = (section) => {
+  const fetchSections = (userId) => {
+    fetch(`http://localhost:8081/api/sections?userId=${userId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setSections(data);
+          localStorage.setItem('sections', JSON.stringify(data));
+        } else {
+          console.error("Invalid data received from server:", data);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching sections:', error);
+        // Fallback to local storage if server fetch fails
+        const storedSections = JSON.parse(localStorage.getItem('sections')) || [];
+        setSections(storedSections);
+      });
+  };
+
+  const fetchCategories = (userId) => {
+    fetch(`http://localhost:8081/api/categories/${userId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setCategoryOptions(data.map(category => category.category_name));
+        } else {
+          console.error("Invalid data received from server:", data);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching categories:', error);
+      });
+  };
+
+  const addSectionToServer = async (section) => {
     const userId = localStorage.getItem('userId');
-    fetch('http://localhost:8081/api/pages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ...section, userId }),
-    })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.error('Error adding section:', error));
+    const formData = new FormData();
+    formData.append('userId', userId);
+    formData.append('type', section.type);
+    formData.append('title', section.title);
+    formData.append('description', section.description);
+    formData.append('link', section.link);
+    formData.append('actionButtons', JSON.stringify(section.actionButtons));
+    formData.append('questions', JSON.stringify(section.questions));
+    formData.append('categories', JSON.stringify(section.categories));
+    formData.append('price', section.price);
+
+    section.image.forEach((file, index) => {
+      formData.append(`image${index}`, file);
+    });
+
+    try {
+      const response = await fetch('http://localhost:8081/api/sections', {
+        method: 'POST',
+        body: formData
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const result = await response.json();
+      console.log(result.message);
+      alert("Section added successfully!");
+      fetchSections(userId);
+    } catch (error) {
+      console.error("Error adding section:", error);
+      alert("Failed to add section. Please try again later.");
+    }
   };
 
-  const updateSectionOnServer = (section) => {
-    fetch(`http://localhost:8081/api/pages/${section.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(section),
-    })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.error('Error updating section:', error));
+  const updateSectionOnServer = async (section) => {
+    const userId = localStorage.getItem('userId');
+    const formData = new FormData();
+    formData.append('userId', userId);
+    formData.append('type', section.type);
+    formData.append('title', section.title);
+    formData.append('description', section.description);
+    formData.append('link', section.link);
+    formData.append('actionButtons', JSON.stringify(section.actionButtons));
+    formData.append('questions', JSON.stringify(section.questions));
+    formData.append('categories', JSON.stringify(section.categories));
+    formData.append('price', section.price);
+
+    section.image.forEach((file, index) => {
+      formData.append(`image${index}`, file);
+    });
+
+    try {
+      const response = await fetch(`http://localhost:8081/api/sections/${section.id}`, {
+        method: 'PUT',
+        body: formData
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const result = await response.json();
+      console.log(result.message);
+      alert("Section updated successfully!");
+      fetchSections(userId);
+    } catch (error) {
+      console.error("Error updating section:", error);
+      alert("Failed to update section. Please try again later.");
+    }
   };
 
-  const deleteSectionFromServer = (sectionId) => {
-    fetch(`http://localhost:8081/api/pages/${sectionId}`, {
+  const deleteSectionFromServer = (sectionId, sectionType) => {
+    fetch(`http://localhost:8081/api/sections/${sectionId}`, {
       method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId: localStorage.getItem('userId'), type: sectionType }),
     })
     .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.error('Error deleting section:', error));
+    .then(data => {
+      console.log(data.message);
+      alert("Section deleted successfully!");
+      fetchSections(localStorage.getItem('userId'));
+    })
+    .catch(error => {
+      console.error("Error deleting section:", error);
+      alert("Failed to delete section. Please try again later.");
+    });
   };
 
   const updateSectionOrderOnServer = (sections) => {
     const userId = localStorage.getItem('userId');
-    fetch(`http://localhost:8081/api/pages/order?userId=${userId}`, {
+    fetch(`http://localhost:8081/api/sections/order?userId=${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -373,20 +447,30 @@ function Pages() {
         <main className="content">
           <h1>Pages</h1>
           {/* Button to Add Page */}
-          <button className="add-section-button" onClick={() => setIsSectionModalOpen(true)}>
+          <button
+            className="add-section-button"
+            onClick={() => setIsSectionModalOpen(true)}
+          >
             + Add Section
           </button>
           {/* Dropdown for selecting section types */}
           {isSectionModalOpen && (
             <div className="section-modal">
-              <h3>Select a section to add:</h3>
-              <div className="section-grid">
-                {sectionTypes.map((section, index) => (
-                  <div key={index} className="section-grid-item" onClick={() => handleSectionAdd(section)}>
-                    <img src={section.image} alt={section.title} />
-                    <span>{section.title}</span>
-                  </div>
-                ))}
+              <div className="modal-content">
+                <span
+                  className="close"
+                  onClick={() => setIsSectionModalOpen(false)}
+                >
+                  &times;
+                </span>
+                <h2>Select a section to add:</h2>
+                <div className="section-list">
+                  {sectionTypes.map((section, index) => (
+                    <div key={index} className="section-item" onClick={() => handleSectionAdd(section)}>
+                      <span>{section.title}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -401,10 +485,11 @@ function Pages() {
                 onDragOver={handleDragOver}
                 onDrop={() => handleDrop(index)}
               >
-                <img src={section.image} alt={section.title} />
                 <span>{section.title}</span>
-                <button onClick={() => handleEditSection(index)}>Edit</button>
-                <button onClick={() => handleDeleteSection(index)}>Delete</button>
+                <div className="buttons">
+                  <button onClick={() => handleEditSection(index)}>Edit</button>
+                  <button onClick={() => handleDeleteSection(index, section.type)}>Delete</button>
+                </div>
               </div>
             ))}
           </div>
@@ -421,7 +506,12 @@ function Pages() {
               id="fullImageInput"
               name="fullImageInput"
               accept="image/*"
-              onChange={(e) => setModalData({ ...modalData, image: URL.createObjectURL(e.target.files[0]) })}
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  setModalData({ ...modalData, image: [file] });
+                }
+              }}
             />
             <input
               type="text"
@@ -445,7 +535,12 @@ function Pages() {
               id="imageWithContentInput"
               name="imageWithContentInput"
               accept="image/*"
-              onChange={(e) => setModalData({ ...modalData, image: URL.createObjectURL(e.target.files[0]) })}
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  setModalData({ ...modalData, image: [file] });
+                }
+              }}
             />
             <input
               type="text"
@@ -532,7 +627,7 @@ function Pages() {
                   value={question.answer}
                   onChange={(e) => handleQuestionChange(index, 'answer', e.target.value)}
                 />
-                <button onClick={() => removeQuestion(index)}>Remove</button>
+                <button onClick={() => removeQuestion(index)}>X</button>
               </div>
             ))}
             <button onClick={addQuestion}>Add Question</button>
@@ -560,45 +655,14 @@ function Pages() {
                 </option>
               ))}
             </select>
-            <button onClick={handleSaveChanges}>Save Changes</button>
-          </div>
-        </div>
-      )}
-      {modalType === 'Single Product View' && (
-        <div className={`modal ${modalType ? 'show' : ''}`}>
-          <div className="modal-content">
-            <span className="close" onClick={closeModal}>&times;</span>
-            <h2>Edit Single Product View</h2>
-            <input
-              type="file"
-              id="singleProductViewInput"
-              name="singleProductViewInput"
-              accept="image/*"
-              onChange={(e) => setModalData({ ...modalData, image: URL.createObjectURL(e.target.files[0]) })}
-            />
-            <input
-              type="text"
-              id="singleProductTitle"
-              name="singleProductTitle"
-              placeholder="Title"
-              value={modalData.title}
-              onChange={handleInputChange}
-            />
-            <textarea
-              id="singleProductDescription"
-              name="singleProductDescription"
-              placeholder="Description"
-              value={modalData.description}
-              onChange={handleInputChange}
-            />
-            <input
-              type="number"
-              id="price"
-              name="price"
-              placeholder="Price"
-              value={modalData.price}
-              onChange={handleInputChange}
-            />
+            <div className="selected-categories">
+              {modalData.categories.map((category, index) => (
+                <div key={index} className="selected-category">
+                  <span>{category}</span>
+                  <button onClick={() => handleCategoryChange({ target: { value: category } })}>X</button>
+                </div>
+              ))}
+            </div>
             <button onClick={handleSaveChanges}>Save Changes</button>
           </div>
         </div>
@@ -614,8 +678,16 @@ function Pages() {
               name="imageSliderInput"
               accept="image/*"
               multiple
-              onChange={(e) => setModalData({ ...modalData, image: Array.from(e.target.files).map(file => URL.createObjectURL(file)) })}
+              onChange={handleImageUpload}
             />
+            <div className="image-previews">
+              {modalData.image.map((preview, index) => (
+                <div key={index} className="image-preview">
+                  <img src={URL.createObjectURL(preview)} alt={`Preview ${index}`} width="50" />
+                  <button onClick={() => removeImage(index)}>X</button>
+                </div>
+              ))}
+            </div>
             <button onClick={handleSaveChanges}>Save Changes</button>
           </div>
         </div>
