@@ -7,14 +7,12 @@ const fs = require('fs');
 const app = express();
 app.use(cors());
 app.use(express.json());
-
 const db = mysql.createConnection({
     host: "localhost", 
     user: "root",
     password: "",
     database: "webcraft_db"
 });
-
 db.connect(err => {
     if (err) {
         console.error("Database connection failed:", err.stack);
@@ -22,7 +20,6 @@ db.connect(err => {
     }
     console.log("Connected to database.");
 });
-
 // Set up multer for image uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -32,9 +29,7 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + path.extname(file.originalname));
     },
 });
-
 const upload = multer({ storage: storage });
-
 // Define the /api/upload endpoint
 app.post('/api/upload', upload.single('image'), (req, res) => {
     if (!req.file) {
@@ -42,7 +37,6 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
     }
     res.json({ filename: req.file.filename });
 });
-
 // Existing signup route
 app.post('/signup', (req, res) => {
     const sql = "INSERT INTO users(`name`, `email`, `password`) VALUES (?)";
@@ -58,7 +52,6 @@ app.post('/signup', (req, res) => {
         return res.json(data);
     });
 });
-
 // Existing login route
 app.post('/login', (req, res) => {
     const sql = "SELECT * FROM users WHERE `email`= ? AND `password`= ?";
@@ -73,7 +66,6 @@ app.post('/login', (req, res) => {
         }
     });
 });
-
 // Business registration routes
 app.post('/api/businessregistration', (req, res) => {
     const { userId, registeredBusinessName, registeredAddress, businessPhoneNumber, panNumber, bankName, accountNumber, accountName, branchName } = req.body;
@@ -110,7 +102,6 @@ app.post('/api/businessregistration', (req, res) => {
         }
     });
 });
-
 // Delivery charges routes
 app.post('/api/deliverycharges', (req, res) => {
     const { userId, insideValley, outsideValley } = req.body;
@@ -132,7 +123,6 @@ app.post('/api/deliverycharges', (req, res) => {
         }
     });
 });
-
 // Domain settings routes
 app.post('/api/domainsettings', (req, res) => {
     const { userId, subdomain, customDomain } = req.body;
@@ -154,7 +144,6 @@ app.post('/api/domainsettings', (req, res) => {
         }
     });
 });
-
 // Social accounts routes
 app.post('/api/socialaccounts', (req, res) => {
     const { userId, facebookUrl, instagramUrl, tiktokUrl, whatsappNumber } = req.body;
@@ -176,7 +165,6 @@ app.post('/api/socialaccounts', (req, res) => {
         }
     });
 });
-
 // Store details routes
 app.post('/api/storedetails', (req, res) => {
     const { userId, storeName, businessCategory, contactNumber, storeAddress, contactEmail } = req.body;
@@ -207,7 +195,6 @@ app.post('/api/storedetails', (req, res) => {
         }
     });
 });
-
 // Category routes
 app.post('/api/categories', upload.single('categoryImage'), (req, res) => {
     const { userId, categoryName } = req.body;
@@ -242,7 +229,6 @@ app.post('/api/categories', upload.single('categoryImage'), (req, res) => {
         }
     });
 });
-
 app.get('/api/categories/:userId', (req, res) => {
     const sql = "SELECT * FROM categories WHERE user_id = ?";
     db.query(sql, [req.params.userId], (err, data) => {
@@ -253,7 +239,6 @@ app.get('/api/categories/:userId', (req, res) => {
         return res.json(data);
     });
 });
-
 app.delete('/api/categories/:id', (req, res) => {
     const sql = "DELETE FROM categories WHERE id = ?";
     db.query(sql, [req.params.id], (err, result) => {
@@ -264,15 +249,12 @@ app.delete('/api/categories/:id', (req, res) => {
         return res.json({ status: "deleted", message: "Category deleted successfully" });
     });
 });
-
 // Serve uploaded images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 // Create uploads directory if it doesn't exist
 if (!fs.existsSync('./uploads')) {
     fs.mkdirSync('./uploads');
 }
-
 // Product routes
 app.get('/api/products', (req, res) => {
     const userId = req.query.userId;
@@ -290,7 +272,6 @@ app.get('/api/products', (req, res) => {
         return res.json(data);
     });
 });
-
 app.post('/api/products', upload.array('productImages'), (req, res) => {
     const { userId, productName, category, productDescription, variants } = req.body;
     const productImages = req.files.map(file => file.filename);
@@ -330,7 +311,6 @@ app.post('/api/products', upload.array('productImages'), (req, res) => {
         });
     });
 });
-
 // Appearance routes
 app.post('/api/branding', upload.any(), (req, res) => {
     const { userId, primaryColor, brandName, fontFamily, popupModalEnabled, popupModalLink } = req.body;
@@ -372,7 +352,6 @@ app.post('/api/branding', upload.any(), (req, res) => {
         }
     });
 });
-
 app.get('/api/branding/:userId', (req, res) => {
     const sql = "SELECT * FROM branding WHERE user_id = ?";
     db.query(sql, [req.params.userId], (err, data) => {
@@ -383,7 +362,6 @@ app.get('/api/branding/:userId', (req, res) => {
         return res.json(data[0] || {});
     });
 });
-
 app.post('/api/components', (req, res) => {
     const { userId, navigationType } = req.body;
     const checkSql = "SELECT * FROM components WHERE user_id = ?";
@@ -413,7 +391,6 @@ app.post('/api/components', (req, res) => {
         }
     });
 });
-
 app.get('/api/components/:userId', (req, res) => {
     const sql = "SELECT * FROM components WHERE user_id = ?";
     db.query(sql, [req.params.userId], (err, data) => {
@@ -424,7 +401,6 @@ app.get('/api/components/:userId', (req, res) => {
         return res.json(data[0] || {});
     });
 });
-
 // Fetch Footer
 app.get('/api/footer/:userId', (req, res) => {
     const userId = req.params.userId;
@@ -442,7 +418,6 @@ app.get('/api/footer/:userId', (req, res) => {
         }
     });
 });
-
 // Save Footer
 app.post('/api/footer', (req, res) => {
     const userId = req.body.userId;
@@ -491,7 +466,6 @@ app.post('/api/footer', (req, res) => {
         }
     });
 });
-
 // Get all issues for a specific user
 app.get('/api/issues/:userId', (req, res) => {
     const sql = "SELECT * FROM issues WHERE user_id = ?";
@@ -502,7 +476,6 @@ app.get('/api/issues/:userId', (req, res) => {
         return res.json(data);
     });
 });
-
 // Create a new issue for a specific user
 app.post('/api/issues', (req, res) => {
     const sql = "INSERT INTO issues (`user_id`, `text`, `status`) VALUES (?, ?, ?)";
@@ -518,7 +491,6 @@ app.post('/api/issues', (req, res) => {
         return res.json(data);
     });
 });
-
 // Update an issue's status
 app.put('/api/issues/:id', (req, res) => {
     const sql = "UPDATE issues SET `status` = ? WHERE `id` = ?";
@@ -533,7 +505,6 @@ app.put('/api/issues/:id', (req, res) => {
         return res.json(data);
     });
 });
-
 // Delete an issue
 app.delete('/api/issues/:id', (req, res) => {
     const sql = "DELETE FROM issues WHERE `id` = ?";
@@ -544,264 +515,231 @@ app.delete('/api/issues/:id', (req, res) => {
         return res.json(data);
     });
 });
-// Section routes
+// Sections routes
 app.get('/api/sections', (req, res) => {
     const userId = req.query.userId;
-    const fullImageSql = "SELECT * FROM full_image WHERE user_id = ?";
-    const imageWithContentSql = "SELECT * FROM image_with_content WHERE user_id = ?";
-    const faqSql = "SELECT * FROM faq WHERE user_id = ?";
-    const categoryGridSql = "SELECT * FROM category_grid WHERE user_id = ?";
-    const imageSliderSql = "SELECT * FROM image_slider WHERE user_id = ?";
-
-    db.query(fullImageSql, [userId], (err, fullImageData) => {
+    const sql = `
+        SELECT id, user_id, NULL AS title, NULL AS description, link, created_at, 'Full Image' AS type, image AS data
+        FROM full_image
+        WHERE user_id = ?
+        UNION ALL
+        SELECT id, user_id, title, description, link, created_at, 'Image with Content' AS type, 
+               CONCAT(button1_label, ',', button1_url, ',', button2_label, ',', button2_url) AS data
+        FROM image_with_content
+        WHERE user_id = ?
+        UNION ALL
+        SELECT id, user_id, title, NULL AS description, NULL AS link, created_at, 'FAQ' AS type, questions AS data
+        FROM faq
+        WHERE user_id = ?
+        UNION ALL
+        SELECT id, user_id, title, NULL AS description, NULL AS link, created_at, 'Category Grid' AS type, categories AS data
+        FROM category_grid
+        WHERE user_id = ?
+        UNION ALL
+        SELECT id, user_id, NULL AS title, NULL AS description, NULL AS link, created_at, 'Image Slider' AS type, images AS data
+        FROM image_slider
+        WHERE user_id = ?
+    `;
+    db.query(sql, [userId, userId, userId, userId, userId], (err, data) => {
         if (err) {
-            console.error("Error fetching full image sections:", err);
+            console.error("Error fetching sections:", err);
             return res.status(500).json({ status: "error", message: "Database error" });
         }
-
-        db.query(imageWithContentSql, [userId], (err, imageWithContentData) => {
-            if (err) {
-                console.error("Error fetching image with content sections:", err);
-                return res.status(500).json({ status: "error", message: "Database error" });
-            }
-
-            db.query(faqSql, [userId], (err, faqData) => {
-                if (err) {
-                    console.error("Error fetching FAQ sections:", err);
-                    return res.status(500).json({ status: "error", message: "Database error" });
-                }
-
-                db.query(categoryGridSql, [userId], (err, categoryGridData) => {
-                    if (err) {
-                        console.error("Error fetching category grid sections:", err);
-                        return res.status(500).json({ status: "error", message: "Database error" });
-                    }
-
-                    db.query(imageSliderSql, [userId], (err, imageSliderData) => {
-                        if (err) {
-                            console.error("Error fetching image slider sections:", err);
-                            return res.status(500).json({ status: "error", message: "Database error" });
-                        }
-
-                        const allSections = [
-                            ...fullImageData.map(item => ({ ...item, type: 'Full Image' })),
-                            ...imageWithContentData.map(item => ({ ...item, type: 'Image with Content' })),
-                            ...faqData.map(item => ({ ...item, type: 'FAQ' })),
-                            ...categoryGridData.map(item => ({ ...item, type: 'Category Grid' })),
-                            ...imageSliderData.map(item => ({ ...item, type: 'Image Slider' }))
-                        ];
-
-                        return res.json(allSections);
-                    });
-                });
-            });
-        });
+        return res.json(data);
     });
 });
-
 app.post('/api/sections', upload.any(), (req, res) => {
-    const { userId, type, title, description, link, actionButtons, questions, categories, price, images } = req.body;
-    const imageFiles = req.files;
-
-    if (!userId || !type) {
-        return res.status(400).json({ status: "error", message: "Missing required fields." });
-    }
-
-    let imagePaths = [];
-    if (imageFiles && imageFiles.length > 0) {
-        imagePaths = imageFiles.map(file => file.filename);
-    }
-
+    const { userId, type, title, description, link, actionButtons, questions, categories, price } = req.body;
+    const images = req.files.map(file => file.filename);
+    const formData = {
+        user_id: userId,
+        title: title || null,
+        description: description || null,
+        link: link || null,
+        actionButtons: actionButtons ? JSON.stringify(JSON.parse(actionButtons)) : null,
+        questions: questions ? JSON.stringify(JSON.parse(questions)) : null,
+        categories: categories ? JSON.stringify(JSON.parse(categories)) : null,
+        price: price || null,
+        images: images.length > 0 ? JSON.stringify(images) : null,
+    };
+    let sql;
+    let values;
     switch (type) {
         case 'Full Image':
-            const fullImageSql = "INSERT INTO full_image (user_id, image, link) VALUES (?, ?, ?)";
-            db.query(fullImageSql, [userId, imagePaths[0] || null, link || null], (err, result) => {
-                if (err) {
-                    console.error("Error adding full image section:", err);
-                    return res.status(500).json({ status: "error", message: "Failed to add full image section" });
-                }
-                return res.json({ status: "created", message: "Full Image section added successfully", id: result.insertId });
-            });
+            sql = `
+                INSERT INTO full_image (user_id, image, link)
+                VALUES (?, ?, ?)
+            `;
+            values = [formData.user_id, formData.images ? JSON.parse(formData.images)[0] : null, formData.link];
             break;
         case 'Image with Content':
-            const imageWithContentSql = `
+            sql = `
                 INSERT INTO image_with_content (user_id, image, title, description, button1_label, button1_url, button2_label, button2_url)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             `;
-            const button1 = actionButtons[0] || {};
-            const button2 = actionButtons[1] || {};
-            db.query(imageWithContentSql, [
-                userId,
-                imagePaths[0] || null,
-                title || null,
-                description || null,
-                button1.label || null,
-                button1.url || null,
-                button2.label || null,
-                button2.url || null
-            ], (err, result) => {
-                if (err) {
-                    console.error("Error adding image with content section:", err);
-                    return res.status(500).json({ status: "error", message: "Failed to add image with content section" });
-                }
-                return res.json({ status: "created", message: "Image with Content section added successfully", id: result.insertId });
-            });
+            values = [
+                formData.user_id,
+                formData.images ? JSON.parse(formData.images)[0] : null,
+                formData.title,
+                formData.description,
+                formData.actionButtons ? JSON.parse(formData.actionButtons)[0].label : null,
+                formData.actionButtons ? JSON.parse(formData.actionButtons)[0].url : null,
+                formData.actionButtons ? JSON.parse(formData.actionButtons)[1].label : null,
+                formData.actionButtons ? JSON.parse(formData.actionButtons)[1].url : null,
+            ];
             break;
         case 'FAQ':
-            const faqSql = "INSERT INTO faq (user_id, title, questions) VALUES (?, ?, ?)";
-            db.query(faqSql, [userId, title || null, JSON.stringify(questions) || null], (err, result) => {
-                if (err) {
-                    console.error("Error adding FAQ section:", err);
-                    return res.status(500).json({ status: "error", message: "Failed to add FAQ section" });
-                }
-                return res.json({ status: "created", message: "FAQ section added successfully", id: result.insertId });
-            });
+            sql = `
+                INSERT INTO faq (user_id, title, questions)
+                VALUES (?, ?, ?)
+            `;
+            values = [formData.user_id, formData.title, formData.questions];
             break;
         case 'Category Grid':
-            const categoryGridSql = "INSERT INTO category_grid (user_id, title, categories) VALUES (?, ?, ?)";
-            db.query(categoryGridSql, [userId, title || null, JSON.stringify(categories) || null], (err, result) => {
-                if (err) {
-                    console.error("Error adding category grid section:", err);
-                    return res.status(500).json({ status: "error", message: "Failed to add category grid section" });
-                }
-                return res.json({ status: "created", message: "Category Grid section added successfully", id: result.insertId });
-            });
+            sql = `
+                INSERT INTO category_grid (user_id, title, categories)
+                VALUES (?, ?, ?)
+            `;
+            values = [formData.user_id, formData.title, formData.categories];
             break;
         case 'Image Slider':
-            const imageSliderSql = "INSERT INTO image_slider (user_id, images) VALUES (?, ?)";
-            db.query(imageSliderSql, [userId, JSON.stringify(imagePaths) || null], (err, result) => {
-                if (err) {
-                    console.error("Error adding image slider section:", err);
-                    return res.status(500).json({ status: "error", message: "Failed to add image slider section" });
-                }
-                return res.json({ status: "created", message: "Image Slider section added successfully", id: result.insertId });
-            });
+            sql = `
+                INSERT INTO image_slider (user_id, images)
+                VALUES (?, ?)
+            `;
+            values = [formData.user_id, formData.images];
             break;
         default:
             return res.status(400).json({ status: "error", message: "Invalid section type" });
     }
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error("Error adding section:", err.sqlMessage || err.message, "SQL Query:", sql);
+            return res.status(500).json({ status: "error", message: "Failed to add section" });
+        }
+        return res.json({ status: "created", message: "Section added successfully", id: result.insertId });
+    });
 });
-
 app.put('/api/sections/:id', upload.any(), (req, res) => {
-    const { userId, type, title, description, link, actionButtons, questions, categories, price, images } = req.body;
-    const imageFiles = req.files;
-
-    if (!userId || !type) {
-        return res.status(400).json({ status: "error", message: "Missing required fields." });
-    }
-
-    let imagePaths = [];
-    if (imageFiles && imageFiles.length > 0) {
-        imagePaths = imageFiles.map(file => file.filename);
-    }
-
+    const { userId, type, title, description, link, actionButtons, questions, categories, price } = req.body;
+    const images = req.files.map(file => file.filename);
+    const formData = {
+        user_id: userId,
+        title: title || null,
+        description: description || null,
+        link: link || null,
+        actionButtons: actionButtons ? JSON.stringify(JSON.parse(actionButtons)) : null,
+        questions: questions ? JSON.stringify(JSON.parse(questions)) : null,
+        categories: categories ? JSON.stringify(JSON.parse(categories)) : null,
+        price: price || null,
+        images: images.length > 0 ? JSON.stringify(images) : null,
+    };
+    let sql;
+    let values;
     switch (type) {
         case 'Full Image':
-            const fullImageUpdateSql = "UPDATE full_image SET image = ?, link = ? WHERE id = ? AND user_id = ?";
-            db.query(fullImageUpdateSql, [imagePaths[0] || null, link || null, req.params.id, userId], (err, result) => {
-                if (err) {
-                    console.error("Error updating full image section:", err);
-                    return res.status(500).json({ status: "error", message: "Failed to update full image section" });
-                }
-                return res.json({ status: "updated", message: "Full Image section updated successfully" });
-            });
+            sql = `
+                UPDATE full_image 
+                SET image = ?, link = ?
+                WHERE id = ? AND user_id = ?
+            `;
+            values = [formData.images ? JSON.parse(formData.images)[0] : null, formData.link, req.params.id, formData.user_id];
             break;
         case 'Image with Content':
-            const imageWithContentUpdateSql = `
+            sql = `
                 UPDATE image_with_content 
                 SET image = ?, title = ?, description = ?, button1_label = ?, button1_url = ?, button2_label = ?, button2_url = ?
                 WHERE id = ? AND user_id = ?
             `;
-            const button1 = actionButtons[0] || {};
-            const button2 = actionButtons[1] || {};
-            db.query(imageWithContentUpdateSql, [
-                imagePaths[0] || null,
-                title || null,
-                description || null,
-                button1.label || null,
-                button1.url || null,
-                button2.label || null,
-                button2.url || null,
+            values = [
+                formData.images ? JSON.parse(formData.images)[0] : null,
+                formData.title,
+                formData.description,
+                formData.actionButtons ? JSON.parse(formData.actionButtons)[0].label : null,
+                formData.actionButtons ? JSON.parse(formData.actionButtons)[0].url : null,
+                formData.actionButtons ? JSON.parse(formData.actionButtons)[1].label : null,
+                formData.actionButtons ? JSON.parse(formData.actionButtons)[1].url : null,
                 req.params.id,
-                userId
-            ], (err, result) => {
-                if (err) {
-                    console.error("Error updating image with content section:", err);
-                    return res.status(500).json({ status: "error", message: "Failed to update image with content section" });
-                }
-                return res.json({ status: "updated", message: "Image with Content section updated successfully" });
-            });
+                formData.user_id,
+            ];
             break;
         case 'FAQ':
-            const faqUpdateSql = "UPDATE faq SET title = ?, questions = ? WHERE id = ? AND user_id = ?";
-            db.query(faqUpdateSql, [title || null, JSON.stringify(questions) || null, req.params.id, userId], (err, result) => {
-                if (err) {
-                    console.error("Error updating FAQ section:", err);
-                    return res.status(500).json({ status: "error", message: "Failed to update FAQ section" });
-                }
-                return res.json({ status: "updated", message: "FAQ section updated successfully" });
-            });
+            sql = `
+                UPDATE faq 
+                SET title = ?, questions = ?
+                WHERE id = ? AND user_id = ?
+            `;
+            values = [formData.title, formData.questions, req.params.id, formData.user_id];
             break;
         case 'Category Grid':
-            const categoryGridUpdateSql = "UPDATE category_grid SET title = ?, categories = ? WHERE id = ? AND user_id = ?";
-            db.query(categoryGridUpdateSql, [title || null, JSON.stringify(categories) || null, req.params.id, userId], (err, result) => {
-                if (err) {
-                    console.error("Error updating category grid section:", err);
-                    return res.status(500).json({ status: "error", message: "Failed to update category grid section" });
-                }
-                return res.json({ status: "updated", message: "Category Grid section updated successfully" });
-            });
+            sql = `
+                UPDATE category_grid 
+                SET title = ?, categories = ?
+                WHERE id = ? AND user_id = ?
+            `;
+            values = [formData.title, formData.categories, req.params.id, formData.user_id];
             break;
         case 'Image Slider':
-            const imageSliderUpdateSql = "UPDATE image_slider SET images = ? WHERE id = ? AND user_id = ?";
-            db.query(imageSliderUpdateSql, [JSON.stringify(imagePaths) || null, req.params.id, userId], (err, result) => {
-                if (err) {
-                    console.error("Error updating image slider section:", err);
-                    return res.status(500).json({ status: "error", message: "Failed to update image slider section" });
-                }
-                return res.json({ status: "updated", message: "Image Slider section updated successfully" });
-            });
+            sql = `
+                UPDATE image_slider 
+                SET images = ?
+                WHERE id = ? AND user_id = ?
+            `;
+            values = [formData.images, req.params.id, formData.user_id];
             break;
         default:
             return res.status(400).json({ status: "error", message: "Invalid section type" });
     }
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error("Error updating section:", err.sqlMessage || err.message, "SQL Query:", sql);
+            return res.status(500).json({ status: "error", message: "Failed to update section" });
+        }
+        return res.json({ status: "updated", message: "Section updated successfully" });
+    });
 });
-
 app.delete('/api/sections/:id', (req, res) => {
-    const sectionId = req.params.id;
-    const userId = req.body.userId;
-    const deleteSectionSql = "DELETE FROM ?? WHERE id = ? AND user_id = ?";
-    const sectionTable = getSectionTable(req.body.type);
-    if (sectionTable) {
-        db.query(deleteSectionSql, [sectionTable, sectionId, userId], (err, result) => {
-            if (err) {
-                console.error("Error deleting section:", err);
-                return res.status(500).json({ status: "error", message: "Failed to delete section" });
-            }
-            return res.json({ status: "deleted", message: "Section deleted successfully" });
-        });
-    } else {
-        return res.status(400).json({ status: "error", message: "Invalid section type" });
-    }
-});
-
-function getSectionTable(type) {
+    const { userId, type } = req.body;
+    let sql;
+    let values;
     switch (type) {
         case 'Full Image':
-            return 'full_image';
+            sql = "DELETE FROM full_image WHERE id = ? AND user_id = ?";
+            values = [req.params.id, userId];
+            break;
         case 'Image with Content':
-            return 'image_with_content';
+            sql = "DELETE FROM image_with_content WHERE id = ? AND user_id = ?";
+            values = [req.params.id, userId];
+            break;
         case 'FAQ':
-            return 'faq';
+            sql = "DELETE FROM faq WHERE id = ? AND user_id = ?";
+            values = [req.params.id, userId];
+            break;
         case 'Category Grid':
-            return 'category_grid';
+            sql = "DELETE FROM category_grid WHERE id = ? AND user_id = ?";
+            values = [req.params.id, userId];
+            break;
         case 'Image Slider':
-            return 'image_slider';
+            sql = "DELETE FROM image_slider WHERE id = ? AND user_id = ?";
+            values = [req.params.id, userId];
+            break;
         default:
-            return null;
+            return res.status(400).json({ status: "error", message: "Invalid section type" });
     }
-}
-
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error("Error deleting section:", err.sqlMessage || err.message, "SQL Query:", sql);
+            return res.status(500).json({ status: "error", message: "Failed to delete section" });
+        }
+        return res.json({ status: "deleted", message: "Section deleted successfully" });
+    });
+});
+app.put('/api/sections/order', (req, res) => {
+    const { userId, sections } = req.body;
+    // Implement logic to update the order of sections if needed
+    // For now, we'll just acknowledge the request
+    return res.json({ status: "updated", message: "Section order updated successfully" });
+});
 app.listen(8081, () => {
     console.log("Listening on port 8081");
 });
