@@ -153,7 +153,7 @@ function Pages() {
 
     const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);
-        setModalData({ ...modalData, image: [...modalData.image, ...files] });
+        setModalData({ ...modalData, image: files });
     };
 
     const removeImage = (index) => {
@@ -256,8 +256,8 @@ function Pages() {
                 break;
             case 'Image Slider':
                 url = 'http://localhost:8081/api/image_slider';
+                section.image.forEach((img, index) => formData.append(`images[${index}]`, img));
                 formData.append('user_id', userId);
-                formData.append('images', JSON.stringify(section.image.map(file => file.name)));
                 break;
             default:
                 console.error('Unknown section type:', section.type);
@@ -317,19 +317,23 @@ function Pages() {
                 break;
             case 'Image Slider':
                 url = `http://localhost:8081/api/image_slider/${section.id}`;
+                section.image.forEach((img, index) => formData.append(`images[${index}]`, img));
                 formData.append('user_id', userId);
-                formData.append('images', JSON.stringify(section.image.map(file => file.name)));
                 break;
             default:
                 console.error('Unknown section type:', section.type);
                 return;
         }
+        console.log("Sending update request to:", url);
+        console.log("FormData:", Object.fromEntries(formData.entries()));
         try {
             const response = await fetch(url, {
                 method: 'PUT',
                 body: formData
             });
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Response error:", errorText);
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const result = await response.json();
@@ -715,7 +719,10 @@ function Pages() {
                             {modalData.categories.map((category, index) => (
                                 <div key={index} className="selected-category">
                                     <span>{category}</span>
-                                    <button onClick={() => handleCategoryChange({ target: { value: category } })}>X</button>
+                                    <button onClick={() => setModalData(prevState => ({
+                                        ...prevState,
+                                        categories: prevState.categories.filter(cat => cat !== category)
+                                    }))}>X</button>
                                 </div>
                             ))}
                         </div>

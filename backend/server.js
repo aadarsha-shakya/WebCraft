@@ -20,6 +20,7 @@ db.connect(err => {
     }
     console.log("Connected to database.");
 });
+
 // Set up multer for image uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -30,6 +31,7 @@ const storage = multer.diskStorage({
     },
 });
 const upload = multer({ storage: storage });
+
 // Define the /api/upload endpoint
 app.post('/api/upload', upload.single('image'), (req, res) => {
     if (!req.file) {
@@ -37,6 +39,7 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
     }
     res.json({ filename: req.file.filename });
 });
+
 // Existing signup route
 app.post('/signup', (req, res) => {
     const sql = "INSERT INTO users(`name`, `email`, `password`) VALUES (?)";
@@ -52,6 +55,7 @@ app.post('/signup', (req, res) => {
         return res.json(data);
     });
 });
+
 // Existing login route
 app.post('/login', (req, res) => {
     const sql = "SELECT * FROM users WHERE `email`= ? AND `password`= ?";
@@ -66,6 +70,7 @@ app.post('/login', (req, res) => {
         }
     });
 });
+
 // Business registration routes
 app.post('/api/businessregistration', (req, res) => {
     const { userId, registeredBusinessName, registeredAddress, businessPhoneNumber, panNumber, bankName, accountNumber, accountName, branchName } = req.body;
@@ -102,6 +107,7 @@ app.post('/api/businessregistration', (req, res) => {
         }
     });
 });
+
 // Delivery charges routes
 app.post('/api/deliverycharges', (req, res) => {
     const { userId, insideValley, outsideValley } = req.body;
@@ -123,6 +129,7 @@ app.post('/api/deliverycharges', (req, res) => {
         }
     });
 });
+
 // Domain settings routes
 app.post('/api/domainsettings', (req, res) => {
     const { userId, subdomain, customDomain } = req.body;
@@ -144,6 +151,7 @@ app.post('/api/domainsettings', (req, res) => {
         }
     });
 });
+
 // Social accounts routes
 app.post('/api/socialaccounts', (req, res) => {
     const { userId, facebookUrl, instagramUrl, tiktokUrl, whatsappNumber } = req.body;
@@ -165,6 +173,7 @@ app.post('/api/socialaccounts', (req, res) => {
         }
     });
 });
+
 // Store details routes
 app.post('/api/storedetails', (req, res) => {
     const { userId, storeName, businessCategory, contactNumber, storeAddress, contactEmail } = req.body;
@@ -195,6 +204,7 @@ app.post('/api/storedetails', (req, res) => {
         }
     });
 });
+
 // Category routes
 app.post('/api/categories', upload.single('categoryImage'), (req, res) => {
     const { userId, categoryName } = req.body;
@@ -229,6 +239,7 @@ app.post('/api/categories', upload.single('categoryImage'), (req, res) => {
         }
     });
 });
+
 app.get('/api/categories/:userId', (req, res) => {
     const sql = "SELECT * FROM categories WHERE user_id = ?";
     db.query(sql, [req.params.userId], (err, data) => {
@@ -239,6 +250,7 @@ app.get('/api/categories/:userId', (req, res) => {
         return res.json(data);
     });
 });
+
 app.delete('/api/categories/:id', (req, res) => {
     const sql = "DELETE FROM categories WHERE id = ?";
     db.query(sql, [req.params.id], (err, result) => {
@@ -249,12 +261,15 @@ app.delete('/api/categories/:id', (req, res) => {
         return res.json({ status: "deleted", message: "Category deleted successfully" });
     });
 });
+
 // Serve uploaded images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Create uploads directory if it doesn't exist
 if (!fs.existsSync('./uploads')) {
     fs.mkdirSync('./uploads');
 }
+
 // Product routes
 app.get('/api/products', (req, res) => {
     const userId = req.query.userId;
@@ -272,6 +287,7 @@ app.get('/api/products', (req, res) => {
         return res.json(data);
     });
 });
+
 app.post('/api/products', upload.array('productImages'), (req, res) => {
     const { userId, productName, category, productDescription, variants } = req.body;
     const productImages = req.files.map(file => file.filename);
@@ -311,6 +327,7 @@ app.post('/api/products', upload.array('productImages'), (req, res) => {
         });
     });
 });
+
 // Appearance routes
 app.post('/api/branding', upload.any(), (req, res) => {
     const { userId, primaryColor, brandName, fontFamily, popupModalEnabled, popupModalLink } = req.body;
@@ -352,6 +369,7 @@ app.post('/api/branding', upload.any(), (req, res) => {
         }
     });
 });
+
 app.get('/api/branding/:userId', (req, res) => {
     const sql = "SELECT * FROM branding WHERE user_id = ?";
     db.query(sql, [req.params.userId], (err, data) => {
@@ -362,6 +380,7 @@ app.get('/api/branding/:userId', (req, res) => {
         return res.json(data[0] || {});
     });
 });
+
 app.post('/api/components', (req, res) => {
     const { userId, navigationType } = req.body;
     const checkSql = "SELECT * FROM components WHERE user_id = ?";
@@ -391,6 +410,7 @@ app.post('/api/components', (req, res) => {
         }
     });
 });
+
 app.get('/api/components/:userId', (req, res) => {
     const sql = "SELECT * FROM components WHERE user_id = ?";
     db.query(sql, [req.params.userId], (err, data) => {
@@ -401,6 +421,7 @@ app.get('/api/components/:userId', (req, res) => {
         return res.json(data[0] || {});
     });
 });
+
 // Fetch Footer
 app.get('/api/footer/:userId', (req, res) => {
     const userId = req.params.userId;
@@ -418,6 +439,7 @@ app.get('/api/footer/:userId', (req, res) => {
         }
     });
 });
+
 // Save Footer
 app.post('/api/footer', (req, res) => {
     const userId = req.body.userId;
@@ -466,6 +488,7 @@ app.post('/api/footer', (req, res) => {
         }
     });
 });
+
 // Get all issues for a specific user
 app.get('/api/issues/:userId', (req, res) => {
     const sql = "SELECT * FROM issues WHERE user_id = ?";
@@ -476,6 +499,7 @@ app.get('/api/issues/:userId', (req, res) => {
         return res.json(data);
     });
 });
+
 // Create a new issue for a specific user
 app.post('/api/issues', (req, res) => {
     const sql = "INSERT INTO issues (`user_id`, `text`, `status`) VALUES (?, ?, ?)";
@@ -491,6 +515,7 @@ app.post('/api/issues', (req, res) => {
         return res.json(data);
     });
 });
+
 // Update an issue's status
 app.put('/api/issues/:id', (req, res) => {
     const sql = "UPDATE issues SET `status` = ? WHERE `id` = ?";
@@ -505,6 +530,7 @@ app.put('/api/issues/:id', (req, res) => {
         return res.json(data);
     });
 });
+
 // Delete an issue
 app.delete('/api/issues/:id', (req, res) => {
     const sql = "DELETE FROM issues WHERE `id` = ?";
@@ -517,8 +543,8 @@ app.delete('/api/issues/:id', (req, res) => {
 });
 
 // Full Image Section Routes
-app.get('/api/full_image?userId=:userId', (req, res) => {
-    const userId = req.params.userId;
+app.get('/api/full_image', (req, res) => {
+    const userId = req.query.userId;
     const sql = "SELECT * FROM full_image WHERE user_id = ?";
     db.query(sql, [userId], (err, data) => {
         if (err) {
@@ -552,6 +578,9 @@ app.put('/api/full_image/:id', upload.single('image'), (req, res) => {
     if (!userId || !id) {
         return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
+    console.log("Updating full_image section with userId:", userId, "and id:", id);
+    console.log("Received image:", image);
+    console.log("Received link:", link);
     const updateSql = "UPDATE full_image SET image = ?, link = ? WHERE id = ? AND user_id = ?";
     db.query(updateSql, [image, link, id, userId], (err, result) => {
         if (err) {
@@ -576,8 +605,8 @@ app.delete('/api/full_image/:id', (req, res) => {
 });
 
 // Image with Content Section Routes
-app.get('/api/image_with_content?userId=:userId', (req, res) => {
-    const userId = req.params.userId;
+app.get('/api/image_with_content', (req, res) => {
+    const userId = req.query.userId;
     const sql = "SELECT * FROM image_with_content WHERE user_id = ?";
     db.query(sql, [userId], (err, data) => {
         if (err) {
@@ -611,6 +640,14 @@ app.put('/api/image_with_content/:id', upload.single('image'), (req, res) => {
     if (!userId || !id) {
         return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
+    console.log("Updating image_with_content section with userId:", userId, "and id:", id);
+    console.log("Received image:", image);
+    console.log("Received title:", title);
+    console.log("Received description:", description);
+    console.log("Received button1Label:", button1Label);
+    console.log("Received button1Url:", button1Url);
+    console.log("Received button2Label:", button2Label);
+    console.log("Received button2Url:", button2Url);
     const updateSql = "UPDATE image_with_content SET image = ?, title = ?, description = ?, button1_label = ?, button1_url = ?, button2_label = ?, button2_url = ? WHERE id = ? AND user_id = ?";
     db.query(updateSql, [image, title, description, button1Label, button1Url, button2Label, button2Url, id, userId], (err, result) => {
         if (err) {
@@ -635,8 +672,8 @@ app.delete('/api/image_with_content/:id', (req, res) => {
 });
 
 // Image Slider Section Routes
-app.get('/api/image_slider?userId=:userId', (req, res) => {
-    const userId = req.params.userId;
+app.get('/api/image_slider', (req, res) => {
+    const userId = req.query.userId;
     const sql = "SELECT * FROM image_slider WHERE user_id = ?";
     db.query(sql, [userId], (err, data) => {
         if (err) {
@@ -670,6 +707,8 @@ app.put('/api/image_slider/:id', upload.array('images'), (req, res) => {
     if (!userId || !id) {
         return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
+    console.log("Updating image_slider section with userId:", userId, "and id:", id);
+    console.log("Received images:", images);
     const updateSql = "UPDATE image_slider SET images = ? WHERE id = ? AND user_id = ?";
     db.query(updateSql, [JSON.stringify(images), id, userId], (err, result) => {
         if (err) {
@@ -694,8 +733,8 @@ app.delete('/api/image_slider/:id', (req, res) => {
 });
 
 // Category Grid Section Routes
-app.get('/api/category_grid?userId=:userId', (req, res) => {
-    const userId = req.params.userId;
+app.get('/api/category_grid', (req, res) => {
+    const userId = req.query.userId;
     const sql = "SELECT * FROM category_grid WHERE user_id = ?";
     db.query(sql, [userId], (err, data) => {
         if (err) {
@@ -727,6 +766,9 @@ app.put('/api/category_grid/:id', (req, res) => {
     if (!userId || !id) {
         return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
+    console.log("Updating category_grid section with userId:", userId, "and id:", id);
+    console.log("Received title:", title);
+    console.log("Received categories:", categories);
     const updateSql = "UPDATE category_grid SET title = ?, categories = ? WHERE id = ? AND user_id = ?";
     db.query(updateSql, [title, JSON.stringify(categories), id, userId], (err, result) => {
         if (err) {
@@ -751,8 +793,8 @@ app.delete('/api/category_grid/:id', (req, res) => {
 });
 
 // FAQ Section Routes
-app.get('/api/faq?userId=:userId', (req, res) => {
-    const userId = req.params.userId;
+app.get('/api/faq', (req, res) => {
+    const userId = req.query.userId;
     const sql = "SELECT * FROM faq WHERE user_id = ?";
     db.query(sql, [userId], (err, data) => {
         if (err) {
@@ -784,6 +826,9 @@ app.put('/api/faq/:id', (req, res) => {
     if (!userId || !id) {
         return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
+    console.log("Updating faq section with userId:", userId, "and id:", id);
+    console.log("Received title:", title);
+    console.log("Received questions:", questions);
     const updateSql = "UPDATE faq SET title = ?, questions = ? WHERE id = ? AND user_id = ?";
     db.query(updateSql, [title, JSON.stringify(questions), id, userId], (err, result) => {
         if (err) {
