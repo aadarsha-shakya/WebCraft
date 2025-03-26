@@ -515,231 +515,298 @@ app.delete('/api/issues/:id', (req, res) => {
         return res.json(data);
     });
 });
-// Sections routes
-app.get('/api/sections', (req, res) => {
-    const userId = req.query.userId;
-    const sql = `
-        SELECT id, user_id, NULL AS title, NULL AS description, link, created_at, 'Full Image' AS type, image AS data
-        FROM full_image
-        WHERE user_id = ?
-        UNION ALL
-        SELECT id, user_id, title, description, link, created_at, 'Image with Content' AS type, 
-               CONCAT(button1_label, ',', button1_url, ',', button2_label, ',', button2_url) AS data
-        FROM image_with_content
-        WHERE user_id = ?
-        UNION ALL
-        SELECT id, user_id, title, NULL AS description, NULL AS link, created_at, 'FAQ' AS type, questions AS data
-        FROM faq
-        WHERE user_id = ?
-        UNION ALL
-        SELECT id, user_id, title, NULL AS description, NULL AS link, created_at, 'Category Grid' AS type, categories AS data
-        FROM category_grid
-        WHERE user_id = ?
-        UNION ALL
-        SELECT id, user_id, NULL AS title, NULL AS description, NULL AS link, created_at, 'Image Slider' AS type, images AS data
-        FROM image_slider
-        WHERE user_id = ?
-    `;
-    db.query(sql, [userId, userId, userId, userId, userId], (err, data) => {
+
+// Full Image Section Routes
+app.get('/api/full_image?userId=:userId', (req, res) => {
+    const userId = req.params.userId;
+    const sql = "SELECT * FROM full_image WHERE user_id = ?";
+    db.query(sql, [userId], (err, data) => {
         if (err) {
-            console.error("Error fetching sections:", err);
+            console.error("Error fetching full_image sections:", err);
             return res.status(500).json({ status: "error", message: "Database error" });
         }
         return res.json(data);
     });
 });
-app.post('/api/sections', upload.any(), (req, res) => {
-    const { userId, type, title, description, link, actionButtons, questions, categories, price } = req.body;
+
+app.post('/api/full_image', upload.single('image'), (req, res) => {
+    const { userId, link } = req.body;
+    const image = req.file ? req.file.filename : null;
+    if (!userId || !image) {
+        return res.status(400).json({ status: "error", message: "Missing required fields." });
+    }
+    const insertSql = "INSERT INTO full_image (user_id, image, link) VALUES (?, ?, ?)";
+    db.query(insertSql, [userId, image, link], (err, result) => {
+        if (err) {
+            console.error("Error inserting full_image section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to create full_image section" });
+        }
+        return res.json({ status: "created", message: "Full Image section created successfully", id: result.insertId });
+    });
+});
+
+app.put('/api/full_image/:id', upload.single('image'), (req, res) => {
+    const { userId, link } = req.body;
+    const image = req.file ? req.file.filename : null;
+    const id = req.params.id;
+    if (!userId || !id) {
+        return res.status(400).json({ status: "error", message: "Missing required fields." });
+    }
+    const updateSql = "UPDATE full_image SET image = ?, link = ? WHERE id = ? AND user_id = ?";
+    db.query(updateSql, [image, link, id, userId], (err, result) => {
+        if (err) {
+            console.error("Error updating full_image section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to update full_image section" });
+        }
+        return res.json({ status: "updated", message: "Full Image section updated successfully" });
+    });
+});
+
+app.delete('/api/full_image/:id', (req, res) => {
+    const id = req.params.id;
+    const userId = req.body.userId;
+    const deleteSql = "DELETE FROM full_image WHERE id = ? AND user_id = ?";
+    db.query(deleteSql, [id, userId], (err, result) => {
+        if (err) {
+            console.error("Error deleting full_image section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to delete full_image section" });
+        }
+        return res.json({ status: "deleted", message: "Full Image section deleted successfully" });
+    });
+});
+
+// Image with Content Section Routes
+app.get('/api/image_with_content?userId=:userId', (req, res) => {
+    const userId = req.params.userId;
+    const sql = "SELECT * FROM image_with_content WHERE user_id = ?";
+    db.query(sql, [userId], (err, data) => {
+        if (err) {
+            console.error("Error fetching image_with_content sections:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        return res.json(data);
+    });
+});
+
+app.post('/api/image_with_content', upload.single('image'), (req, res) => {
+    const { userId, title, description, button1Label, button1Url, button2Label, button2Url } = req.body;
+    const image = req.file ? req.file.filename : null;
+    if (!userId || !image) {
+        return res.status(400).json({ status: "error", message: "Missing required fields." });
+    }
+    const insertSql = "INSERT INTO image_with_content (user_id, image, title, description, button1_label, button1_url, button2_label, button2_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    db.query(insertSql, [userId, image, title, description, button1Label, button1Url, button2Label, button2Url], (err, result) => {
+        if (err) {
+            console.error("Error inserting image_with_content section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to create image_with_content section" });
+        }
+        return res.json({ status: "created", message: "Image with Content section created successfully", id: result.insertId });
+    });
+});
+
+app.put('/api/image_with_content/:id', upload.single('image'), (req, res) => {
+    const { userId, title, description, button1Label, button1Url, button2Label, button2Url } = req.body;
+    const image = req.file ? req.file.filename : null;
+    const id = req.params.id;
+    if (!userId || !id) {
+        return res.status(400).json({ status: "error", message: "Missing required fields." });
+    }
+    const updateSql = "UPDATE image_with_content SET image = ?, title = ?, description = ?, button1_label = ?, button1_url = ?, button2_label = ?, button2_url = ? WHERE id = ? AND user_id = ?";
+    db.query(updateSql, [image, title, description, button1Label, button1Url, button2Label, button2Url, id, userId], (err, result) => {
+        if (err) {
+            console.error("Error updating image_with_content section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to update image_with_content section" });
+        }
+        return res.json({ status: "updated", message: "Image with Content section updated successfully" });
+    });
+});
+
+app.delete('/api/image_with_content/:id', (req, res) => {
+    const id = req.params.id;
+    const userId = req.body.userId;
+    const deleteSql = "DELETE FROM image_with_content WHERE id = ? AND user_id = ?";
+    db.query(deleteSql, [id, userId], (err, result) => {
+        if (err) {
+            console.error("Error deleting image_with_content section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to delete image_with_content section" });
+        }
+        return res.json({ status: "deleted", message: "Image with Content section deleted successfully" });
+    });
+});
+
+// Image Slider Section Routes
+app.get('/api/image_slider?userId=:userId', (req, res) => {
+    const userId = req.params.userId;
+    const sql = "SELECT * FROM image_slider WHERE user_id = ?";
+    db.query(sql, [userId], (err, data) => {
+        if (err) {
+            console.error("Error fetching image_slider sections:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        return res.json(data);
+    });
+});
+
+app.post('/api/image_slider', upload.array('images'), (req, res) => {
+    const { userId } = req.body;
     const images = req.files.map(file => file.filename);
-    const formData = {
-        user_id: userId,
-        title: title || null,
-        description: description || null,
-        link: link || null,
-        actionButtons: actionButtons ? JSON.stringify(JSON.parse(actionButtons)) : null,
-        questions: questions ? JSON.stringify(JSON.parse(questions)) : null,
-        categories: categories ? JSON.stringify(JSON.parse(categories)) : null,
-        price: price || null,
-        images: images.length > 0 ? JSON.stringify(images) : null,
-    };
-    let sql;
-    let values;
-    switch (type) {
-        case 'Full Image':
-            sql = `
-                INSERT INTO full_image (user_id, image, link)
-                VALUES (?, ?, ?)
-            `;
-            values = [formData.user_id, formData.images ? JSON.parse(formData.images)[0] : null, formData.link];
-            break;
-        case 'Image with Content':
-            sql = `
-                INSERT INTO image_with_content (user_id, image, title, description, button1_label, button1_url, button2_label, button2_url)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            `;
-            values = [
-                formData.user_id,
-                formData.images ? JSON.parse(formData.images)[0] : null,
-                formData.title,
-                formData.description,
-                formData.actionButtons ? JSON.parse(formData.actionButtons)[0].label : null,
-                formData.actionButtons ? JSON.parse(formData.actionButtons)[0].url : null,
-                formData.actionButtons ? JSON.parse(formData.actionButtons)[1].label : null,
-                formData.actionButtons ? JSON.parse(formData.actionButtons)[1].url : null,
-            ];
-            break;
-        case 'FAQ':
-            sql = `
-                INSERT INTO faq (user_id, title, questions)
-                VALUES (?, ?, ?)
-            `;
-            values = [formData.user_id, formData.title, formData.questions];
-            break;
-        case 'Category Grid':
-            sql = `
-                INSERT INTO category_grid (user_id, title, categories)
-                VALUES (?, ?, ?)
-            `;
-            values = [formData.user_id, formData.title, formData.categories];
-            break;
-        case 'Image Slider':
-            sql = `
-                INSERT INTO image_slider (user_id, images)
-                VALUES (?, ?)
-            `;
-            values = [formData.user_id, formData.images];
-            break;
-        default:
-            return res.status(400).json({ status: "error", message: "Invalid section type" });
+    if (!userId || !images) {
+        return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
-    db.query(sql, values, (err, result) => {
+    const insertSql = "INSERT INTO image_slider (user_id, images) VALUES (?, ?)";
+    db.query(insertSql, [userId, JSON.stringify(images)], (err, result) => {
         if (err) {
-            console.error("Error adding section:", err.sqlMessage || err.message, "SQL Query:", sql);
-            return res.status(500).json({ status: "error", message: "Failed to add section" });
+            console.error("Error inserting image_slider section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to create image_slider section" });
         }
-        return res.json({ status: "created", message: "Section added successfully", id: result.insertId });
+        return res.json({ status: "created", message: "Image Slider section created successfully", id: result.insertId });
     });
 });
-app.put('/api/sections/:id', upload.any(), (req, res) => {
-    const { userId, type, title, description, link, actionButtons, questions, categories, price } = req.body;
+
+app.put('/api/image_slider/:id', upload.array('images'), (req, res) => {
+    const { userId } = req.body;
     const images = req.files.map(file => file.filename);
-    const formData = {
-        user_id: userId,
-        title: title || null,
-        description: description || null,
-        link: link || null,
-        actionButtons: actionButtons ? JSON.stringify(JSON.parse(actionButtons)) : null,
-        questions: questions ? JSON.stringify(JSON.parse(questions)) : null,
-        categories: categories ? JSON.stringify(JSON.parse(categories)) : null,
-        price: price || null,
-        images: images.length > 0 ? JSON.stringify(images) : null,
-    };
-    let sql;
-    let values;
-    switch (type) {
-        case 'Full Image':
-            sql = `
-                UPDATE full_image 
-                SET image = ?, link = ?
-                WHERE id = ? AND user_id = ?
-            `;
-            values = [formData.images ? JSON.parse(formData.images)[0] : null, formData.link, req.params.id, formData.user_id];
-            break;
-        case 'Image with Content':
-            sql = `
-                UPDATE image_with_content 
-                SET image = ?, title = ?, description = ?, button1_label = ?, button1_url = ?, button2_label = ?, button2_url = ?
-                WHERE id = ? AND user_id = ?
-            `;
-            values = [
-                formData.images ? JSON.parse(formData.images)[0] : null,
-                formData.title,
-                formData.description,
-                formData.actionButtons ? JSON.parse(formData.actionButtons)[0].label : null,
-                formData.actionButtons ? JSON.parse(formData.actionButtons)[0].url : null,
-                formData.actionButtons ? JSON.parse(formData.actionButtons)[1].label : null,
-                formData.actionButtons ? JSON.parse(formData.actionButtons)[1].url : null,
-                req.params.id,
-                formData.user_id,
-            ];
-            break;
-        case 'FAQ':
-            sql = `
-                UPDATE faq 
-                SET title = ?, questions = ?
-                WHERE id = ? AND user_id = ?
-            `;
-            values = [formData.title, formData.questions, req.params.id, formData.user_id];
-            break;
-        case 'Category Grid':
-            sql = `
-                UPDATE category_grid 
-                SET title = ?, categories = ?
-                WHERE id = ? AND user_id = ?
-            `;
-            values = [formData.title, formData.categories, req.params.id, formData.user_id];
-            break;
-        case 'Image Slider':
-            sql = `
-                UPDATE image_slider 
-                SET images = ?
-                WHERE id = ? AND user_id = ?
-            `;
-            values = [formData.images, req.params.id, formData.user_id];
-            break;
-        default:
-            return res.status(400).json({ status: "error", message: "Invalid section type" });
+    const id = req.params.id;
+    if (!userId || !id) {
+        return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
-    db.query(sql, values, (err, result) => {
+    const updateSql = "UPDATE image_slider SET images = ? WHERE id = ? AND user_id = ?";
+    db.query(updateSql, [JSON.stringify(images), id, userId], (err, result) => {
         if (err) {
-            console.error("Error updating section:", err.sqlMessage || err.message, "SQL Query:", sql);
-            return res.status(500).json({ status: "error", message: "Failed to update section" });
+            console.error("Error updating image_slider section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to update image_slider section" });
         }
-        return res.json({ status: "updated", message: "Section updated successfully" });
+        return res.json({ status: "updated", message: "Image Slider section updated successfully" });
     });
 });
-app.delete('/api/sections/:id', (req, res) => {
-    const { userId, type } = req.body;
-    let sql;
-    let values;
-    switch (type) {
-        case 'Full Image':
-            sql = "DELETE FROM full_image WHERE id = ? AND user_id = ?";
-            values = [req.params.id, userId];
-            break;
-        case 'Image with Content':
-            sql = "DELETE FROM image_with_content WHERE id = ? AND user_id = ?";
-            values = [req.params.id, userId];
-            break;
-        case 'FAQ':
-            sql = "DELETE FROM faq WHERE id = ? AND user_id = ?";
-            values = [req.params.id, userId];
-            break;
-        case 'Category Grid':
-            sql = "DELETE FROM category_grid WHERE id = ? AND user_id = ?";
-            values = [req.params.id, userId];
-            break;
-        case 'Image Slider':
-            sql = "DELETE FROM image_slider WHERE id = ? AND user_id = ?";
-            values = [req.params.id, userId];
-            break;
-        default:
-            return res.status(400).json({ status: "error", message: "Invalid section type" });
-    }
-    db.query(sql, values, (err, result) => {
+
+app.delete('/api/image_slider/:id', (req, res) => {
+    const id = req.params.id;
+    const userId = req.body.userId;
+    const deleteSql = "DELETE FROM image_slider WHERE id = ? AND user_id = ?";
+    db.query(deleteSql, [id, userId], (err, result) => {
         if (err) {
-            console.error("Error deleting section:", err.sqlMessage || err.message, "SQL Query:", sql);
-            return res.status(500).json({ status: "error", message: "Failed to delete section" });
+            console.error("Error deleting image_slider section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to delete image_slider section" });
         }
-        return res.json({ status: "deleted", message: "Section deleted successfully" });
+        return res.json({ status: "deleted", message: "Image Slider section deleted successfully" });
     });
 });
-app.put('/api/sections/order', (req, res) => {
-    const { userId, sections } = req.body;
-    // Implement logic to update the order of sections if needed
-    // For now, we'll just acknowledge the request
-    return res.json({ status: "updated", message: "Section order updated successfully" });
+
+// Category Grid Section Routes
+app.get('/api/category_grid?userId=:userId', (req, res) => {
+    const userId = req.params.userId;
+    const sql = "SELECT * FROM category_grid WHERE user_id = ?";
+    db.query(sql, [userId], (err, data) => {
+        if (err) {
+            console.error("Error fetching category_grid sections:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        return res.json(data);
+    });
 });
+
+app.post('/api/category_grid', (req, res) => {
+    const { userId, title, categories } = req.body;
+    if (!userId || !title || !categories) {
+        return res.status(400).json({ status: "error", message: "Missing required fields." });
+    }
+    const insertSql = "INSERT INTO category_grid (user_id, title, categories) VALUES (?, ?, ?)";
+    db.query(insertSql, [userId, title, JSON.stringify(categories)], (err, result) => {
+        if (err) {
+            console.error("Error inserting category_grid section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to create category_grid section" });
+        }
+        return res.json({ status: "created", message: "Category Grid section created successfully", id: result.insertId });
+    });
+});
+
+app.put('/api/category_grid/:id', (req, res) => {
+    const { userId, title, categories } = req.body;
+    const id = req.params.id;
+    if (!userId || !id) {
+        return res.status(400).json({ status: "error", message: "Missing required fields." });
+    }
+    const updateSql = "UPDATE category_grid SET title = ?, categories = ? WHERE id = ? AND user_id = ?";
+    db.query(updateSql, [title, JSON.stringify(categories), id, userId], (err, result) => {
+        if (err) {
+            console.error("Error updating category_grid section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to update category_grid section" });
+        }
+        return res.json({ status: "updated", message: "Category Grid section updated successfully" });
+    });
+});
+
+app.delete('/api/category_grid/:id', (req, res) => {
+    const id = req.params.id;
+    const userId = req.body.userId;
+    const deleteSql = "DELETE FROM category_grid WHERE id = ? AND user_id = ?";
+    db.query(deleteSql, [id, userId], (err, result) => {
+        if (err) {
+            console.error("Error deleting category_grid section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to delete category_grid section" });
+        }
+        return res.json({ status: "deleted", message: "Category Grid section deleted successfully" });
+    });
+});
+
+// FAQ Section Routes
+app.get('/api/faq?userId=:userId', (req, res) => {
+    const userId = req.params.userId;
+    const sql = "SELECT * FROM faq WHERE user_id = ?";
+    db.query(sql, [userId], (err, data) => {
+        if (err) {
+            console.error("Error fetching faq sections:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        return res.json(data);
+    });
+});
+
+app.post('/api/faq', (req, res) => {
+    const { userId, title, questions } = req.body;
+    if (!userId || !title || !questions) {
+        return res.status(400).json({ status: "error", message: "Missing required fields." });
+    }
+    const insertSql = "INSERT INTO faq (user_id, title, questions) VALUES (?, ?, ?)";
+    db.query(insertSql, [userId, title, JSON.stringify(questions)], (err, result) => {
+        if (err) {
+            console.error("Error inserting faq section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to create faq section" });
+        }
+        return res.json({ status: "created", message: "FAQ section created successfully", id: result.insertId });
+    });
+});
+
+app.put('/api/faq/:id', (req, res) => {
+    const { userId, title, questions } = req.body;
+    const id = req.params.id;
+    if (!userId || !id) {
+        return res.status(400).json({ status: "error", message: "Missing required fields." });
+    }
+    const updateSql = "UPDATE faq SET title = ?, questions = ? WHERE id = ? AND user_id = ?";
+    db.query(updateSql, [title, JSON.stringify(questions), id, userId], (err, result) => {
+        if (err) {
+            console.error("Error updating faq section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to update faq section" });
+        }
+        return res.json({ status: "updated", message: "FAQ section updated successfully" });
+    });
+});
+
+app.delete('/api/faq/:id', (req, res) => {
+    const id = req.params.id;
+    const userId = req.body.userId;
+    const deleteSql = "DELETE FROM faq WHERE id = ? AND user_id = ?";
+    db.query(deleteSql, [id, userId], (err, result) => {
+        if (err) {
+            console.error("Error deleting faq section:", err);
+            return res.status(500).json({ status: "error", message: "Failed to delete faq section" });
+        }
+        return res.json({ status: "deleted", message: "FAQ section deleted successfully" });
+    });
+});
+
 app.listen(8081, () => {
     console.log("Listening on port 8081");
 });

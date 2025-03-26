@@ -43,11 +43,11 @@ function Pages() {
         }
     };
 
-    const handleEditSection = (sectionId) => {
-        const section = sections.find(section => section.id === sectionId);
-        if (section) {
+    const handleEditSection = (section) => {
+        const index = sections.findIndex(sec => sec.id === section.id);
+        if (index !== -1) {
             setModalType(section.type);
-            setModalIndex(sections.findIndex(sec => sec.id === sectionId));
+            setModalIndex(index);
             setModalData({
                 ...section,
                 actionButtons: section.actionButtons || [{ label: '', url: '' }, { label: '', url: '' }],
@@ -56,7 +56,7 @@ function Pages() {
                 image: section.image || [],
             });
         } else {
-            console.error("Section is undefined at id:", sectionId);
+            console.error("Section is undefined at id:", section.id);
         }
     };
 
@@ -88,7 +88,7 @@ function Pages() {
         newSections.splice(index, 0, removed);
         setSections(newSections);
         setDraggedIndex(null);
-        updateSectionOrderOnServer(newSections);
+        // No need to update order on server as there's no order-specific table
     };
 
     const closeModal = () => {
@@ -108,8 +108,10 @@ function Pages() {
 
     const handleSaveChanges = async () => {
         const newSections = [...sections];
-        newSections[modalIndex] = { ...newSections[modalIndex], ...modalData };
-        setSections(newSections);
+        if (modalIndex !== null) {
+            newSections[modalIndex] = { ...newSections[modalIndex], ...modalData };
+            setSections(newSections);
+        }
         closeModal();
         if (modalIndex === null) {
             await addSectionToServer(modalData);
@@ -145,14 +147,8 @@ function Pages() {
     };
 
     const handleCategoryChange = (e) => {
-        const { value } = e.target;
-        const newCategories = [...modalData.categories];
-        if (newCategories.includes(value)) {
-            newCategories.splice(newCategories.indexOf(value), 1);
-        } else {
-            newCategories.push(value);
-        }
-        setModalData({ ...modalData, categories: newCategories });
+        const selectedCategories = Array.from(e.target.selectedOptions, option => option.value);
+        setModalData({ ...modalData, categories: selectedCategories });
     };
 
     const handleImageUpload = (e) => {
@@ -166,7 +162,7 @@ function Pages() {
     };
 
     useEffect(() => {
-        const userId = localStorage.getItem('userId');
+        const userId = localStorage.getItem('user_id');
         if (userId) {
             fetchSections(userId);
             fetchCategories(userId);
@@ -179,22 +175,32 @@ function Pages() {
     }, [sections]);
 
     const fetchSections = (userId) => {
-        fetch(`http://localhost:8081/api/sections?userId=${userId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (Array.isArray(data)) {
-                    setSections(data);
-                    localStorage.setItem('sections', JSON.stringify(data));
-                } else {
-                    console.error("Invalid data received from server:", data);
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching sections:', error);
-                // Fallback to local storage if server fetch fails
-                const storedSections = JSON.parse(localStorage.getItem('sections')) || [];
-                setSections(storedSections);
-            });
+        Promise.all([
+            fetch(`http://localhost:8081/api/full_image?userId=${userId}`),
+            fetch(`http://localhost:8081/api/image_with_content?userId=${userId}`),
+            fetch(`http://localhost:8081/api/image_slider?userId=${userId}`),
+            fetch(`http://localhost:8081/api/category_grid?userId=${userId}`),
+            fetch(`http://localhost:8081/api/faq?userId=${userId}`)
+        ])
+        .then(responses => Promise.all(responses.map(res => res.json())))
+        .then(data => {
+            const allSections = [
+                ...data[0].map(item => ({ ...item, type: 'Full Image' })),
+                ...data[1].map(item => ({ ...item, type: 'Image with Content' })),
+                ...data[2].map(item => ({ ...item, type: 'Image Slider' })),
+                ...data[3].map(item => ({ ...item, type: 'Category Grid' })),
+                ...data[4].map(item => ({ ...item, type: 'FAQ' }))
+            ];
+            setSections(allSections);
+            localStorage.setItem('sections', JSON.stringify(allSections));
+        })
+        .catch(error => {
+            console.error('Error fetching sections:', error);
+            // Fallback to local storage if server fetch fails
+            const storedSections = JSON.parse(localStorage.getItem('sections')) || [];
+            setSections(storedSections);
+            alert("Failed to fetch sections. Using cached data.");
+        });
     };
 
     const fetchCategories = (userId) => {
@@ -205,30 +211,60 @@ function Pages() {
                     setCategoryOptions(data.map(category => category.category_name));
                 } else {
                     console.error("Invalid data received from server:", data);
+                    alert("Invalid data received from server. Please try again later.");
                 }
             })
             .catch(error => {
                 console.error('Error fetching categories:', error);
+                alert("Failed to fetch categories. Please try again later.");
             });
     };
 
     const addSectionToServer = async (section) => {
-        const userId = localStorage.getItem('userId');
-        const formData = new FormData();
-        formData.append('userId', userId);
-        formData.append('type', section.type);
-        formData.append('title', section.title);
-        formData.append('description', section.description);
-        formData.append('link', section.link);
-        formData.append('actionButtons', JSON.stringify(section.actionButtons));
-        formData.append('questions', JSON.stringify(section.questions));
-        formData.append('categories', JSON.stringify(section.categories));
-        formData.append('price', section.price);
-        section.image.forEach((file, index) => {
-            formData.append(`image${index}`, file);
-        });
+        const userId = localStorage.getItem('user_id');
+        let formData = new FormData();
+        let url = '';
+        switch (section.type) {
+            case 'Full Image':
+                url = 'http://localhost:8081/api/full_image';
+                formData.append('user_id', userId);
+                formData.append('image', section.image[0]);
+                formData.append('link', section.link);
+                break;
+            case 'Image with Content':
+                url = 'http://localhost:8081/api/image_with_content';
+                formData.append('user_id', userId);
+                formData.append('image', section.image[0]);
+                formData.append('title', section.title);
+                formData.append('description', section.description);
+                formData.append('button1_label', section.actionButtons[0].label);
+                formData.append('button1_url', section.actionButtons[0].url);
+                formData.append('button2_label', section.actionButtons[1].label);
+                formData.append('button2_url', section.actionButtons[1].url);
+                break;
+            case 'FAQ':
+                url = 'http://localhost:8081/api/faq';
+                formData.append('user_id', userId);
+                formData.append('title', section.title);
+                formData.append('questions', JSON.stringify(section.questions));
+                break;
+            case 'Category Grid':
+                url = 'http://localhost:8081/api/category_grid';
+                formData.append('user_id', userId);
+                formData.append('title', section.title);
+                formData.append('categories', JSON.stringify(section.categories));
+                break;
+            case 'Image Slider':
+                url = 'http://localhost:8081/api/image_slider';
+                formData.append('user_id', userId);
+                formData.append('images', JSON.stringify(section.image.map(file => file.name)));
+                break;
+            default:
+                console.error('Unknown section type:', section.type);
+                return;
+        }
         try {
-            const response = await fetch('http://localhost:8081/api/sections', {
+            const response = await fetch(url, {
                 method: 'POST',
                 body: formData
             });
@@ -246,22 +282,50 @@ function Pages() {
     };
 
     const updateSectionOnServer = async (section) => {
-        const userId = localStorage.getItem('userId');
-        const formData = new FormData();
-        formData.append('userId', userId);
-        formData.append('type', section.type);
-        formData.append('title', section.title);
-        formData.append('description', section.description);
-        formData.append('link', section.link);
-        formData.append('actionButtons', JSON.stringify(section.actionButtons));
-        formData.append('questions', JSON.stringify(section.questions));
-        formData.append('categories', JSON.stringify(section.categories));
-        formData.append('price', section.price);
-        section.image.forEach((file, index) => {
-            formData.append(`image${index}`, file);
-        });
+        const userId = localStorage.getItem('user_id');
+        let formData = new FormData();
+        let url = '';
+        switch (section.type) {
+            case 'Full Image':
+                url = `http://localhost:8081/api/full_image/${section.id}`;
+                formData.append('user_id', userId);
+                formData.append('image', section.image[0]);
+                formData.append('link', section.link);
+                break;
+            case 'Image with Content':
+                url = `http://localhost:8081/api/image_with_content/${section.id}`;
+                formData.append('user_id', userId);
+                formData.append('image', section.image[0]);
+                formData.append('title', section.title);
+                formData.append('description', section.description);
+                formData.append('button1_label', section.actionButtons[0].label);
+                formData.append('button1_url', section.actionButtons[0].url);
+                formData.append('button2_label', section.actionButtons[1].label);
+                formData.append('button2_url', section.actionButtons[1].url);
+                break;
+            case 'FAQ':
+                url = `http://localhost:8081/api/faq/${section.id}`;
+                formData.append('user_id', userId);
+                formData.append('title', section.title);
+                formData.append('questions', JSON.stringify(section.questions));
+                break;
+            case 'Category Grid':
+                url = `http://localhost:8081/api/category_grid/${section.id}`;
+                formData.append('user_id', userId);
+                formData.append('title', section.title);
+                formData.append('categories', JSON.stringify(section.categories));
+                break;
+            case 'Image Slider':
+                url = `http://localhost:8081/api/image_slider/${section.id}`;
+                formData.append('user_id', userId);
+                formData.append('images', JSON.stringify(section.image.map(file => file.name)));
+                break;
+            default:
+                console.error('Unknown section type:', section.type);
+                return;
+        }
         try {
-            const response = await fetch(`http://localhost:8081/api/sections/${section.id}`, {
+            const response = await fetch(url, {
                 method: 'PUT',
                 body: formData
             });
@@ -279,18 +343,40 @@ function Pages() {
     };
 
     const deleteSectionFromServer = (sectionId, sectionType) => {
-        fetch(`http://localhost:8081/api/sections/${sectionId}`, {
+        const userId = localStorage.getItem('user_id');
+        let url = '';
+        switch (sectionType) {
+            case 'Full Image':
+                url = `http://localhost:8081/api/full_image/${sectionId}`;
+                break;
+            case 'Image with Content':
+                url = `http://localhost:8081/api/image_with_content/${sectionId}`;
+                break;
+            case 'FAQ':
+                url = `http://localhost:8081/api/faq/${sectionId}`;
+                break;
+            case 'Category Grid':
+                url = `http://localhost:8081/api/category_grid/${sectionId}`;
+                break;
+            case 'Image Slider':
+                url = `http://localhost:8081/api/image_slider/${sectionId}`;
+                break;
+            default:
+                console.error('Unknown section type:', sectionType);
+                return;
+        }
+        fetch(url, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ userId: localStorage.getItem('userId'), type: sectionType }),
+            body: JSON.stringify({ userId: userId }),
         })
         .then(response => response.json())
         .then(data => {
             console.log(data.message);
             alert("Section deleted successfully!");
-            fetchSections(localStorage.getItem('userId'));
+            fetchSections(userId);
         })
         .catch(error => {
             console.error("Error deleting section:", error);
@@ -298,26 +384,12 @@ function Pages() {
         });
     };
 
-    const updateSectionOrderOnServer = (sections) => {
-        const userId = localStorage.getItem('userId');
-        fetch(`http://localhost:8081/api/sections/order?userId=${userId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ sections }),
-        })
-        .then(response => response.json())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error updating section order:', error));
-    };
-
     const renderSection = (section) => {
         return (
             <div key={section.id} className="added-section" draggable onDragStart={() => handleDragStart(sections.findIndex(sec => sec.id === section.id))} onDragOver={handleDragOver} onDrop={() => handleDrop(sections.findIndex(sec => sec.id === section.id))}>
                 <span>{section.title || section.type}</span>
                 <div className="buttons">
-                    <button onClick={() => handleEditSection(section.id)}>Edit</button>
+                    <button onClick={() => handleEditSection(section)}>Edit</button>
                     <button onClick={() => handleDeleteSection(section.id, section.type)}>Delete</button>
                 </div>
             </div>
@@ -632,9 +704,9 @@ function Pages() {
                             value={modalData.title}
                             onChange={handleInputChange}
                         />
-                        <select multiple id="categories" name="categories" onChange={handleCategoryChange}>
+                        <select multiple id="categories" name="categories" value={modalData.categories} onChange={handleCategoryChange}>
                             {categoryOptions.map((option, index) => (
-                                <option key={index} value={option} selected={modalData.categories.includes(option)}>
+                                <option key={index} value={option}>
                                     {option}
                                 </option>
                             ))}
@@ -662,7 +734,7 @@ function Pages() {
                             name="imageSliderInput"
                             accept="image/*"
                             multiple
-                            onChange={handleImageUpload}
+                            onChange={(e) => handleImageUpload(e)}
                         />
                         <div className="image-previews">
                             {modalData.image.map((preview, index) => (
