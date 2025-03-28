@@ -7,12 +7,14 @@ const fs = require('fs');
 const app = express();
 app.use(cors());
 app.use(express.json());
+
 const db = mysql.createConnection({
     host: "localhost", 
     user: "root",
     password: "",
     database: "webcraft_db"
 });
+
 db.connect(err => {
     if (err) {
         console.error("Database connection failed:", err.stack);
@@ -30,6 +32,7 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + path.extname(file.originalname));
     },
 });
+
 const upload = multer({ storage: storage });
 
 // Define the /api/upload endpoint
@@ -38,37 +41,6 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
         return res.status(400).json({ status: "error", message: "No file uploaded." });
     }
     res.json({ filename: req.file.filename });
-});
-
-// Existing signup route
-app.post('/signup', (req, res) => {
-    const sql = "INSERT INTO users(`name`, `email`, `password`) VALUES (?)";
-    const values = [
-        req.body.name,
-        req.body.email,
-        req.body.password
-    ];
-    db.query(sql, [values], (err, data) => {
-        if (err) {
-            return res.json("Error");
-        }
-        return res.json(data);
-    });
-});
-
-// Existing login route
-app.post('/login', (req, res) => {
-    const sql = "SELECT * FROM users WHERE `email`= ? AND `password`= ?";
-    db.query(sql, [req.body.email, req.body.password], (err, data) => {
-        if (err) {
-            return res.json("Error");
-        }
-        if (data.length > 0) {
-            return res.json({ status: "success", userId: data[0].id });
-        } else {
-            return res.json("fail");
-        }
-    });
 });
 
 // Business registration routes
@@ -558,7 +530,7 @@ app.get('/api/full_image', (req, res) => {
 app.post('/api/full_image', upload.single('image'), (req, res) => {
     const { userId, link } = req.body;
     const image = req.file ? req.file.filename : null;
-    if (!userId || !image) {
+    if (!userId || !image || !link) {
         return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
     const insertSql = "INSERT INTO full_image (user_id, image, link) VALUES (?, ?, ?)";
@@ -575,7 +547,7 @@ app.put('/api/full_image/:id', upload.single('image'), (req, res) => {
     const { userId, link } = req.body;
     const image = req.file ? req.file.filename : null;
     const id = req.params.id;
-    if (!userId || !id) {
+    if (!userId || !id || !link) {
         return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
     console.log("Updating full_image section with userId:", userId, "and id:", id);
@@ -620,7 +592,7 @@ app.get('/api/image_with_content', (req, res) => {
 app.post('/api/image_with_content', upload.single('image'), (req, res) => {
     const { userId, title, description, button1Label, button1Url, button2Label, button2Url } = req.body;
     const image = req.file ? req.file.filename : null;
-    if (!userId || !image) {
+    if (!userId || !image || !title || !description || !button1Label || !button1Url || !button2Label || !button2Url) {
         return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
     const insertSql = "INSERT INTO image_with_content (user_id, image, title, description, button1_label, button1_url, button2_label, button2_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -637,7 +609,7 @@ app.put('/api/image_with_content/:id', upload.single('image'), (req, res) => {
     const { userId, title, description, button1Label, button1Url, button2Label, button2Url } = req.body;
     const image = req.file ? req.file.filename : null;
     const id = req.params.id;
-    if (!userId || !id) {
+    if (!userId || !id || !title || !description || !button1Label || !button1Url || !button2Label || !button2Url) {
         return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
     console.log("Updating image_with_content section with userId:", userId, "and id:", id);
@@ -704,7 +676,7 @@ app.put('/api/image_slider/:id', upload.array('images'), (req, res) => {
     const { userId } = req.body;
     const images = req.files.map(file => file.filename);
     const id = req.params.id;
-    if (!userId || !id) {
+    if (!userId || !id || !images) {
         return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
     console.log("Updating image_slider section with userId:", userId, "and id:", id);
@@ -763,7 +735,7 @@ app.post('/api/category_grid', (req, res) => {
 app.put('/api/category_grid/:id', (req, res) => {
     const { userId, title, categories } = req.body;
     const id = req.params.id;
-    if (!userId || !id) {
+    if (!userId || !id || !title || !categories) {
         return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
     console.log("Updating category_grid section with userId:", userId, "and id:", id);
@@ -823,7 +795,7 @@ app.post('/api/faq', (req, res) => {
 app.put('/api/faq/:id', (req, res) => {
     const { userId, title, questions } = req.body;
     const id = req.params.id;
-    if (!userId || !id) {
+    if (!userId || !id || !title || !questions) {
         return res.status(400).json({ status: "error", message: "Missing required fields." });
     }
     console.log("Updating faq section with userId:", userId, "and id:", id);
@@ -852,6 +824,7 @@ app.delete('/api/faq/:id', (req, res) => {
     });
 });
 
+// Start the server
 app.listen(8081, () => {
-    console.log("Listening on port 8081");
+    console.log("Server is running on port 8081");
 });

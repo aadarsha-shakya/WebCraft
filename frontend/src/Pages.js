@@ -162,7 +162,7 @@ function Pages() {
     };
 
     useEffect(() => {
-        const userId = localStorage.getItem('user_id');
+        const userId = localStorage.getItem('userId');
         if (userId) {
             fetchSections(userId);
             fetchCategories(userId);
@@ -221,20 +221,24 @@ function Pages() {
     };
 
     const addSectionToServer = async (section) => {
-        const userId = localStorage.getItem('user_id');
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            console.error("User ID is not available.");
+            return;
+        }
         let formData = new FormData();
         let url = '';
         switch (section.type) {
             case 'Full Image':
                 url = 'http://localhost:8081/api/full_image';
                 formData.append('user_id', userId);
-                formData.append('image', section.image[0]);
+                if (section.image.length > 0) formData.append('image', section.image[0]);
                 formData.append('link', section.link);
                 break;
             case 'Image with Content':
                 url = 'http://localhost:8081/api/image_with_content';
                 formData.append('user_id', userId);
-                formData.append('image', section.image[0]);
+                if (section.image.length > 0) formData.append('image', section.image[0]);
                 formData.append('title', section.title);
                 formData.append('description', section.description);
                 formData.append('button1_label', section.actionButtons[0].label);
@@ -282,72 +286,92 @@ function Pages() {
     };
 
     const updateSectionOnServer = async (section) => {
-        const userId = localStorage.getItem('user_id');
-        let formData = new FormData();
-        let url = '';
-        switch (section.type) {
-            case 'Full Image':
-                url = `http://localhost:8081/api/full_image/${section.id}`;
-                formData.append('user_id', userId);
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        console.error("User ID is not available.");
+        return;
+    }
+    let formData = new FormData();
+    let url = '';
+    switch (section.type) {
+        case 'Full Image':
+            url = `http://localhost:8081/api/full_image/${section.id}`;
+            formData.append('user_id', userId);
+            if (section.image.length > 0) {
                 formData.append('image', section.image[0]);
-                formData.append('link', section.link);
-                break;
-            case 'Image with Content':
-                url = `http://localhost:8081/api/image_with_content/${section.id}`;
-                formData.append('user_id', userId);
-                formData.append('image', section.image[0]);
-                formData.append('title', section.title);
-                formData.append('description', section.description);
-                formData.append('button1_label', section.actionButtons[0].label);
-                formData.append('button1_url', section.actionButtons[0].url);
-                formData.append('button2_label', section.actionButtons[1].label);
-                formData.append('button2_url', section.actionButtons[1].url);
-                break;
-            case 'FAQ':
-                url = `http://localhost:8081/api/faq/${section.id}`;
-                formData.append('user_id', userId);
-                formData.append('title', section.title);
-                formData.append('questions', JSON.stringify(section.questions));
-                break;
-            case 'Category Grid':
-                url = `http://localhost:8081/api/category_grid/${section.id}`;
-                formData.append('user_id', userId);
-                formData.append('title', section.title);
-                formData.append('categories', JSON.stringify(section.categories));
-                break;
-            case 'Image Slider':
-                url = `http://localhost:8081/api/image_slider/${section.id}`;
-                section.image.forEach((img, index) => formData.append(`images[${index}]`, img));
-                formData.append('user_id', userId);
-                break;
-            default:
-                console.error('Unknown section type:', section.type);
+            } else {
+                console.error("Image is missing or empty.");
+                alert("Image is required.");
                 return;
-        }
-        console.log("Sending update request to:", url);
-        console.log("FormData:", Object.fromEntries(formData.entries()));
-        try {
-            const response = await fetch(url, {
-                method: 'PUT',
-                body: formData
-            });
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error("Response error:", errorText);
-                throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            const result = await response.json();
-            console.log(result.message);
-            alert("Section updated successfully!");
-            fetchSections(userId);
-        } catch (error) {
-            console.error("Error updating section:", error);
-            alert("Failed to update section. Please try again later.");
+            formData.append('link', section.link);
+            break;
+        case 'Image with Content':
+            url = `http://localhost:8081/api/image_with_content/${section.id}`;
+            formData.append('user_id', userId);
+            if (section.image.length > 0) {
+                formData.append('image', section.image[0]);
+            } else {
+                console.error("Image is missing or empty.");
+                alert("Image is required.");
+                return;
+            }
+            formData.append('title', section.title);
+            formData.append('description', section.description);
+            formData.append('button1_label', section.actionButtons[0].label);
+            formData.append('button1_url', section.actionButtons[0].url);
+            formData.append('button2_label', section.actionButtons[1].label);
+            formData.append('button2_url', section.actionButtons[1].url);
+            break;
+        case 'FAQ':
+            url = `http://localhost:8081/api/faq/${section.id}`;
+            formData.append('user_id', userId);
+            formData.append('title', section.title);
+            formData.append('questions', JSON.stringify(section.questions));
+            break;
+        case 'Category Grid':
+            url = `http://localhost:8081/api/category_grid/${section.id}`;
+            formData.append('user_id', userId);
+            formData.append('title', section.title);
+            formData.append('categories', JSON.stringify(section.categories));
+            break;
+        case 'Image Slider':
+            url = `http://localhost:8081/api/image_slider/${section.id}`;
+            section.image.forEach((img, index) => formData.append(`images[${index}]`, img));
+            formData.append('user_id', userId);
+            break;
+        default:
+            console.error('Unknown section type:', section.type);
+            return;
+    }
+    console.log("Sending update request to:", url);
+    console.log("FormData:", Object.fromEntries(formData.entries()));
+    try {
+        const response = await fetch(url, {
+            method: 'PUT',
+            body: formData
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Response error:", errorText);
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
-    };
+        const result = await response.json();
+        console.log(result.message);
+        alert("Section updated successfully!");
+        fetchSections(userId);
+    } catch (error) {
+        console.error("Error updating section:", error);
+        alert("Failed to update section. Please try again later.");
+    }
+};
 
     const deleteSectionFromServer = (sectionId, sectionType) => {
-        const userId = localStorage.getItem('user_id');
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            console.error("User ID is not available.");
+            return;
+        }
         let url = '';
         switch (sectionType) {
             case 'Full Image':
