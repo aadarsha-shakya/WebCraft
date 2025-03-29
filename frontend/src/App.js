@@ -22,6 +22,7 @@ import Subscription from './Subscription';
 import Pages from './Pages';
 import YourWeb from './YourWeb';
 import Checkout from './Checkout';
+import ProductFilter from './ProductFilter';
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
 
         <Route path="/YourWeb" element={<YourWeb />} />
         <Route path="/Checkout" element={<Checkout />} />
+        <Route path="/ProductFilter" element={<ProductFilter />} />
 
       </Routes>
     </BrowserRouter>

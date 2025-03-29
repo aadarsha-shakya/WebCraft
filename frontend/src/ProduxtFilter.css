@@ -1,0 +1,173 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-left,
+.navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.brand-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.brand-logo {
+    width: 100px;
+    height: auto;
+}
+
+.navbar-right a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #333;
+}
+
+.card-button {
+    margin-left: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.card-button i {
+    margin-right: 5px;
+}
+
+/* Main Content */
+.your-web-main {
+    display: flex;
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+.filter-and-products {
+    display: flex;
+}
+
+.filter-section {
+    width: 25%;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+}
+
+.filter-group {
+    margin-bottom: 20px;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.filter-group input[type="range"] {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.filter-group span {
+    margin-right: 10px;
+}
+
+.products-section {
+    width: 75%;
+    padding: 20px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.product-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.product-card {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-card img {
+    width: 100%;
+    height: auto;
+}
+
+.product-card h3 {
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+.product-card p {
+    margin: 5px 0;
+}
+
+.save-badge {
+    background-color: green;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* Footer Styles */
+.your-web-footer {
+    width: 100%;
+    padding: 20px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+}
+
+.footer-description,
+.footer-copyright {
+    margin-bottom: 10px;
+}
+
+.footer-links a {
+    margin: 0 10px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.footer-socials a {
+    margin: 0 10px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.footer-socials i {
+    font-size: 20px;
+}

@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './YourWeb.css';
+import './ProduxtFilter.css';
 
-function YourWeb() {
+function ProductFilter() {
     const [branding, setBranding] = useState({});
     const [components, setComponents] = useState({});
     const [footerSettings, setFooterSettings] = useState({});
-    const [sections, setSections] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [variants, setVariants] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
+    const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 }); // Default price range
+    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [selectedVariants, setSelectedVariants] = useState([]);
+    const [selectedSizes, setSelectedSizes] = useState([]);
     const userId = localStorage.getItem('userId'); // Assume userId is stored in localStorage
     const navigate = useNavigate(); // Import and use navigate
 
@@ -15,20 +21,14 @@ function YourWeb() {
             fetchBranding(userId);
             fetchComponents(userId);
             fetchFooterSettings(userId);
-            fetchSections(userId); // Fetch sections
+            fetchProducts(userId);
+            fetchVariants(userId);
         } else {
             console.error("User ID not found in localStorage");
             alert("User ID not found. Please log in again.");
             navigate('/Login');
         }
     }, [userId, navigate]); // Include navigate in the dependency array
-
-    useEffect(() => {
-        if (branding.popup_modal_enabled && branding.popup_modal_image) {
-            alert(`Click here to visit: ${branding.popup_modal_link}`);
-            window.open(`/uploads/${branding.popup_modal_image}`, '_blank');
-        }
-    }, [branding.popup_modal_enabled, branding.popup_modal_image, branding.popup_modal_link]);
 
     const fetchBranding = (userId) => {
         fetch(`http://localhost:8081/api/branding/${userId}`)
@@ -63,15 +63,130 @@ function YourWeb() {
             .catch(error => console.error("Error fetching footer settings:", error));
     };
 
-    const fetchSections = (userId) => {
-        fetch(`http://localhost:8081/api/sections/${userId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data) {
-                    setSections(data);
-                }
-            })
-            .catch(error => console.error("Error fetching sections:", error));
+    const fetchProducts = async (userId) => {
+        try {
+            const response = await fetch(`http://localhost:8081/api/products?userId=${userId}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            setProducts(data);
+            setFilteredProducts(data); // Initialize filtered products with all products
+        } catch (error) {
+            console.error("Error fetching products:", error);
+        }
+    };
+
+    const fetchVariants = async (userId) => {
+        try {
+            const response = await fetch(`http://localhost:8081/api/variants?userId=${userId}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            setVariants(data);
+        } catch (error) {
+            console.error("Error fetching variants:", error);
+        }
+    };
+
+    const handlePriceChange = (event) => {
+        const value = event.target.value;
+        const [min, max] = value.split(',').map(Number);
+        setPriceRange({ min, max });
+        applyFilters();
+    };
+
+    const handleCategoryChange = (category) => {
+        setSelectedCategories(prev => {
+            if (prev.includes(category)) {
+                return prev.filter(c => c !== category);
+            } else {
+                return [...prev, category];
+            }
+        });
+        applyFilters();
+    };
+
+    const handleVariantChange = (variant) => {
+        setSelectedVariants(prev => {
+            if (prev.includes(variant)) {
+                return prev.filter(v => v !== variant);
+            } else {
+                return [...prev, variant];
+            }
+        });
+        applyFilters();
+    };
+
+    const handleSizeChange = (size) => {
+        setSelectedSizes(prev => {
+            if (prev.includes(size)) {
+                return prev.filter(s => s !== size);
+            } else {
+                return [...prev, size];
+            }
+        });
+        applyFilters();
+    };
+
+    const applyFilters = () => {
+        let filtered = products;
+
+        // Filter by price range
+        filtered = filtered.filter(product => {
+            const sellingPrices = product.variants ? product.variants.map(variant => variant.selling_price) : [];
+            const minSellingPrice = Math.min(...sellingPrices);
+            const maxSellingPrice = Math.max(...sellingPrices);
+            return minSellingPrice >= priceRange.min && maxSellingPrice <= priceRange.max;
+        });
+
+        // Filter by categories
+        if (selectedCategories.length > 0) {
+            filtered = filtered.filter(product => selectedCategories.includes(product.category_name));
+        }
+
+        // Filter by variants
+        if (selectedVariants.length > 0) {
+            filtered = filtered.filter(product => {
+                const productVariantNames = product.variants ? product.variants.map(variant => variant.variant_name) : [];
+                return selectedVariants.every(selectedVariant =>
+                    productVariantNames.includes(selectedVariant)
+                );
+            });
+        }
+
+        // Filter by sizes
+        if (selectedSizes.length > 0) {
+            filtered = filtered.filter(product => {
+                const productSizes = product.variants ? product.variants.map(variant => variant.size) : [];
+                return selectedSizes.every(selectedSize =>
+                    productSizes.includes(selectedSize)
+                );
+            });
+        }
+
+        setFilteredProducts(filtered);
+    };
+
+    const renderProductCard = (product) => {
+        const mainImage = product.product_images ? product.product_images[0] : null;
+        const sellingPrices = product.variants ? product.variants.map(variant => variant.selling_price) : [];
+        const lowestPrice = Math.min(...sellingPrices);
+        const crossedPrices = product.variants ? product.variants.map(variant => variant.crossed_price) : [];
+        const crossedPrice = Math.max(...crossedPrices);
+
+        return (
+            <div className="product-card">
+                <img src={`/uploads/${mainImage}`} alt={product.product_name} />
+                <h3>{product.product_name}</h3>
+                <p>Rs {lowestPrice}</p>
+                {crossedPrice > 0 && (
+                    <p style={{ textDecoration: 'line-through', color: 'gray' }}>Rs {crossedPrice}</p>
+                )}
+                <button className="save-badge">SAVE {crossedPrice - lowestPrice}</button>
+            </div>
+        );
     };
 
     const renderNavbar = () => {
@@ -81,7 +196,6 @@ function YourWeb() {
                     <nav className="navbar">
                         <div className="navbar-left">
                             <Link to="/YourWeb" className="brand-link">
-                                {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
                                 <img src={`/uploads/${branding.brand_logo}`} alt="Brand Logo" className="brand-logo" />
                             </Link>
                         </div>
@@ -100,7 +214,6 @@ function YourWeb() {
                         <div className="logo-container">
                             {branding.brand_logo && (
                                 <Link to="/YourWeb" className="brand-link">
-                                    {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
                                     <img src={`/uploads/${branding.brand_logo}`} alt="Brand Logo" className="brand-logo" />
                                 </Link>
                             )}
@@ -129,7 +242,6 @@ function YourWeb() {
                         <div className="logo-container">
                             {branding.brand_logo && (
                                 <Link to="/YourWeb" className="brand-link">
-                                    {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
                                     <img src={`/uploads/${branding.brand_logo}`} alt="Brand Logo" className="brand-logo" />
                                 </Link>
                             )}
@@ -150,7 +262,6 @@ function YourWeb() {
                     <nav className="navbar">
                         <div className="navbar-left">
                             <Link to="/YourWeb" className="brand-link">
-                                {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
                                 <img src={`/uploads/${branding.brand_logo}`} alt="Brand Logo" className="brand-logo" />
                             </Link>
                         </div>
@@ -227,90 +338,93 @@ function YourWeb() {
         );
     };
 
-    const renderSection = (section) => {
-        switch (section.type) {
-            case 'Full Image':
-                return (
-                    <div key={section.id} className="full-image-section">
-                        {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
-                        <img src={`http://localhost:8081/uploads/${section.image}`} alt={section.title || "Full Image"} className="full-image" />
-                        {section.link && (
-                            <a href={section.link} target="_blank" rel="noopener noreferrer" className="full-image-link">
-                                Visit Link
-                            </a>
-                        )}
-                    </div>
-                );
-            case 'Image with Content':
-                return (
-                    <div key={section.id} className="image-with-content-section">
-                        {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
-                        <img src={`http://localhost:8081/uploads/${section.image}`} alt={section.title || "Image with Content"} className="section-image" />
-                        <div className="section-content">
-                            <h2>{section.title}</h2>
-                            <p>{section.description}</p>
-                            {section.button1_label && section.button1_url && (
-                                <a href={section.button1_url} target="_blank" rel="noopener noreferrer" className="section-button">
-                                    {section.button1_label}
-                                </a>
-                            )}
-                            {section.button2_label && section.button2_url && (
-                                <a href={section.button2_url} target="_blank" rel="noopener noreferrer" className="section-button">
-                                    {section.button2_label}
-                                </a>
-                            )}
-                        </div>
-                    </div>
-                );
-            case 'Category Grid':
-                return (
-                    <div key={section.id} className="category-grid-section">
-                        <h2>{section.title}</h2>
-                        <div className="category-grid">
-                            {JSON.parse(section.categories).map((category, index) => (
-                                <div key={index} className="category-item">
-                                    {category}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                );
-            case 'Image Slider':
-                return (
-                    <div key={section.id} className="image-slider-section">
-                        <div className="image-slider">
-                            {JSON.parse(section.images).map((image, index) => (
-                                <img key={index} src={`http://localhost:8081/uploads/${image}`} alt={`Image ${index + 1}`} className="slider-image" />
-                            ))}
-                        </div>
-                    </div>
-                );
-            case 'FAQ':
-                return (
-                    <div key={section.id} className="faq-section">
-                        <h2>{section.title}</h2>
-                        <div className="faq-list">
-                            {JSON.parse(section.questions).map((question, index) => (
-                                <div key={index} className="faq-item">
-                                    <h3>{question.question}</h3>
-                                    <p>{question.answer}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                );
-            default:
-                return null;
-        }
-    };
-
     return (
         <div className="your-web-container" style={{ fontFamily: branding.fontFamily, backgroundColor: branding.primaryColor }}>
             {/* HEADER */}
             {renderNavbar()}
             {/* MAIN CONTENT */}
             <main className="your-web-main">
-                {sections.map(renderSection)} {/* Render sections here */}
+                <div className="filter-and-products">
+                    {/* FILTER SECTION */}
+                    <div className="filter-section">
+                        <h2>FILTER BY:</h2>
+                        {/* Price Filter */}
+                        <div className="filter-group">
+                            <label htmlFor="price-range">Price</label>
+                            <input
+                                type="range"
+                                id="price-range"
+                                min="0"
+                                max="10000"
+                                step="100"
+                                value={`${priceRange.min},${priceRange.max}`}
+                                onChange={handlePriceChange}
+                            />
+                            <span>Rs {priceRange.min}</span>
+                            <span>Rs {priceRange.max}</span>
+                        </div>
+
+                        {/* Category Filter */}
+                        <div className="filter-group">
+                            <label>Category</label>
+                            {Array.from(new Set(products.map(product => product.category_name))).map(category => (
+                                <div key={category}>
+                                    <input
+                                        type="checkbox"
+                                        id={`category-${category}`}
+                                        checked={selectedCategories.includes(category)}
+                                        onChange={() => handleCategoryChange(category)}
+                                    />
+                                    <label htmlFor={`category-${category}`}>{category}</label>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Variant Filter */}
+                        <div className="filter-group">
+                            <label>Product Variants</label>
+                            {Array.from(new Set(variants.map(variant => variant.variant_name))).map(variantName => (
+                                <div key={variantName}>
+                                    <input
+                                        type="checkbox"
+                                        id={`variant-${variantName}`}
+                                        checked={selectedVariants.includes(variantName)}
+                                        onChange={() => handleVariantChange(variantName)}
+                                    />
+                                    <label htmlFor={`variant-${variantName}`}>{variantName}</label>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Size Filter */}
+                        <div className="filter-group">
+                            <label>Product Sizes</label>
+                            {Array.from(new Set(variants.map(variant => variant.size))).map(size => (
+                                <div key={size}>
+                                    <input
+                                        type="checkbox"
+                                        id={`size-${size}`}
+                                        checked={selectedSizes.includes(size)}
+                                        onChange={() => handleSizeChange(size)}
+                                    />
+                                    <label htmlFor={`size-${size}`}>{size}</label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* PRODUCTS SECTION */}
+                    <div className="products-section">
+                        <h1>All Products</h1>
+                        <div className="product-grid">
+                            {filteredProducts.map(product => (
+                                <div key={product.id} className="product-item">
+                                    {renderProductCard(product)}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </main>
             {/* FOOTER */}
             {renderFooter()}
@@ -318,4 +432,4 @@ function YourWeb() {
     );
 }
 
-export default YourWeb;
+export default ProductFilter;
