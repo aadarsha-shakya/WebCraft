@@ -7,7 +7,7 @@ import Logo from './assets/WebCraft.png';
 const SectionEditor = ({ section, onSave, onCancel, sectionTypes, categoryOptions }) => {
     const [formData, setFormData] = useState({
         type: section.type || '',
-        image: section.image || [],
+        image: section.image ? (Array.isArray(section.image) ? section.image : [section.image]) : [],
         title: section.title || '',
         description: section.description || '',
         link: section.link || '',
@@ -15,20 +15,14 @@ const SectionEditor = ({ section, onSave, onCancel, sectionTypes, categoryOption
         button1_url: section.button1_url || '',
         button2_label: section.button2_label || '',
         button2_url: section.button2_url || '',
-        questions: section.questions || [],
-        categories: section.categories || [],
-        images: section.images || []
+        questions: section.questions ? JSON.parse(section.questions) : [],
+        categories: section.categories ? JSON.parse(section.categories) : [],
+        images: section.images ? JSON.parse(section.images) : []
     });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-    };
-
-    const handleActionChange = (index, field, value) => {
-        const newActionButtons = [...formData.actionButtons];
-        newActionButtons[index][field] = value;
-        setFormData({ ...formData, actionButtons: newActionButtons });
     };
 
     const handleQuestionChange = (index, field, value) => {
@@ -76,14 +70,11 @@ const SectionEditor = ({ section, onSave, onCancel, sectionTypes, categoryOption
         formDataToSend.append('questions', JSON.stringify(formData.questions));
         formDataToSend.append('categories', JSON.stringify(formData.categories));
         formDataToSend.append('images', JSON.stringify(formData.images));
-
         if (formData.image.length > 0) {
             formData.image.forEach((img, index) => formDataToSend.append(`image[${index}]`, img));
         }
-
         const url = section.id ? `http://localhost:8081/api/sections/${section.id}` : 'http://localhost:8081/api/sections';
         const method = section.id ? 'PUT' : 'POST';
-
         try {
             const response = await fetch(url, {
                 method: method,
@@ -117,7 +108,11 @@ const SectionEditor = ({ section, onSave, onCancel, sectionTypes, categoryOption
                         <input type="file" id="image" name="image" accept="image/*" onChange={handleImageUpload} />
                         {formData.image.length > 0 && formData.image.map((img, index) => (
                             <div key={index}>
-                                <img src={URL.createObjectURL(img)} alt={`Preview ${index}`} width="100" />
+                                {typeof img === 'string' ? (
+                                    <img src={`/uploads/${img}`} alt={`Preview ${index}`} width="100" />
+                                ) : (
+                                    <img src={URL.createObjectURL(img)} alt={`Preview ${index}`} width="100" />
+                                )}
                                 <button onClick={() => removeImage(index)}>X</button>
                             </div>
                         ))}
@@ -129,7 +124,11 @@ const SectionEditor = ({ section, onSave, onCancel, sectionTypes, categoryOption
                         <input type="file" id="image" name="image" accept="image/*" onChange={handleImageUpload} />
                         {formData.image.length > 0 && formData.image.map((img, index) => (
                             <div key={index}>
-                                <img src={URL.createObjectURL(img)} alt={`Preview ${index}`} width="100" />
+                                {typeof img === 'string' ? (
+                                    <img src={`/uploads/${img}`} alt={`Preview ${index}`} width="100" />
+                                ) : (
+                                    <img src={URL.createObjectURL(img)} alt={`Preview ${index}`} width="100" />
+                                )}
                                 <button onClick={() => removeImage(index)}>X</button>
                             </div>
                         ))}
@@ -183,7 +182,11 @@ const SectionEditor = ({ section, onSave, onCancel, sectionTypes, categoryOption
                         <div className="image-previews">
                             {formData.image.length > 0 && formData.image.map((preview, index) => (
                                 <div key={index} className="image-preview">
-                                    <img src={URL.createObjectURL(preview)} alt={`Preview ${index}`} width="50" />
+                                    {typeof preview === 'string' ? (
+                                        <img src={`/uploads/${preview}`} alt={`Preview ${index}`} width="50" />
+                                    ) : (
+                                        <img src={URL.createObjectURL(preview)} alt={`Preview ${index}`} width="50" />
+                                    )}
                                     <button onClick={() => removeImage(index)}>X</button>
                                 </div>
                             ))}
