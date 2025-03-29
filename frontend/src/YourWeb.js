@@ -6,6 +6,7 @@ function YourWeb() {
     const [branding, setBranding] = useState({});
     const [components, setComponents] = useState({});
     const [footerSettings, setFooterSettings] = useState({});
+    const [sections, setSections] = useState([]);
     const userId = localStorage.getItem('userId'); // Assume userId is stored in localStorage
     const navigate = useNavigate(); // Import and use navigate
 
@@ -14,6 +15,7 @@ function YourWeb() {
             fetchBranding(userId);
             fetchComponents(userId);
             fetchFooterSettings(userId);
+            fetchSections(userId); // Fetch sections
         } else {
             console.error("User ID not found in localStorage");
             alert("User ID not found. Please log in again.");
@@ -61,6 +63,17 @@ function YourWeb() {
             .catch(error => console.error("Error fetching footer settings:", error));
     };
 
+    const fetchSections = (userId) => {
+        fetch(`http://localhost:8081/api/sections/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    setSections(data);
+                }
+            })
+            .catch(error => console.error("Error fetching sections:", error));
+    };
+
     const renderNavbar = () => {
         switch (components.navigation_type) {
             case 'basic':
@@ -68,7 +81,7 @@ function YourWeb() {
                     <nav className="navbar">
                         <div className="navbar-left">
                             <Link to="/" className="brand-link">
-                                <img src={`/uploads/${branding.brand_logo}`} alt="Logo" className="brand-logo" />
+                                <img src={`/uploads/${branding.brand_logo}`} alt="Brand Logo" className="brand-logo" />
                             </Link>
                         </div>
                         <div className="navbar-right">
@@ -88,7 +101,7 @@ function YourWeb() {
                         <div className="logo-container">
                             {branding.brand_logo && (
                                 <Link to="/" className="brand-link">
-                                    <img src={`/uploads/${branding.brand_logo}`} alt="Logo" className="brand-logo" />
+                                    <img src={`/uploads/${branding.brand_logo}`} alt="Brand Logo" className="brand-logo" />
                                 </Link>
                             )}
                         </div>
@@ -117,7 +130,7 @@ function YourWeb() {
                         <div className="logo-container">
                             {branding.brand_logo && (
                                 <Link to="/YourWeb" className="brand-link">
-                                    <img src={`/uploads/${branding.brand_logo}`} alt="Logo" className="brand-logo" />
+                                    <img src={`/uploads/${branding.brand_logo}`} alt="Brand Logo" className="brand-logo" />
                                 </Link>
                             )}
                         </div>
@@ -138,7 +151,7 @@ function YourWeb() {
                     <nav className="navbar">
                         <div className="navbar-left">
                             <Link to="/" className="brand-link">
-                                <img src={`/uploads/${branding.brand_logo}`} alt="Logo" className="brand-logo" />
+                                <img src={`/uploads/${branding.brand_logo}`} alt="Brand Logo" className="brand-logo" />
                             </Link>
                         </div>
                         <div className="navbar-right">
@@ -216,17 +229,89 @@ function YourWeb() {
         );
     };
 
+    const renderSection = (section) => {
+        switch (section.type) {
+            case 'Full Image':
+                return (
+                    <div key={section.id} className="full-image-section">
+                        <img src={`/uploads/${section.image}`} alt={section.title || "Full Image"} className="full-image" />
+                        {section.link && (
+                            <a href={section.link} target="_blank" rel="noopener noreferrer" className="full-image-link">
+                                Visit Link
+                            </a>
+                        )}
+                    </div>
+                );
+            case 'Image with Content':
+                return (
+                    <div key={section.id} className="image-with-content-section">
+                        <img src={`/uploads/${section.image}`} alt={section.title || "Image with Content"} className="section-image" />
+                        <div className="section-content">
+                            <h2>{section.title}</h2>
+                            <p>{section.description}</p>
+                            {section.button1_label && section.button1_url && (
+                                <a href={section.button1_url} target="_blank" rel="noopener noreferrer" className="section-button">
+                                    {section.button1_label}
+                                </a>
+                            )}
+                            {section.button2_label && section.button2_url && (
+                                <a href={section.button2_url} target="_blank" rel="noopener noreferrer" className="section-button">
+                                    {section.button2_label}
+                                </a>
+                            )}
+                        </div>
+                    </div>
+                );
+            case 'Category Grid':
+                return (
+                    <div key={section.id} className="category-grid-section">
+                        <h2>{section.title}</h2>
+                        <div className="category-grid">
+                            {JSON.parse(section.categories).map((category, index) => (
+                                <div key={index} className="category-item">
+                                    {category}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            case 'Image Slider':
+                return (
+                    <div key={section.id} className="image-slider-section">
+                        <div className="image-slider">
+                            {JSON.parse(section.images).map((image, index) => (
+                                <img key={index} src={`/uploads/${image}`} alt={`Image ${index + 1}`} className="slider-image" />
+                            ))}
+                        </div>
+                    </div>
+                );
+            case 'FAQ':
+                return (
+                    <div key={section.id} className="faq-section">
+                        <h2>{section.title}</h2>
+                        <div className="faq-list">
+                            {JSON.parse(section.questions).map((question, index) => (
+                                <div key={index} className="faq-item">
+                                    <h3>{question.question}</h3>
+                                    <p>{question.answer}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
         <div className="your-web-container" style={{ fontFamily: branding.fontFamily, backgroundColor: branding.primaryColor }}>
             {/* HEADER */}
             {renderNavbar()}
-
             {/* MAIN CONTENT */}
             <main className="your-web-main">
-                <h1>Welcome to Your Web Page</h1>
-                <p>This is your customized web page.</p>
+                {sections.map(renderSection)} {/* Render sections here */}
             </main>
-
             {/* FOOTER */}
             {renderFooter()}
         </div>
