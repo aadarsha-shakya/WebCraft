@@ -161,10 +161,12 @@ function ProductFilter() {
                     <img src={`/uploads/${mainImage}`} alt={product.product_name} />
                 )}
                 <h3>{product.product_name}</h3>
-                <p>Rs {lowestPrice}</p>
-                {crossedPrice > lowestPrice && (
-                    <p style={{ textDecoration: 'line-through', color: 'gray' }}>Rs {crossedPrice}</p>
-                )}
+                <div className="price-container">
+                    {crossedPrice > lowestPrice && (
+                        <p className="crossed-price">Rs {crossedPrice}</p>
+                    )}
+                    <p className="selling-price">Rs {lowestPrice}</p>
+                </div>
                 {crossedPrice > lowestPrice && (
                     <button className="save-badge">SAVE Rs {crossedPrice - lowestPrice}</button>
                 )}
