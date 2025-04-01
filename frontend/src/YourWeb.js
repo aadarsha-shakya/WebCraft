@@ -87,7 +87,7 @@ function YourWeb() {
                         </div>
                         <div className="navbar-right">
                             <Link to="/YourWeb">Home</Link>
-                            <Link to="/shop">Shop</Link>
+                            <Link to="/ProductFilter">Shop</Link>
                             <button className="card-button">
                                 <i className="fas fa-shopping-cart"></i> Cart
                             </button>
@@ -112,7 +112,7 @@ function YourWeb() {
                             <div className="navbar-right">
                                 <Link to="/YourWeb">Home</Link>
                                 <Link to="/categories">Categories</Link>
-                                <Link to="/shop">Shop</Link>
+                                <Link to="/ProductFilter">Shop</Link>
                                 <button className="card-button">
                                     <i className="fas fa-shopping-cart"></i> Cart
                                 </button>
@@ -137,7 +137,7 @@ function YourWeb() {
                         <nav className="navbar-centered-logo">
                             <div className="navbar-right">
                                 <Link to="/YourWeb">Home</Link>
-                                <Link to="/shop">Shop</Link>
+                                <Link to="/ProductFilter">Shop</Link>
                                 <button className="card-button">
                                     <i className="fas fa-shopping-cart"></i> Cart
                                 </button>
@@ -156,7 +156,7 @@ function YourWeb() {
                         </div>
                         <div className="navbar-right">
                             <Link to="/YourWeb">Home</Link>
-                            <Link to="/shop">Shop</Link>
+                            <Link to="/ProductFilter">Shop</Link>
                             <button className="card-button">
                                 <i className="fas fa-shopping-cart"></i> Cart
                             </button>

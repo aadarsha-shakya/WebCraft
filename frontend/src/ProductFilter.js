@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './ProduxtFilter.css';
+import './ProductFilter.css';
 
 function ProductFilter() {
     const [branding, setBranding] = useState({});
     const [components, setComponents] = useState({});
     const [footerSettings, setFooterSettings] = useState({});
     const [products, setProducts] = useState([]);
-    const [variants, setVariants] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 }); // Default price range
     const [selectedCategories, setSelectedCategories] = useState([]);
@@ -22,7 +21,6 @@ function ProductFilter() {
             fetchComponents(userId);
             fetchFooterSettings(userId);
             fetchProducts(userId);
-            fetchVariants(userId);
         } else {
             console.error("User ID not found in localStorage");
             alert("User ID not found. Please log in again.");
@@ -77,19 +75,6 @@ function ProductFilter() {
         }
     };
 
-    const fetchVariants = async (userId) => {
-        try {
-            const response = await fetch(`http://localhost:8081/api/variants?userId=${userId}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const data = await response.json();
-            setVariants(data);
-        } catch (error) {
-            console.error("Error fetching variants:", error);
-        }
-    };
-
     const handlePriceChange = (event) => {
         const value = event.target.value;
         const [min, max] = value.split(',').map(Number);
@@ -132,7 +117,6 @@ function ProductFilter() {
 
     const applyFilters = () => {
         let filtered = products;
-
         // Filter by price range
         filtered = filtered.filter(product => {
             const sellingPrices = product.variants ? product.variants.map(variant => variant.selling_price) : [];
@@ -140,12 +124,10 @@ function ProductFilter() {
             const maxSellingPrice = Math.max(...sellingPrices);
             return minSellingPrice >= priceRange.min && maxSellingPrice <= priceRange.max;
         });
-
         // Filter by categories
         if (selectedCategories.length > 0) {
             filtered = filtered.filter(product => selectedCategories.includes(product.category_name));
         }
-
         // Filter by variants
         if (selectedVariants.length > 0) {
             filtered = filtered.filter(product => {
@@ -155,7 +137,6 @@ function ProductFilter() {
                 );
             });
         }
-
         // Filter by sizes
         if (selectedSizes.length > 0) {
             filtered = filtered.filter(product => {
@@ -165,7 +146,6 @@ function ProductFilter() {
                 );
             });
         }
-
         setFilteredProducts(filtered);
     };
 
@@ -175,16 +155,17 @@ function ProductFilter() {
         const lowestPrice = Math.min(...sellingPrices);
         const crossedPrices = product.variants ? product.variants.map(variant => variant.crossed_price) : [];
         const crossedPrice = Math.max(...crossedPrices);
-
         return (
             <div className="product-card">
                 <img src={`/uploads/${mainImage}`} alt={product.product_name} />
                 <h3>{product.product_name}</h3>
                 <p>Rs {lowestPrice}</p>
-                {crossedPrice > 0 && (
+                {crossedPrice > lowestPrice && (
                     <p style={{ textDecoration: 'line-through', color: 'gray' }}>Rs {crossedPrice}</p>
                 )}
-                <button className="save-badge">SAVE {crossedPrice - lowestPrice}</button>
+                {crossedPrice > lowestPrice && (
+                    <button className="save-badge">SAVE {crossedPrice - lowestPrice}</button>
+                )}
             </div>
         );
     };
@@ -201,7 +182,7 @@ function ProductFilter() {
                         </div>
                         <div className="navbar-right">
                             <Link to="/YourWeb">Home</Link>
-                            <Link to="/shop">Shop</Link>
+                            <Link to="/ProductFilter">Shop</Link>
                             <button className="card-button">
                                 <i className="fas fa-shopping-cart"></i> Cart
                             </button>
@@ -225,7 +206,7 @@ function ProductFilter() {
                             <div className="navbar-right">
                                 <Link to="/YourWeb">Home</Link>
                                 <Link to="/categories">Categories</Link>
-                                <Link to="/shop">Shop</Link>
+                                <Link to="/ProductFilter">Shop</Link>
                                 <button className="card-button">
                                     <i className="fas fa-shopping-cart"></i> Cart
                                 </button>
@@ -249,7 +230,7 @@ function ProductFilter() {
                         <nav className="navbar-centered-logo">
                             <div className="navbar-right">
                                 <Link to="/YourWeb">Home</Link>
-                                <Link to="/shop">Shop</Link>
+                                <Link to="/ProductFilter">Shop</Link>
                                 <button className="card-button">
                                     <i className="fas fa-shopping-cart"></i> Cart
                                 </button>
@@ -267,7 +248,7 @@ function ProductFilter() {
                         </div>
                         <div className="navbar-right">
                             <Link to="/YourWeb">Home</Link>
-                            <Link to="/shop">Shop</Link>
+                            <Link to="/ProductFilter">Shop</Link>
                             <button className="card-button">
                                 <i className="fas fa-shopping-cart"></i> Cart
                             </button>
@@ -346,7 +327,7 @@ function ProductFilter() {
             <main className="your-web-main">
                 <div className="filter-and-products">
                     {/* FILTER SECTION */}
-                    <div className="filter-section">
+                    <div className="filter-section-box">
                         <h2>FILTER BY:</h2>
                         {/* Price Filter */}
                         <div className="filter-group">
@@ -363,7 +344,6 @@ function ProductFilter() {
                             <span>Rs {priceRange.min}</span>
                             <span>Rs {priceRange.max}</span>
                         </div>
-
                         {/* Category Filter */}
                         <div className="filter-group">
                             <label>Category</label>
@@ -379,11 +359,10 @@ function ProductFilter() {
                                 </div>
                             ))}
                         </div>
-
                         {/* Variant Filter */}
                         <div className="filter-group">
                             <label>Product Variants</label>
-                            {Array.from(new Set(variants.map(variant => variant.variant_name))).map(variantName => (
+                            {Array.from(new Set(products.flatMap(product => product.variants ? product.variants.map(variant => variant.variant_name) : []))).map(variantName => (
                                 <div key={variantName}>
                                     <input
                                         type="checkbox"
@@ -395,11 +374,10 @@ function ProductFilter() {
                                 </div>
                             ))}
                         </div>
-
                         {/* Size Filter */}
                         <div className="filter-group">
                             <label>Product Sizes</label>
-                            {Array.from(new Set(variants.map(variant => variant.size))).map(size => (
+                            {Array.from(new Set(products.flatMap(product => product.variants ? product.variants.map(variant => variant.size) : []))).map(size => (
                                 <div key={size}>
                                     <input
                                         type="checkbox"
@@ -412,7 +390,6 @@ function ProductFilter() {
                             ))}
                         </div>
                     </div>
-
                     {/* PRODUCTS SECTION */}
                     <div className="products-section">
                         <h1>All Products</h1>
