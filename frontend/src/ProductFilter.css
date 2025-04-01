@@ -7,7 +7,23 @@
     position: sticky;
     top: 20px; /* Adjust as needed */
     max-height: calc(100vh - 100px); /* Adjust as needed */
-    overflow-y: auto;
+    overflow-y: scroll;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.filter-section-box::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 5px;
 }
 
 .filter-group {

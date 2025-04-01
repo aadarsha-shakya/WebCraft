@@ -156,15 +156,17 @@ function ProductFilter() {
         const crossedPrices = product.variants ? product.variants.map(variant => variant.crossed_price) : [];
         const crossedPrice = Math.max(...crossedPrices);
         return (
-            <div className="product-card">
-                <img src={`/uploads/${mainImage}`} alt={product.product_name} />
+            <div className="product-item">
+                {mainImage && (
+                    <img src={`/uploads/${mainImage}`} alt={product.product_name} />
+                )}
                 <h3>{product.product_name}</h3>
                 <p>Rs {lowestPrice}</p>
                 {crossedPrice > lowestPrice && (
                     <p style={{ textDecoration: 'line-through', color: 'gray' }}>Rs {crossedPrice}</p>
                 )}
                 {crossedPrice > lowestPrice && (
-                    <button className="save-badge">SAVE {crossedPrice - lowestPrice}</button>
+                    <button className="save-badge">SAVE Rs {crossedPrice - lowestPrice}</button>
                 )}
             </div>
         );
@@ -320,7 +322,7 @@ function ProductFilter() {
     };
 
     return (
-        <div className="your-web-container" style={{ fontFamily: branding.fontFamily, backgroundColor: branding.primaryColor }}>
+        <div className="your-web-container">
             {/* HEADER */}
             {renderNavbar()}
             {/* MAIN CONTENT */}
@@ -348,7 +350,7 @@ function ProductFilter() {
                         <div className="filter-group">
                             <label>Category</label>
                             {Array.from(new Set(products.map(product => product.category_name))).map(category => (
-                                <div key={category}>
+                                <div key={category} className="checkbox-label">
                                     <input
                                         type="checkbox"
                                         id={`category-${category}`}
@@ -363,7 +365,7 @@ function ProductFilter() {
                         <div className="filter-group">
                             <label>Product Variants</label>
                             {Array.from(new Set(products.flatMap(product => product.variants ? product.variants.map(variant => variant.variant_name) : []))).map(variantName => (
-                                <div key={variantName}>
+                                <div key={variantName} className="checkbox-label">
                                     <input
                                         type="checkbox"
                                         id={`variant-${variantName}`}
@@ -378,7 +380,7 @@ function ProductFilter() {
                         <div className="filter-group">
                             <label>Product Sizes</label>
                             {Array.from(new Set(products.flatMap(product => product.variants ? product.variants.map(variant => variant.size) : []))).map(size => (
-                                <div key={size}>
+                                <div key={size} className="checkbox-label">
                                     <input
                                         type="checkbox"
                                         id={`size-${size}`}
