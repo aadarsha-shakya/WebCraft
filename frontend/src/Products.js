@@ -22,7 +22,6 @@ function Products() {
   const [variants, setVariants] = useState([]);
   const [sizes, setSizes] = useState([]);
   const [variantCombinations, setVariantCombinations] = useState([]);
-
   const navigate = useNavigate();
 
   const toggleDropdown = () => {
@@ -125,7 +124,6 @@ function Products() {
     formDataToSend.append('category', formData.category);
     formDataToSend.append('productDescription', formData.productDescription);
     formDataToSend.append('variants', JSON.stringify(variantDetails));
-
     formData.productImages.forEach((file) => {
       formDataToSend.append('productImages', file);
     });
@@ -135,9 +133,11 @@ function Products() {
         method: 'POST',
         body: formDataToSend
       });
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+
       const result = await response.json();
       console.log(result.message);
       closeModal();
@@ -218,7 +218,6 @@ function Products() {
             </Link>
           </li>
         </ul>
-
         <h2>Customizations</h2>
         <ul>
           <li>
@@ -248,7 +247,6 @@ function Products() {
           </li>
         </ul>
       </aside>
-
       {/* MAIN CONTENT AREA */}
       <div className="main-content">
         {/* HEADER PANEL */}
@@ -258,12 +256,10 @@ function Products() {
               <img src={Logo} alt="Logo" />
             </Link>
           </div>
-
           <div className="header-icons">
             <Link to="/YourWeb" className="header-icon">
               <i className="fas fa-globe"></i>
             </Link>
-
             <div
               className={`header-icon w-icon ${isDropdownOpen ? "open" : ""}`}
               onClick={toggleDropdown}
@@ -288,7 +284,6 @@ function Products() {
             </div>
           </div>
         </header>
-
         <main className="content">
           <div className="products-container">
             <h1>Products</h1>
@@ -306,7 +301,7 @@ function Products() {
                 <tr>
                   <th>#</th>
                   <th>Name</th>
-                  <th>Price</th>
+                  <th>Variants</th>
                   <th>Inventory</th>
                   <th>Status</th>
                   <th>Created</th>
@@ -319,8 +314,20 @@ function Products() {
                     <tr key={index}>
                       <td>{index + 1}</td>
                       <td>{product.product_name}</td>
-                      <td>{product.selling_price || 'N/A'}</td>
-                      <td>{product.quantity || 'N/A'}</td>
+                      <td>
+                        {product.variants.map((variant, variantIndex) => (
+                          <div key={variantIndex}>
+                            {variant.variant_name} / {variant.size}
+                          </div>
+                        ))}
+                      </td>
+                      <td>
+                        {product.variants.map((variant, variantIndex) => (
+                          <div key={variantIndex}>
+                            {variant.quantity}
+                          </div>
+                        ))}
+                      </td>
                       <td><span className="status">{selectedTab}</span></td>
                       <td>{new Date(product.created_at).toLocaleDateString()}</td>
                       <td>
