@@ -156,7 +156,7 @@ function ProductFilter() {
         const crossedPrices = product.variants ? product.variants.map(variant => variant.crossed_price) : [];
         const crossedPrice = Math.max(...crossedPrices);
         return (
-            <div className="product-item">
+            <Link to={`/ProductDetail/${product.id}`} className="product-item">
                 {mainImage && (
                     <img src={`/uploads/${mainImage}`} alt={product.product_name} />
                 )}
@@ -170,7 +170,7 @@ function ProductFilter() {
                 {crossedPrice > lowestPrice && (
                     <button className="save-badge">SAVE Rs {crossedPrice - lowestPrice}</button>
                 )}
-            </div>
+            </Link>
         );
     };
 
@@ -399,7 +399,7 @@ function ProductFilter() {
                         <h1>All Products</h1>
                         <div className="product-grid">
                             {filteredProducts.map(product => (
-                                <div key={product.id} className="product-item">
+                                <div key={product.id}>
                                     {renderProductCard(product)}
                                 </div>
                             ))}

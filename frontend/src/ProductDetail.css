@@ -1,0 +1,64 @@
+/* Basic styling for ProductDetail */
+.product-detail-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.product-image img {
+    max-width: 100%;
+    height: auto;
+}
+
+.product-info {
+    flex: 1;
+}
+
+.price-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.crossed-price {
+    text-decoration: line-through;
+    color: gray;
+}
+
+.selling-price {
+    font-weight: bold;
+    color: purple;
+}
+
+.discount-badge {
+    background-color: green;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+.variant-selector,
+.size-selector {
+    margin-top: 20px;
+}
+
+.quantity-selector {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.add-to-cart {
+    background-color: purple;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.description h2 {
+    margin-top: 40px;
+}

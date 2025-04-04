@@ -403,6 +403,57 @@ app.post('/api/branding', upload.any(), (req, res) => {
     });
 });
 
+// Fetch a single product by ID
+app.get('/api/products/:productId', (req, res) => {
+    const userId = req.query.userId;
+    const productId = req.params.productId;
+
+    const sql = `
+        SELECT p.*, v.*
+        FROM products p
+        LEFT JOIN variants v ON p.id = v.product_id
+        WHERE p.user_id = ? AND p.id = ?
+    `;
+    db.query(sql, [userId, productId], (err, data) => {
+        if (err) {
+            console.error("Error fetching product details:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+        // Group variants by product
+        const productsMap = {};
+        data.forEach(row => {
+            if (!productsMap[row.id]) {
+                productsMap[row.id] = {
+                    id: row.id,
+                    user_id: row.user_id,
+                    product_name: row.product_name,
+                    category_name: row.category_name,
+                    product_description: row.product_description,
+                    product_images: JSON.parse(row.product_images),
+                    variants: []
+                };
+            }
+            if (row.variant_name) {
+                productsMap[row.id].variants.push({
+                    id: row.id,
+                    product_id: row.product_id,
+                    user_id: row.user_id,
+                    variant_name: row.variant_name,
+                    size: row.size,
+                    crossed_price: row.crossed_price,
+                    selling_price: row.selling_price,
+                    cost_price: row.cost_price,
+                    weight: row.weight,
+                    quantity: row.quantity,
+                    sku: row.sku
+                });
+            }
+        });
+        const product = Object.values(productsMap)[0];
+        return res.json(product);
+    });
+});
+
 app.get('/api/branding/:userId', (req, res) => {
     const sql = "SELECT * FROM branding WHERE user_id = ?";
     db.query(sql, [req.params.userId], (err, data) => {

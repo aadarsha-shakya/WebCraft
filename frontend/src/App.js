@@ -56,7 +56,7 @@ function App() {
         <Route path="/Checkout" element={<Checkout />} />
         <Route path="/ProductFilter" element={<ProductFilter />} />
         <Route path="/ProductDetail" element={<ProductDetail />} />
-
+        <Route path="/ProductDetail/:productId" element={<ProductDetail />} />
       </Routes>
     </BrowserRouter>
   );
