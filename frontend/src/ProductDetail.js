@@ -278,62 +278,64 @@ function ProductDetail() {
                     </div>
                     {/* Product Info */}
                     <div className="product-info">
-                        <h1>{product.product_name}</h1>
-                        <div className="price-container">
-                            <p className="crossed-price">
-                                Rs {product.variants[0].crossed_price}
-                            </p>
-                            <p className="selling-price">
-                                Rs {product.variants[0].selling_price}
-                            </p>
-                            <span className="discount-badge">20% OFF</span>
-                        </div>
-                        <p>Shipping is calculated at checkout</p>
-                        {/* Variant Selection */}
-                        <div className="variant-selector">
-                            <label>Choose Variant</label>
-                            <select
-                                value={selectedVariant?.id || ""}
-                                onChange={(e) => handleVariantChange(e.target.value)}
-                            >
-                                <option value="">Select a variant</option>
-                                {product.variants.map((variant) => (
-                                    <option key={variant.id} value={variant.id}>
-                                        {variant.variant_name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        {/* Size Selection */}
-                        <div className="size-selector">
-                            <label>Choose Size</label>
-                            <select
-                                value={selectedVariant?.size || ""}
-                                disabled={!selectedVariant}
-                            >
-                                <option value="">Select a size</option>
-                                {product.variants.map((variant) => (
-                                    <option key={variant.id} value={variant.size}>
-                                        {variant.size}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        {/* Quantity Selector */}
-                        <div className="quantity-selector">
-                            <button onClick={() => handleQuantityChange("decrement")}>
-                                -
-                            </button>
-                            <input type="number" value={quantity} readOnly />
-                            <button onClick={() => handleQuantityChange("increment")}>
-                                +
-                            </button>
-                        </div>
-                        {/* Add to Cart Button */}
-                        <button className="add-to-cart" onClick={addToCart}>
-                            ADD TO CART
-                        </button>
-                    </div>
+    <h1>{product.product_name}</h1>
+    <div className="price-container">
+        <p className="crossed-price">
+            Rs {product.variants[0].crossed_price}
+        </p>
+        <p className="selling-price">
+            Rs {product.variants[0].selling_price}
+        </p>
+        <span className="discount-badge">20% OFF</span>
+    </div>
+    <p>Shipping is calculated at checkout</p>
+    {/* Variant Selection */}
+    <div className="variant-selector">
+        <label>Choose Variant</label>
+        <select
+            value={selectedVariant?.id || ""}
+            onChange={(e) => handleVariantChange(e.target.value)}
+        >
+            <option value="">Select a variant</option>
+            {product.variants.map((variant) => (
+                <option key={variant.id} value={variant.id}>
+                    {variant.variant_name}
+                </option>
+            ))}
+        </select>
+    </div>
+    {/* Size Selection */}
+    <div className="size-selector">
+        <label>Choose Size</label>
+        <select
+            value={selectedVariant?.size || ""}
+            disabled={!selectedVariant}
+        >
+            <option value="">Select a size</option>
+            {product.variants.map((variant) => (
+                <option key={variant.id} value={variant.size}>
+                    {variant.size}
+                </option>
+            ))}
+        </select>
+    </div>
+    {/* Quantity Selector */}
+    <div className="quantity-selector">
+        <button onClick={() => handleQuantityChange("decrement")}>
+            -
+        </button>
+        <input type="number" value={quantity} readOnly />
+        <button onClick={() => handleQuantityChange("increment")}>
+            +
+        </button>
+    </div>
+    {/* Add to Cart Button */}
+    <div className="add-to-cart-container">
+        <button className="add-to-cart" onClick={addToCart}>
+            ADD TO CART
+        </button>
+    </div>
+</div>
                 </div>
                 {/* Description */}
                 <div className="description">
