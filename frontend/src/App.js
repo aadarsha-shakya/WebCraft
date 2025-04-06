@@ -24,6 +24,7 @@ import YourWeb from './YourWeb';
 import Checkout from './Checkout';
 import ProductFilter from './ProductFilter';
 import ProductDetail from './ProductDetail';
+import PaymentSuccess from './PaymentSuccess'; 
 
 function App() {
   return (
@@ -57,6 +58,8 @@ function App() {
         <Route path="/ProductFilter" element={<ProductFilter />} />
         <Route path="/ProductDetail" element={<ProductDetail />} />
         <Route path="/ProductDetail/:productId" element={<ProductDetail />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} /> 
+
       </Routes>
     </BrowserRouter>
   );

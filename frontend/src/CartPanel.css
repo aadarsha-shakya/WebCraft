@@ -1,0 +1,77 @@
+/* Cart Panel Styles */
+.cart-panel {
+    position: fixed;
+    top: 0;
+    right: -300px; /* Initially hidden */
+    width: 300px;
+    height: 100%;
+    background-color: white;
+    transition: right 0.3s ease;
+    padding: 20px;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.cart-panel.open {
+    right: 0; /* Slide out when open */
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.cart-items {
+    list-style: none;
+    padding: 0;
+    max-height: calc(100% - 180px); /* Adjust height to fit within the panel */
+    overflow-y: auto;
+}
+
+.cart-item {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.cart-item.empty-cart {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.cart-item-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.cart-item-details {
+    flex: 1;
+}
+
+.cart-total {
+    text-align: right;
+    margin-top: 20px;
+}
+
+.checkout-button {
+    background-color: #6a5acd;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+}

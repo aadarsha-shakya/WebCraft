@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'; // Import Link here
 import axios from 'axios';
 import './ProductDetail.css';
 import './YourWeb.css'; // Import YourWeb.css for styling
+import './CartPanel.css'; // Import CartPanel.css for styling
 
 function ProductDetail() {
     const [product, setProduct] = useState(null);
@@ -11,6 +12,8 @@ function ProductDetail() {
     const [branding, setBranding] = useState({});
     const [footerSettings, setFooterSettings] = useState({});
     const [components, setComponents] = useState({}); // Add components state
+    const [cartItems, setCartItems] = useState([]); // Cart state
+    const [isCartOpen, setIsCartOpen] = useState(false); // State to toggle cart panel
 
     // Get productId from URL params
     const { productId } = useParams();
@@ -73,6 +76,7 @@ function ProductDetail() {
     const handleVariantChange = (variantId) => {
         const selected = product.variants.find(variant => variant.id === variantId);
         setSelectedVariant(selected);
+        setQuantity(1); // Reset quantity to 1 when variant changes
     };
 
     // Handle quantity change
@@ -101,8 +105,22 @@ function ProductDetail() {
             size: selectedVariant.size,
             imageUrl: product.product_images[0], // Main image
         };
-        // Simulate adding to cart (you can replace this with actual cart logic)
-        console.log("Adding to cart:", cartItem);
+
+        // Check if the item already exists in the cart
+        const existingItemIndex = cartItems.findIndex(item => item.productId === cartItem.productId && item.variantId === cartItem.variantId);
+        if (existingItemIndex !== -1) {
+            // Update the quantity of the existing item
+            const updatedCartItems = cartItems.map((item, index) => {
+                if (index === existingItemIndex) {
+                    return { ...item, quantity: item.quantity + cartItem.quantity };
+                }
+                return item;
+            });
+            setCartItems(updatedCartItems);
+        } else {
+            // Add the new item to the cart
+            setCartItems(prevCartItems => [...prevCartItems, cartItem]);
+        }
         alert("Added to cart!");
     };
 
@@ -119,7 +137,7 @@ function ProductDetail() {
                         <div className="navbar-right">
                             <Link to="/YourWeb">Home</Link>
                             <Link to="/ProductFilter">Shop</Link>
-                            <button className="card-button">
+                            <button className="card-button" onClick={() => setIsCartOpen(true)}>
                                 <i className="fas fa-shopping-cart"></i> Cart
                             </button>
                         </div>
@@ -143,7 +161,7 @@ function ProductDetail() {
                                 <Link to="/YourWeb">Home</Link>
                                 <Link to="/categories">Categories</Link>
                                 <Link to="/ProductFilter">Shop</Link>
-                                <button className="card-button">
+                                <button className="card-button" onClick={() => setIsCartOpen(true)}>
                                     <i className="fas fa-shopping-cart"></i> Cart
                                 </button>
                             </div>
@@ -167,7 +185,7 @@ function ProductDetail() {
                             <div className="navbar-right">
                                 <Link to="/YourWeb">Home</Link>
                                 <Link to="/ProductFilter">Shop</Link>
-                                <button className="card-button">
+                                <button className="card-button" onClick={() => setIsCartOpen(true)}>
                                     <i className="fas fa-shopping-cart"></i> Cart
                                 </button>
                             </div>
@@ -185,7 +203,7 @@ function ProductDetail() {
                         <div className="navbar-right">
                             <Link to="/YourWeb">Home</Link>
                             <Link to="/ProductFilter">Shop</Link>
-                            <button className="card-button">
+                            <button className="card-button" onClick={() => setIsCartOpen(true)}>
                                 <i className="fas fa-shopping-cart"></i> Cart
                             </button>
                         </div>
@@ -278,64 +296,64 @@ function ProductDetail() {
                     </div>
                     {/* Product Info */}
                     <div className="product-info">
-    <h1>{product.product_name}</h1>
-    <div className="price-container">
-        <p className="crossed-price">
-            Rs {product.variants[0].crossed_price}
-        </p>
-        <p className="selling-price">
-            Rs {product.variants[0].selling_price}
-        </p>
-        <span className="discount-badge">20% OFF</span>
-    </div>
-    <p>Shipping is calculated at checkout</p>
-    {/* Variant Selection */}
-    <div className="variant-selector">
-        <label>Choose Variant</label>
-        <select
-            value={selectedVariant?.id || ""}
-            onChange={(e) => handleVariantChange(e.target.value)}
-        >
-            <option value="">Select a variant</option>
-            {product.variants.map((variant) => (
-                <option key={variant.id} value={variant.id}>
-                    {variant.variant_name}
-                </option>
-            ))}
-        </select>
-    </div>
-    {/* Size Selection */}
-    <div className="size-selector">
-        <label>Choose Size</label>
-        <select
-            value={selectedVariant?.size || ""}
-            disabled={!selectedVariant}
-        >
-            <option value="">Select a size</option>
-            {product.variants.map((variant) => (
-                <option key={variant.id} value={variant.size}>
-                    {variant.size}
-                </option>
-            ))}
-        </select>
-    </div>
-    {/* Quantity Selector */}
-    <div className="quantity-selector">
-        <button onClick={() => handleQuantityChange("decrement")}>
-            -
-        </button>
-        <input type="number" value={quantity} readOnly />
-        <button onClick={() => handleQuantityChange("increment")}>
-            +
-        </button>
-    </div>
-    {/* Add to Cart Button */}
-    <div className="add-to-cart-container">
-        <button className="add-to-cart" onClick={addToCart}>
-            ADD TO CART
-        </button>
-    </div>
-</div>
+                        <h1>{product.product_name}</h1>
+                        <div className="price-container">
+                            <p className="crossed-price">
+                                Rs {selectedVariant ? selectedVariant.crossed_price : product.variants[0].crossed_price}
+                            </p>
+                            <p className="selling-price">
+                                Rs {selectedVariant ? selectedVariant.selling_price : product.variants[0].selling_price}
+                            </p>
+                            <span className="discount-badge">20% OFF</span>
+                        </div>
+                        <p>Shipping is calculated at checkout</p>
+                        {/* Variant Selection */}
+                        <div className="variant-selector">
+                            <label>Choose Variant</label>
+                            <select
+                                value={selectedVariant?.id || ""}
+                                onChange={(e) => handleVariantChange(e.target.value)}
+                            >
+                                <option value="">Select a variant</option>
+                                {product.variants.map((variant) => (
+                                    <option key={variant.id} value={variant.id}>
+                                        {variant.variant_name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        {/* Size Selection */}
+                        <div className="size-selector">
+                            <label>Choose Size</label>
+                            <select
+                                value={selectedVariant?.size || ""}
+                                disabled={!selectedVariant}
+                            >
+                                <option value="">Select a size</option>
+                                {selectedVariant && selectedVariant.sizes.map((size) => (
+                                    <option key={size} value={size}>
+                                        {size}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        {/* Quantity Selector */}
+                        <div className="quantity-selector">
+                            <button onClick={() => handleQuantityChange("decrement")}>
+                                -
+                            </button>
+                            <input type="number" value={quantity} readOnly />
+                            <button onClick={() => handleQuantityChange("increment")}>
+                                +
+                            </button>
+                        </div>
+                        {/* Add to Cart Button */}
+                        <div className="add-to-cart-container">
+                            <button className="add-to-cart" onClick={addToCart}>
+                                ADD TO CART
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 {/* Description */}
                 <div className="description">
@@ -345,8 +363,58 @@ function ProductDetail() {
             </main>
             {/* FOOTER */}
             {renderFooter()}
+            {/* Cart Panel */}
+            <CartPanel cartItems={cartItems} isOpen={isCartOpen} setIsOpen={setIsCartOpen} />
         </div>
     );
 }
+
+// CartPanel Component
+const CartPanel = ({ cartItems, isOpen, setIsOpen }) => {
+    const toggleCart = () => {
+        setIsOpen(!isOpen);
+    };
+
+    const getTotalPrice = () => {
+        return cartItems.reduce((total, item) => total + item.sellingPrice * item.quantity, 0);
+    };
+
+    return (
+        <div className={`cart-panel ${isOpen ? 'open' : ''}`}>
+            <div className="cart-header">
+                <button className="close-button" onClick={toggleCart}>
+                    <i className="fas fa-arrow-left"></i>
+                </button>
+                <h2>Shopping Cart</h2>
+            </div>
+            <ul className="cart-items">
+                {cartItems.length > 0 ? (
+                    cartItems.map((item, index) => (
+                        <li key={index} className="cart-item">
+                            <img src={`/uploads/${item.imageUrl}`} alt={item.productName} className="cart-item-image" />
+                            <div className="cart-item-details">
+                                <p>{item.productName}</p>
+                                <p>Variant: {item.variantName}</p>
+                                <p>Size: {item.size}</p>
+                                <p>Quantity: {item.quantity}</p>
+                                <p>Price: Rs {item.sellingPrice}</p>
+                            </div>
+                        </li>
+                    ))
+                ) : (
+                    <li className="cart-item empty-cart">
+                        <p>Your cart is empty</p>
+                    </li>
+                )}
+            </ul>
+            <div className="cart-total">
+                <p>Total: Rs {getTotalPrice()}</p>
+            </div>
+            <button className="checkout-button" onClick={() => window.location.href = '/Checkout'}>
+                CHECKOUT
+            </button>
+        </div>
+    );
+};
 
 export default ProductDetail;
