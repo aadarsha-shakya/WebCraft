@@ -407,7 +407,6 @@ app.post('/api/branding', upload.any(), (req, res) => {
 app.get('/api/products/:productId', (req, res) => {
     const userId = req.query.userId;
     const productId = req.params.productId;
-
     const sql = `
         SELECT p.*, v.*
         FROM products p
@@ -418,6 +417,10 @@ app.get('/api/products/:productId', (req, res) => {
         if (err) {
             console.error("Error fetching product details:", err);
             return res.status(500).json({ error: "Database error" });
+        }
+        // Check if any data was found
+        if (data.length === 0) {
+            return res.status(404).json({ error: "Product not found" });
         }
         // Group variants by product
         const productsMap = {};
@@ -450,6 +453,11 @@ app.get('/api/products/:productId', (req, res) => {
             }
         });
         const product = Object.values(productsMap)[0];
+        // Add sizes to each variant
+        product.variants.forEach(variant => {
+            variant.sizes = [variant.size]; // Convert size to an array
+        });
+        
         return res.json(product);
     });
 });
@@ -811,6 +819,102 @@ app.get('/api/categories/:userId', (req, res) => {
             return res.status(500).json({ status: "error", message: "Database error" });
         }
         res.json(data);
+    });
+});
+
+// Order routes
+app.post('/api/orders', (req, res) => {
+    const { fullName, email, phoneNumber, orderNote, cityDistrict, address, landmark, paymentMethod, cartItems, totalPrice } = req.body;
+    const userId = req.body.userId; // Assuming userId is sent in the body
+
+    if (!userId || !cartItems || cartItems.length === 0) {
+        return res.status(400).json({ status: "error", message: "Invalid request" });
+    }
+
+    // Start transaction
+    db.beginTransaction((err) => {
+        if (err) {
+            console.error("Error starting transaction:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+
+        // Insert order details
+        const orderSql = `
+            INSERT INTO orders (user_id, full_name, email, phone_number, order_note, city_district, address, landmark, payment_method, total_price)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        const orderValues = [userId, fullName, email, phoneNumber, orderNote, cityDistrict, address, landmark, paymentMethod, totalPrice];
+
+        db.query(orderSql, orderValues, (err, orderResult) => {
+            if (err) {
+                console.error("Error inserting order:", err);
+                return db.rollback(() => {
+                    res.status(500).json({ status: "error", message: "Failed to create order" });
+                });
+            }
+
+            const orderId = orderResult.insertId;
+
+            // Insert order items
+            const orderItemsSql = `
+                INSERT INTO order_items (order_id, product_id, variant_id, size, quantity, selling_price)
+                VALUES ?
+            `;
+            const orderItemsValues = cartItems.map(item => [
+                orderId,
+                item.productId,
+                item.variantId,
+                item.size,
+                item.quantity,
+                item.sellingPrice
+            ]);
+
+            db.query(orderItemsSql, [orderItemsValues], (err) => {
+                if (err) {
+                    console.error("Error inserting order items:", err);
+                    return db.rollback(() => {
+                        res.status(500).json({ status: "error", message: "Failed to create order items" });
+                    });
+                }
+
+                // Update stock quantities
+                const updateStockPromises = cartItems.map(item => {
+                    return new Promise((resolve, reject) => {
+                        const updateStockSql = `
+                            UPDATE variants
+                            SET quantity = quantity - ?
+                            WHERE id = ?
+                        `;
+                        const updateStockValues = [item.quantity, item.variantId];
+
+                        db.query(updateStockSql, updateStockValues, (err) => {
+                            if (err) {
+                                console.error("Error updating stock:", err);
+                                return reject(err);
+                            }
+                            resolve();
+                        });
+                    });
+                });
+
+                Promise.all(updateStockPromises)
+                    .then(() => {
+                        db.commit((err) => {
+                            if (err) {
+                                console.error("Error committing transaction:", err);
+                                return res.status(500).json({ status: "error", message: "Failed to commit transaction" });
+                            }
+                            res.json({ status: "success", message: "Order placed successfully" });
+                        });
+                    })
+                    .catch((err) => {
+                        db.rollback(() => {
+                            console.error("Error rolling back transaction:", err);
+                            res.status(500).json({ status: "error", message: "Failed to roll back transaction" });
+                        });
+                    });
+            });
+        });
     });
 });
 

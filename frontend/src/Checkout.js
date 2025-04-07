@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Checkout.css'; // Import the CSS file for styling
+import { useCart } from './CartContext'; // Import useCart hook
 
 const Checkout = () => {
     const navigate = useNavigate();
-    const [cartItems, setCartItems] = useState([]); // Simulate cart items
+    const location = useLocation();
+    const { cartItems, clearCart } = useCart(); // Use useCart hook
     const [orderDetails, setOrderDetails] = useState({
         fullName: '',
         email: '',
@@ -20,27 +22,16 @@ const Checkout = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // Use useMemo to memoize cartItems
+    const memoizedCartItems = useMemo(() => location.state ? location.state.cartItems : cartItems, [location.state, cartItems]);
+
     // Function to calculate total price
     const calculateTotalPrice = useCallback(() => {
-        const total = cartItems.reduce((sum, item) => sum + item.sellingPrice * item.quantity, 0);
+        const total = memoizedCartItems.reduce((sum, item) => sum + item.sellingPrice * item.quantity, 0);
         setTotalPrice(total);
-    }, [cartItems]);
+    }, [memoizedCartItems]);
 
-    // Simulate fetching cart items
     useEffect(() => {
-        // Replace this with actual cart data retrieval logic
-        const mockCartItems = [
-            {
-                productId: 1,
-                productName: 'Product A',
-                variantName: 'Red',
-                size: 'M',
-                quantity: 1,
-                sellingPrice: 1200,
-                imageUrl: '/uploads/product_a.jpg',
-            },
-        ];
-        setCartItems(mockCartItems);
         calculateTotalPrice();
     }, [calculateTotalPrice]);
 
@@ -63,19 +54,20 @@ const Checkout = () => {
         e.preventDefault();
         setLoading(true);
         setError('');
-
         try {
             if (orderDetails.paymentMethod === 'khalti') {
+                // Implement Khalti payment logic here
             } else {
                 // Simulate sending order details to the backend for cash on delivery
                 const response = await axios.post('/api/orders', {
                     ...orderDetails,
-                    cartItems,
+                    cartItems: memoizedCartItems,
                     totalPrice,
                 });
-
                 if (response.status === 200) {
                     alert('Order placed successfully!');
+                    // Clear the cart after successful order placement
+                    clearCart();
                     // Redirect to order confirmation page
                     navigate('/order-confirmation');
                 }
@@ -145,7 +137,6 @@ const Checkout = () => {
                         </div>
                     </form>
                 </div>
-
                 {/* Delivery Address */}
                 <div className="section">
                     <h2>2. Delivery Address</h2>
@@ -184,7 +175,6 @@ const Checkout = () => {
                         </div>
                     </form>
                 </div>
-
                 {/* Payment Methods */}
                 <div className="section">
                     <h2>3. Payment Methods</h2>
@@ -205,12 +195,11 @@ const Checkout = () => {
                         </div>
                     </div>
                 </div>
-
                 {/* Order Summary */}
                 <div className="order-summary">
                     <h2>Order Summary</h2>
                     <ul>
-                        {cartItems.map((item, index) => (
+                        {memoizedCartItems.map((item, index) => (
                             <li key={index}>
                                 <img src={`/uploads/${item.imageUrl}`} alt={item.productName} style={{ width: '50px', height: '50px' }} />
                                 <span>{item.productName}</span>

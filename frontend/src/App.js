@@ -25,44 +25,46 @@ import Checkout from './Checkout';
 import ProductFilter from './ProductFilter';
 import ProductDetail from './ProductDetail';
 import PaymentSuccess from './PaymentSuccess'; 
+import { CartProvider } from './CartContext'; // Import CartProvider
+import CartPanel from './CartPanel'; // Import CartPanel
 
 function App() {
-  return (
-    <BrowserRouter> 
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/StoreUsers" element={<StoreUsers />} />
-        <Route path="/Categories" element={<Categories />} />
-        <Route path="/Products" element={<Products />} />
-        <Route path="/Inventory" element={<Inventory />} />
-        <Route path="/Customers" element={<Customers />} />
-        <Route path="/Orders" element={<Orders />} />
-        <Route path="/Issues" element={<Issues />} />
-        <Route path="/BarcodeGeneration" element={<BarcodeGeneration />} />
-        <Route path="/Analytics" element={<Analytics />} />
-        <Route path="/Settlement" element={<Settlement />} />
-        <Route path="/PaymentSettings" element={<PaymentSettings />} />
-        <Route path="/Pages" element={<Pages />} />
-        <Route path="/Plugins" element={<Plugins />} />
-        <Route path="/Appearance" element={<Appearance />} />
-        <Route path="/StoreSettings" element={<StoreSettings />} />
-
-        <Route path="/Accounts" element={<Accounts />} />
-        <Route path="/Subscription" element={<Subscription />} />
-        <Route path="/Login" element={<Login />} />
-
-        <Route path="/YourWeb" element={<YourWeb />} />
-        <Route path="/Checkout" element={<Checkout />} />
-        <Route path="/ProductFilter" element={<ProductFilter />} />
-        <Route path="/ProductDetail" element={<ProductDetail />} />
-        <Route path="/ProductDetail/:productId" element={<ProductDetail />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} /> 
-
-      </Routes>
-    </BrowserRouter>
-  );
+    return (
+        <BrowserRouter> 
+            <CartProvider>
+                <Routes>
+                    <Route path="/" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/StoreUsers" element={<StoreUsers />} />
+                    <Route path="/Categories" element={<Categories />} />
+                    <Route path="/Products" element={<Products />} />
+                    <Route path="/Inventory" element={<Inventory />} />
+                    <Route path="/Customers" element={<Customers />} />
+                    <Route path="/Orders" element={<Orders />} />
+                    <Route path="/Issues" element={<Issues />} />
+                    <Route path="/BarcodeGeneration" element={<BarcodeGeneration />} />
+                    <Route path="/Analytics" element={<Analytics />} />
+                    <Route path="/Settlement" element={<Settlement />} />
+                    <Route path="/PaymentSettings" element={<PaymentSettings />} />
+                    <Route path="/Pages" element={<Pages />} />
+                    <Route path="/Plugins" element={<Plugins />} />
+                    <Route path="/Appearance" element={<Appearance />} />
+                    <Route path="/StoreSettings" element={<StoreSettings />} />
+                    <Route path="/Accounts" element={<Accounts />} />
+                    <Route path="/Subscription" element={<Subscription />} />
+                    <Route path="/Login" element={<Login />} />
+                    <Route path="/YourWeb" element={<YourWeb />} />
+                    <Route path="/Checkout" element={<Checkout />} />
+                    <Route path="/ProductFilter" element={<ProductFilter />} />
+                    <Route path="/ProductDetail" element={<ProductDetail />} />
+                    <Route path="/ProductDetail/:productId" element={<ProductDetail />} />
+                    <Route path="/payment-success" element={<PaymentSuccess />} /> 
+                </Routes>
+                <CartPanel />
+            </CartProvider>
+        </BrowserRouter>
+    );
 }
 
 export default App;
