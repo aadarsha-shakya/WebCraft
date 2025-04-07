@@ -822,7 +822,168 @@ app.get('/api/categories/:userId', (req, res) => {
     });
 });
 
+// Endpoint to handle order placement
+app.post('/api/orders', (req, res) => {
+    const orderDetails = req.body;
+    const {
+        fullName,
+        email,
+        phoneNumber,
+        orderNote,
+        cityDistrict,
+        address,
+        landmark,
+        paymentMethod,
+        transactionId,
+        transactionAmount,
+        transactionState,
+        purchaseOrderId,
+        totalPrice,
+        cartItems
+    } = orderDetails;
+    const query = `
+        INSERT INTO orders (
+            full_name, email, phone_number, order_note, city_district, address, landmark, 
+            payment_method, transaction_id, transaction_amount, transaction_state, purchase_order_id, total_price, cart_items
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    db.query(query, [
+        fullName,
+        email,
+        phoneNumber,
+        orderNote,
+        cityDistrict,
+        address,
+        landmark,
+        paymentMethod,
+        transactionId || null,
+        transactionAmount || null,
+        transactionState || null,
+        purchaseOrderId,
+        totalPrice,
+        JSON.stringify(cartItems)
+    ], (err, result) => {
+        if (err) {
+            console.error('Error inserting order:', err);
+            return res.status(500).json({ error: 'Failed to place the order' });
+        }
+        res.status(200).json({ message: 'Order placed successfully' });
+    });
+});
 
+// Endpoint to initiate Khalti payment
+app.post('/api/orders/initiate-payment', async (req, res) => {
+    const { return_url, website_url, amount, purchase_order_id, purchase_order_name, customer_info } = req.body;
+    const khaltiConfig = {
+        url: 'https://dev.khalti.com/api/v2/epayment/initiate/', // Use 'https://khalti.com/api/v2/epayment/initiate/' for production
+        method: 'POST',
+        headers: {
+            'Authorization': 'Key 5b5794044ba94d23914eb0f19ad3ff28', // Use your live secret key for production
+            'Content-Type': 'application/json',
+        },
+        data: {
+            return_url,
+            website_url,
+            amount,
+            purchase_order_id,
+            purchase_order_name,
+            customer_info,
+        },
+    };
+    try {
+        const response = await axios(khaltiConfig);
+        if (response.status === 200) {
+            res.status(200).json({ payment_url: response.data.payment_url });
+        } else {
+            res.status(response.status).json({ error: 'Failed to initiate payment' });
+        }
+    } catch (error) {
+        console.error('Error initiating payment:', error);
+        res.status(500).json({ error: 'Failed to initiate payment' });
+    }
+});
+
+// Endpoint to handle Khalti callback
+app.get('/api/orders/callback', async (req, res) => {
+    const {
+        pidx,
+        status,
+        transaction_id,
+        amount,
+        mobile,
+        purchase_order_id,
+        purchase_order_name,
+        total_amount
+    } = req.query;
+
+    if (status === 'Completed') {
+        // Lookup the payment to verify
+        const lookupResponse = await axios.post(
+            'https://dev.khalti.com/api/v2/epayment/lookup/', // Use 'https://khalti.com/api/v2/epayment/lookup/' for production
+            { pidx },
+            {
+                headers: {
+                    'Authorization': 'Key 5b5794044ba94d23914eb0f19ad3ff28', // Use your live secret key for production
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        if (lookupResponse.data.status === 'Completed') {
+            // Store the order details in the database
+            const orderDetails = {
+                fullName: purchase_order_name, // You might need to map this to the actual customer info
+                email: '', // You might need to map this to the actual customer info
+                phoneNumber: mobile,
+                orderNote: '',
+                cityDistrict: '', // You might need to map this to the actual customer info
+                address: '', // You might need to map this to the actual customer info
+                landmark: '', // You might need to map this to the actual customer info
+                paymentMethod: 'khalti',
+                transactionId: transaction_id,
+                transactionAmount: total_amount / 100,
+                transactionState: status,
+                purchaseOrderId: purchase_order_id,
+                totalPrice: total_amount / 100,
+                cartItems: [] // You might need to map this to the actual cart items
+            };
+
+            const query = `
+                INSERT INTO orders (
+                    full_name, email, phone_number, order_note, city_district, address, landmark, 
+                    payment_method, transaction_id, transaction_amount, transaction_state, purchase_order_id, total_price, cart_items
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+
+            db.query(query, [
+                orderDetails.fullName,
+                orderDetails.email,
+                orderDetails.phoneNumber,
+                orderDetails.orderNote,
+                orderDetails.cityDistrict,
+                orderDetails.address,
+                orderDetails.landmark,
+                orderDetails.paymentMethod,
+                orderDetails.transactionId,
+                orderDetails.transactionAmount,
+                orderDetails.transactionState,
+                orderDetails.purchaseOrderId,
+                orderDetails.totalPrice,
+                JSON.stringify(orderDetails.cartItems)
+            ], (err, result) => {
+                if (err) {
+                    console.error('Error inserting order:', err);
+                    return res.status(500).json({ error: 'Failed to place the order' });
+                }
+                res.redirect('/order-confirmation');
+            });
+        } else {
+            res.status(400).send('Payment verification failed');
+        }
+    } else {
+        res.status(400).send('Payment failed');
+    }
+});
 
 app.listen(8081, () => {
     console.log("Listening on port 8081");

@@ -1,3 +1,4 @@
+// Checkout.js
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -56,10 +57,28 @@ const Checkout = () => {
         setError('');
         try {
             if (orderDetails.paymentMethod === 'khalti') {
-                // Implement Khalti payment logic here
+                // Initiate Khalti payment
+                const config = {
+                    return_url: `${window.location.origin}/api/orders/callback`,
+                    website_url: window.location.origin,
+                    amount: totalPrice * 100, // Amount in paisa
+                    purchase_order_id: Math.random().toString(36).substr(2, 9), // Generate a unique purchase order ID
+                    purchase_order_name: 'Order',
+                    customer_info: {
+                        name: orderDetails.fullName,
+                        email: orderDetails.email,
+                        phone: orderDetails.phoneNumber,
+                    },
+                };
+                // Send payment initiation request to backend
+                const response = await axios.post('http://localhost:8081/api/orders/initiate-payment', config);
+                if (response.status === 200) {
+                    const { payment_url } = response.data;
+                    window.location.href = payment_url; // Redirect to Khalti payment portal
+                }
             } else {
                 // Simulate sending order details to the backend for cash on delivery
-                const response = await axios.post('/api/orders', {
+                const response = await axios.post('http://localhost:8081/api/orders', {
                     ...orderDetails,
                     cartItems: memoizedCartItems,
                     totalPrice,
