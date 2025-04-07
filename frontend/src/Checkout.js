@@ -13,7 +13,7 @@ const Checkout = () => {
         email: '',
         phoneNumber: '',
         orderNote: '',
-        cityDistrict: '',
+        cityDistrict: '', // Default city district
         address: '',
         landmark: '',
         paymentMethod: 'cash_on_delivery', // Default payment method
@@ -102,6 +102,7 @@ const Checkout = () => {
                                 value={orderDetails.fullName}
                                 onChange={handleInputChange}
                                 required
+                                placeholder="Ram Bahadur"
                             />
                         </div>
                         <div className="form-group">
@@ -113,6 +114,7 @@ const Checkout = () => {
                                 value={orderDetails.email}
                                 onChange={handleInputChange}
                                 required
+                                placeholder="ram@gmail.com"
                             />
                         </div>
                         <div className="form-group">
@@ -124,6 +126,7 @@ const Checkout = () => {
                                 value={orderDetails.phoneNumber}
                                 onChange={handleInputChange}
                                 required
+                                placeholder="9800000000"
                             />
                         </div>
                         <div className="form-group">
@@ -133,6 +136,7 @@ const Checkout = () => {
                                 name="orderNote"
                                 value={orderDetails.orderNote}
                                 onChange={handleInputChange}
+                                placeholder="I was searching for this product for so long"
                             />
                         </div>
                     </form>
@@ -143,14 +147,19 @@ const Checkout = () => {
                     <form>
                         <div className="form-group">
                             <label htmlFor="cityDistrict">City / District *</label>
-                            <input
-                                type="text"
+                            <select
                                 id="cityDistrict"
                                 name="cityDistrict"
                                 value={orderDetails.cityDistrict}
                                 onChange={handleInputChange}
                                 required
-                            />
+                            >
+                                <option value="">Select City/District</option>
+                                <option value="kathmandu">Kathmandu (Inside Valley)</option>
+                                <option value="pokhara">Pokhara (Outside Valley)</option>
+                                <option value="chitwan">Chitwan (Outside Valley)</option>
+                                <option value="nuwakot">Nuwakot (Outside Valley)</option>
+                            </select>
                         </div>
                         <div className="form-group">
                             <label htmlFor="address">Address *</label>
@@ -161,6 +170,7 @@ const Checkout = () => {
                                 value={orderDetails.address}
                                 onChange={handleInputChange}
                                 required
+                                placeholder="Kathmandu, Nayabazar"
                             />
                         </div>
                         <div className="form-group">
@@ -171,6 +181,7 @@ const Checkout = () => {
                                 name="landmark"
                                 value={orderDetails.landmark}
                                 onChange={handleInputChange}
+                                placeholder="Nepa Banquet"
                             />
                         </div>
                     </form>
