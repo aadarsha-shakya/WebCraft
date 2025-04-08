@@ -1,21 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
+import './PaymentSettings.css';
 import Logo from './assets/WebCraft.png';
 import KhaltiLogo from './assets/Khalti.png';
-import './PaymentSettings.css';
-
+import axios from 'axios';
 
 function PaymentSettings() {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [secretKey, setSecretKey] = useState('');
+  const [publicKey, setPublicKey] = useState('');
+  const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen((prevState) => !prevState);
+  useEffect(() => {
+    const loggedInUserId = localStorage.getItem('userId');
+    if (!loggedInUserId) {
+      alert('User not logged in. Redirecting to login...');
+      window.location.href = '/login';
+    } else {
+      setUserId(loggedInUserId);
+      fetchKhaltiKeys(loggedInUserId);
+    }
+  }, []);
+
+  const fetchKhaltiKeys = async (userId) => {
+    try {
+      const response = await axios.get(`http://localhost:8081/api/khalti_keys/${userId}`);
+      if (response.data && response.data.length > 0) {
+        setSecretKey(response.data[0].secret_key);
+        setPublicKey(response.data[0].public_key);
+      }
+    } catch (error) {
+      console.error('Error fetching Khalti keys:', error);
+      alert('An error occurred while fetching Khalti keys.');
+    }
   };
 
   const handleLogout = () => {
     navigate('/Login');
+  };
+
+  const toggleSettings = () => {
+    setIsSettingsOpen((prevState) => !prevState);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!secretKey || !publicKey) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:8081/api/saveKhaltiKeys', {
+        secretKey,
+        publicKey,
+        userId, // Pass userId in the request body
+      });
+      if (response.data.status === 'updated') {
+        alert('Khalti keys updated successfully!');
+      } else {
+        alert('Khalti keys saved successfully!');
+      }
+    } catch (error) {
+      console.error('Error saving Khalti keys:', error);
+      alert('An error occurred while saving Khalti keys.');
+    }
   };
 
   return (
@@ -61,15 +112,13 @@ function PaymentSettings() {
             <Link to="/YourWeb" className="header-icon">
               <i className="fas fa-globe"></i>
             </Link>
-            <div className={`header-icon w-icon ${isDropdownOpen ? "open" : ""}`} onClick={toggleDropdown}>
+            <div className="header-icon w-icon" onClick={handleLogout}>
               W
-              {isDropdownOpen && (
-                <div className="dropdown-menu">
-                  <Link to="/Accounts" className="dropdown-item"><i className="fas fa-user"></i> Accounts</Link>
-                  <Link to="/Subscription" className="dropdown-item"><i className="fas fa-dollar-sign"></i> Subscription</Link>
-                  <button className="dropdown-item logout" onClick={handleLogout}><i className="fas fa-sign-out-alt"></i> Logout</button>
-                </div>
-              )}
+              <div className="dropdown-menu">
+                <Link to="/Accounts" className="dropdown-item"><i className="fas fa-user"></i> Accounts</Link>
+                <Link to="/Subscription" className="dropdown-item"><i className="fas fa-dollar-sign"></i> Subscription</Link>
+                <button className="dropdown-item logout" onClick={handleLogout}><i className="fas fa-sign-out-alt"></i> Logout</button>
+              </div>
             </div>
           </div>
         </header>
@@ -84,9 +133,37 @@ function PaymentSettings() {
                 <input type="checkbox" />
                 <span className="slider round"></span>
               </label>
-              <i className="fas fa-cog settings-icon"></i>
+              <i className="fas fa-cog settings-icon" onClick={toggleSettings}></i>
             </div>
           </div>
+
+          {isSettingsOpen && (
+            <div className="khalti-settings-form">
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label htmlFor="secretKey">Secret Key:</label>
+                  <input
+                    type="text"
+                    id="secretKey"
+                    value={secretKey}
+                    onChange={(e) => setSecretKey(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="publicKey">Public Key:</label>
+                  <input
+                    type="text"
+                    id="publicKey"
+                    value={publicKey}
+                    onChange={(e) => setPublicKey(e.target.value)}
+                    required
+                  />
+                </div>
+                <button type="submit">Save</button>
+              </form>
+            </div>
+          )}
         </main>
       </div>
     </div>

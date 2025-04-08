@@ -822,6 +822,47 @@ app.get('/api/categories/:userId', (req, res) => {
     });
 });
 
+// Endpoint to save Khalti keys
+app.post('/api/saveKhaltiKeys', (req, res) => {
+    const { secretKey, publicKey, userId } = req.body; // Ensure userId is passed in the request body
+    if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+    }
+    console.log('Received secretKey:', secretKey);
+    console.log('Received publicKey:', publicKey);
+    console.log('Received userId:', userId);
+    const query = `
+        INSERT INTO khalti_keys (user_id, secret_key, public_key)
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE secret_key = VALUES(secret_key), public_key = VALUES(public_key)
+    `;
+    db.query(query, [userId, secretKey, publicKey], (err, result) => {
+        if (err) {
+            console.error('Error saving Khalti keys:', err);
+            return res.status(500).json({ message: 'Failed to save Khalti keys' });
+        }
+        console.log('Khalti keys saved successfully:', result);
+        res.status(200).json({ message: 'Khalti keys saved successfully', status: result.affectedRows === 2 ? 'updated' : 'created' });
+    });
+});
+
+// Endpoint to fetch Khalti keys
+app.get('/api/khalti_keys/:userId', (req, res) => {
+    const userId = req.params.userId;
+    const query = 'SELECT * FROM khalti_keys WHERE user_id = ?';
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching Khalti keys:', err);
+            return res.status(500).json({ message: 'Failed to fetch Khalti keys' });
+        }
+        if (results.length > 0) {
+            res.json(results);
+        } else {
+            res.json([]);
+        }
+    });
+});
+
 // Endpoint to handle order placement
 app.post('/api/orders', (req, res) => {
     const orderDetails = req.body;
