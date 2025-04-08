@@ -828,21 +828,23 @@ app.post('/api/saveKhaltiKeys', (req, res) => {
     if (!userId) {
         return res.status(401).json({ message: 'User not authenticated' });
     }
-    console.log('Received secretKey:', secretKey);
-    console.log('Received publicKey:', publicKey);
-    console.log('Received userId:', userId);
+
     const query = `
         INSERT INTO khalti_keys (user_id, secret_key, public_key)
         VALUES (?, ?, ?)
         ON DUPLICATE KEY UPDATE secret_key = VALUES(secret_key), public_key = VALUES(public_key)
     `;
+
     db.query(query, [userId, secretKey, publicKey], (err, result) => {
         if (err) {
             console.error('Error saving Khalti keys:', err);
             return res.status(500).json({ message: 'Failed to save Khalti keys' });
         }
-        console.log('Khalti keys saved successfully:', result);
-        res.status(200).json({ message: 'Khalti keys saved successfully', status: result.affectedRows === 2 ? 'updated' : 'created' });
+
+        res.status(200).json({ 
+            message: 'Khalti keys saved successfully', 
+            status: result.affectedRows === 2 ? 'updated' : 'created' 
+        });
     });
 });
 
@@ -912,37 +914,8 @@ app.post('/api/orders', (req, res) => {
     });
 });
 
-// Endpoint to initiate Khalti payment
-app.post('/api/orders/initiate-payment', async (req, res) => {
-    const { return_url, website_url, amount, purchase_order_id, purchase_order_name, customer_info } = req.body;
-    const khaltiConfig = {
-        url: 'https://dev.khalti.com/api/v2/epayment/initiate/', // Use 'https://khalti.com/api/v2/epayment/initiate/' for production
-        method: 'POST',
-        headers: {
-            'Authorization': 'Key 5b5794044ba94d23914eb0f19ad3ff28', // Use your live secret key for production
-            'Content-Type': 'application/json',
-        },
-        data: {
-            return_url,
-            website_url,
-            amount,
-            purchase_order_id,
-            purchase_order_name,
-            customer_info,
-        },
-    };
-    try {
-        const response = await axios(khaltiConfig);
-        if (response.status === 200) {
-            res.status(200).json({ payment_url: response.data.payment_url });
-        } else {
-            res.status(response.status).json({ error: 'Failed to initiate payment' });
-        }
-    } catch (error) {
-        console.error('Error initiating payment:', error);
-        res.status(500).json({ error: 'Failed to initiate payment' });
-    }
-});
+
+
 
 // Endpoint to handle Khalti callback
 app.get('/api/orders/callback', async (req, res) => {
