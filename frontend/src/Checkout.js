@@ -56,6 +56,13 @@ const Checkout = () => {
         setLoading(true);
         setError('');
         try {
+            const loggedInUserId = localStorage.getItem('userId'); // Ensure userId is available
+            if (!loggedInUserId) {
+                alert('User not logged in. Redirecting to login...');
+                window.location.href = '/login';
+                return;
+            }
+
             if (orderDetails.paymentMethod === 'khalti') {
                 // Initiate Khalti payment
                 const config = {
@@ -69,7 +76,9 @@ const Checkout = () => {
                         email: orderDetails.email,
                         phone: orderDetails.phoneNumber,
                     },
+                    userId: loggedInUserId, // Include userId in the request body
                 };
+
                 // Send payment initiation request to backend
                 const response = await axios.post('http://localhost:8081/api/orders/initiate-payment', config);
                 if (response.status === 200) {
@@ -82,6 +91,7 @@ const Checkout = () => {
                     ...orderDetails,
                     cartItems: memoizedCartItems,
                     totalPrice,
+                    userId: loggedInUserId, // Include userId in the request body
                 });
                 if (response.status === 200) {
                     alert('Order placed successfully!');

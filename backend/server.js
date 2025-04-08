@@ -4,6 +4,8 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const axios = require('axios'); // Import axios for making HTTP requests
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -914,8 +916,47 @@ app.post('/api/orders', (req, res) => {
     });
 });
 
-
-
+// Endpoint to handle Khalti payment initiation
+app.post('/api/orders/initiate-payment', async (req, res) => {
+    const { return_url, website_url, amount, purchase_order_id, purchase_order_name, customer_info, userId } = req.body;
+    if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+    }
+    // Fetch Khalti keys from the database
+    try {
+        const response = await axios.get(`http://localhost:8081/api/khalti_keys/${userId}`);
+        if (response.data && response.data.length > 0) {
+            const { secret_key, public_key } = response.data[0];
+            // Prepare the payment request payload
+            const paymentConfig = {
+                return_url,
+                website_url,
+                amount,
+                purchase_order_id,
+                purchase_order_name,
+                customer_info
+            };
+            // Send payment initiation request to Khalti API
+            const khaltiResponse = await axios.post(
+                'https://dev.khalti.com/api/v2/epayment/initiate/', // Use 'https://khalti.com/api/v2/epayment/initiate/' for production
+                paymentConfig,
+                {
+                    headers: {
+                        'Authorization': `Key ${secret_key}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            // Return the payment URL to the frontend
+            res.json({ payment_url: khaltiResponse.data.payment_url });
+        } else {
+            return res.status(401).json({ message: 'Khalti keys not found for the user' });
+        }
+    } catch (error) {
+        console.error('Error initiating Khalti payment:', error);
+        return res.status(500).json({ message: 'Failed to initiate payment' });
+    }
+});
 
 // Endpoint to handle Khalti callback
 app.get('/api/orders/callback', async (req, res) => {
@@ -929,7 +970,6 @@ app.get('/api/orders/callback', async (req, res) => {
         purchase_order_name,
         total_amount
     } = req.query;
-
     if (status === 'Completed') {
         // Lookup the payment to verify
         const lookupResponse = await axios.post(
@@ -942,7 +982,6 @@ app.get('/api/orders/callback', async (req, res) => {
                 }
             }
         );
-
         if (lookupResponse.data.status === 'Completed') {
             // Store the order details in the database
             const orderDetails = {
@@ -961,14 +1000,12 @@ app.get('/api/orders/callback', async (req, res) => {
                 totalPrice: total_amount / 100,
                 cartItems: [] // You might need to map this to the actual cart items
             };
-
             const query = `
                 INSERT INTO orders (
                     full_name, email, phone_number, order_note, city_district, address, landmark, 
                     payment_method, transaction_id, transaction_amount, transaction_state, purchase_order_id, total_price, cart_items
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
-
             db.query(query, [
                 orderDetails.fullName,
                 orderDetails.email,
