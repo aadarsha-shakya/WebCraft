@@ -884,15 +884,17 @@ app.post('/api/orders', (req, res) => {
         transactionState,
         purchaseOrderId,
         totalPrice,
-        cartItems
+        cartItems,
+        userId // Ensure userId is passed in the request body
     } = orderDetails;
     const query = `
         INSERT INTO orders (
-            full_name, email, phone_number, order_note, city_district, address, landmark, 
+            user_id, full_name, email, phone_number, order_note, city_district, address, landmark, 
             payment_method, transaction_id, transaction_amount, transaction_state, purchase_order_id, total_price, cart_items
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     db.query(query, [
+        userId, // Include userId in the query
         fullName,
         email,
         phoneNumber,
@@ -983,6 +985,10 @@ app.get('/api/orders/callback', async (req, res) => {
             }
         );
         if (lookupResponse.data.status === 'Completed') {
+            // Extract userId from the session or request context
+            // For demonstration, assuming userId is stored in session or can be derived
+            const userId = req.session.userId || 1; // Replace with actual user retrieval logic
+
             // Store the order details in the database
             const orderDetails = {
                 fullName: purchase_order_name, // You might need to map this to the actual customer info
@@ -998,15 +1004,17 @@ app.get('/api/orders/callback', async (req, res) => {
                 transactionState: status,
                 purchaseOrderId: purchase_order_id,
                 totalPrice: total_amount / 100,
-                cartItems: [] // You might need to map this to the actual cart items
+                cartItems: [], // You might need to map this to the actual cart items
+                userId: userId // Include userId in the order details
             };
             const query = `
                 INSERT INTO orders (
-                    full_name, email, phone_number, order_note, city_district, address, landmark, 
+                    user_id, full_name, email, phone_number, order_note, city_district, address, landmark, 
                     payment_method, transaction_id, transaction_amount, transaction_state, purchase_order_id, total_price, cart_items
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
             db.query(query, [
+                orderDetails.userId,
                 orderDetails.fullName,
                 orderDetails.email,
                 orderDetails.phoneNumber,
@@ -1026,7 +1034,7 @@ app.get('/api/orders/callback', async (req, res) => {
                     console.error('Error inserting order:', err);
                     return res.status(500).json({ error: 'Failed to place the order' });
                 }
-                res.redirect('/order-confirmation');
+                res.redirect('/YourWeb.js');
             });
         } else {
             res.status(400).send('Payment verification failed');
@@ -1034,6 +1042,19 @@ app.get('/api/orders/callback', async (req, res) => {
     } else {
         res.status(400).send('Payment failed');
     }
+});
+
+// Endpoint to get orders for a specific user
+app.get('/api/orders/user/:userId', (req, res) => {
+    const userId = req.params.userId;
+    const query = 'SELECT * FROM orders WHERE user_id = ?';
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching orders:', err);
+            return res.status(500).json({ message: 'Failed to fetch orders' });
+        }
+        res.json(results);
+    });
 });
 
 app.listen(8081, () => {

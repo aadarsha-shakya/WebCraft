@@ -1,0 +1,62 @@
+/* YourOrders.css */
+.your-orders-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.your-orders-container h1 {
+    font-size: 24px;
+    color: #333;
+}
+
+.your-orders-container p {
+    font-size: 16px;
+    color: #666;
+}
+
+.your-orders-container .order-details {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.your-orders-container .order-details h2 {
+    font-size: 20px;
+    color: #333;
+}
+
+.your-orders-container .order-details ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.your-orders-container .order-details li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+}
+
+.your-orders-container .order-details li span {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.back-to-home-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.back-to-home-button:hover {
+    background-color: #218838;
+}

@@ -1,4 +1,3 @@
-// Checkout.js
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -62,7 +61,6 @@ const Checkout = () => {
                 window.location.href = '/login';
                 return;
             }
-
             if (orderDetails.paymentMethod === 'khalti') {
                 // Initiate Khalti payment
                 const config = {
@@ -78,7 +76,6 @@ const Checkout = () => {
                     },
                     userId: loggedInUserId, // Include userId in the request body
                 };
-
                 // Send payment initiation request to backend
                 const response = await axios.post('http://localhost:8081/api/orders/initiate-payment', config);
                 if (response.status === 200) {
@@ -98,7 +95,7 @@ const Checkout = () => {
                     // Clear the cart after successful order placement
                     clearCart();
                     // Redirect to order confirmation page
-                    navigate('/order-confirmation');
+                    navigate('/YourOrders');
                 }
             }
         } catch (error) {

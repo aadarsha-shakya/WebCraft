@@ -27,6 +27,7 @@ import ProductDetail from './ProductDetail';
 import PaymentSuccess from './PaymentSuccess'; 
 import { CartProvider } from './CartContext'; // Import CartProvider
 import CartPanel from './CartPanel'; // Import CartPanel
+import YourOrders from './YourOrders';
 
 function App() {
     return (
@@ -60,6 +61,7 @@ function App() {
                     <Route path="/ProductDetail" element={<ProductDetail />} />
                     <Route path="/ProductDetail/:productId" element={<ProductDetail />} />
                     <Route path="/payment-success" element={<PaymentSuccess />} /> 
+                    <Route path="/YourOrders" element={<YourOrders />} />
                 </Routes>
                 <CartPanel />
             </CartProvider>
