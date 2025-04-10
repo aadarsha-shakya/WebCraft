@@ -1045,15 +1045,40 @@ app.get('/api/orders/callback', async (req, res) => {
 });
 
 // Endpoint to get orders for a specific user
-app.get('/api/orders/user/:userId', (req, res) => {
+app.get('/api/orders/user/:userId', async (req, res) => {
     const userId = req.params.userId;
-    const query = 'SELECT * FROM orders WHERE user_id = ?';
-    db.query(query, [userId], (err, results) => {
+    const { search, status } = req.query;
+
+    let query = 'SELECT * FROM orders WHERE user_id = ?';
+    const values = [userId];
+
+    if (search) {
+        query += ' AND full_name LIKE ?';
+        values.push(`%${search}%`);
+    }
+
+    if (status) {
+        query += ' AND payment_status = ?';
+        values.push(status);
+    }
+
+    db.query(query, values, (err, data) => {
         if (err) {
             console.error('Error fetching orders:', err);
-            return res.status(500).json({ message: 'Failed to fetch orders' });
+            return res.status(500).json({ status: "error", message: "Database error" });
         }
-        res.json(results);
+        return res.json(data);
+    });
+});
+
+app.delete('/api/orders/:id', (req, res) => {
+    const sql = "DELETE FROM orders WHERE id = ?";
+    db.query(sql, [req.params.id], (err, result) => {
+        if (err) {
+            console.error("Error deleting order:", err);
+            return res.status(500).json({ status: "error", message: "Failed to delete order" });
+        }
+        return res.json({ status: "deleted", message: "Order deleted successfully" });
     });
 });
 
