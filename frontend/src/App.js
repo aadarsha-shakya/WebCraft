@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'; 
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Login from './Login';
 import Signup from './Signup';
 import Dashboard from './Dashboard';
@@ -28,6 +29,7 @@ import PaymentSuccess from './PaymentSuccess';
 import { CartProvider } from './CartContext'; // Import CartProvider
 import CartPanel from './CartPanel'; // Import CartPanel
 import YourOrders from './YourOrders';
+import WebCraft from './WebCraft';
 
 function App() {
     return (
@@ -62,6 +64,7 @@ function App() {
                     <Route path="/ProductDetail/:productId" element={<ProductDetail />} />
                     <Route path="/payment-success" element={<PaymentSuccess />} /> 
                     <Route path="/YourOrders" element={<YourOrders />} />
+                    <Route path="/WebCraft" element={<WebCraft />} />
                 </Routes>
                 <CartPanel />
             </CartProvider>

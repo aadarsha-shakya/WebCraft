@@ -4,7 +4,6 @@ import axios from 'axios'; // Imported axios here
 import './LoginValidation';
 import Validation from './LoginValidation';
 //rfce
-//git add .    git commit -m "message"   git push
 function Login() {
   const [values, setValues] = useState({
     email: '',
@@ -39,7 +38,7 @@ function Login() {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center bg-primary vh-100">
+    <div className="d-flex justify-content-center align-items-center vh-100 custom-background">
       <div className="bg-white p-3 rounded w-25">
         <div>
           <h2>Login</h2>
@@ -76,7 +75,7 @@ function Login() {
             <p>You agree to our terms and conditions</p>
             <Link
               to="/signup"
-              className="btn btn-default borde w-100 bg-light rounded-0 text-decoration-none"
+              className="btn btn-default border w-100 bg-light rounded-0 text-decoration-none"
             >
               Create Account
             </Link>

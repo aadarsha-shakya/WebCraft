@@ -1,0 +1,158 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    line-height: 1.6;
+    font-size: 1rem;
+  }
+  
+  /* Header Styles */
+  .header {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px 20px;
+  }
+  
+  .logo img {
+    height: 50px; /* Adjust logo size */
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  
+  .nav-link {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-link:hover {
+    color: #555;
+  }
+  
+  .register-btn {
+    background-color: #7c53e6; /* Purple color */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .register-btn:hover {
+    background-color: #6d48cf; /* Slightly darker purple */
+  }
+  
+  /* Hero Section Styles */
+  .hero-section {
+    background-color: #f0faff; /* Light purple background */
+    text-align: center;
+    padding: 100px 0;
+  }
+  
+  .main-message {
+    font-size: 2.5rem; /* Large heading */
+    line-height: 1.2;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .sub-message {
+    font-size: 1rem;
+    color: #666;
+    margin-top: 10px;
+  }
+  
+  .cta-button {
+    background-color: #7c53e6; /* Purple color */
+    color: #fff;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    display: inline-block;
+  }
+  
+  .cta-button:hover {
+    background-color: #6d48cf; /* Slightly darker purple */
+  }
+  
+  .highlights {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .highlights p {
+    font-size: 1rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .highlights p::before {
+    content: "✓";
+    color: #7c53e6; /* Purple checkmark */
+    font-size: 1.2rem;
+  }
+ /* Business Showcase Section */
+.business-showcase {
+    background-color: #f9f9f9; /* Light background color */
+    padding: 0; /* Remove padding to make the slider touch the edges */
+  }
+  
+  .business-slider {
+    overflow-x: hidden; /* Hide scrollbar */
+    position: relative;
+    width: 100%; /* Full width */
+    height: 400px; /* Adjust height for larger images */
+  }
+  
+  .slider-container {
+    display: flex;
+    gap: 20px;
+    animation: slideRight 20s linear infinite; /* Slow animation (20s) */
+    transition: transform 0.5s ease;
+  }
+  
+  .business-card {
+    width: 300px; /* Larger card width */
+    height: 400px; /* Larger card height */
+    border-radius: 15px; /* Rounded corners */
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+  
+  .business-image {
+    width: 100%;
+    height: 100%; /* Full-sized image */
+    object-fit: cover; /* Ensure images cover the card */
+  }
+  
+  /* Animation for auto-scrolling (left to right) */
+  @keyframes slideRight {
+    0% {
+      transform: translateX(0); /* Start from the left */
+    }
+    100% {
+      transform: translateX(-100%); /* Scroll to the right */
+    }
+  }
