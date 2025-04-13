@@ -14,6 +14,21 @@ import delivery from './assets/wdelivery.jpg';
 import manage from './assets/wmanage.png';
 import notification from './assets/wordernotifi.jpg';
 
+import barcode from './assets/barcode.png';
+import customdomain from './assets/customdomain.png';
+import orderm from './assets/ordermanagement.png';
+import paymentg from './assets/paymentgateway.png';
+import sm from './assets/staffmanagement.png';
+import wcust from './assets/webcustomization.png';
+
+import googlean from './assets/googlean.png';
+import issuem from './assets/issuem.png';
+import logicint from './assets/logicint.png';
+import advanaly from './assets/advanaly.png';
+import inventorym from './assets/inventorym.png';
+import sw from './assets/switchable.png';
+
+
 // Sample data for businesses
 const businessData = [
     {
@@ -201,80 +216,159 @@ const WebCraft = () => {
             WebCraft gives you everything you need to succeed online
           </h2>
           <Row>
-            <Col md={4} className="mb-4">
+            {/* Card 1: Custom Domain */}
+            <Col md={2} className="mb-4">
               <Card className="shadow-sm">
                 <Card.Body>
                   <Card.Title>Custom Domain</Card.Title>
+                  <img
+                    src={customdomain}
+                    alt="Custom Domain"
+                    className="card-image"
+                  />
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={4} className="mb-4">
+            {/* Card 2: Payment Gateway */}
+            <Col md={2} className="mb-4">
               <Card className="shadow-sm">
                 <Card.Body>
                   <Card.Title>Payment Gateway</Card.Title>
+                  <img
+                    src={paymentg} // Replace with your image path
+                    alt="Payment Gateway"
+                    className="card-image"
+                  />
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={4} className="mb-4">
+            {/* Card 3: Website Customization */}
+            <Col md={2} className="mb-4">
               <Card className="shadow-sm">
                 <Card.Body>
                   <Card.Title>Website Customization</Card.Title>
+                  <img
+                    src= {wcust} // Replace with your image path
+                    alt="Website Customization"
+                    className="card-image"
+                  />
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={4} className="mb-4">
+            {/* Card 4: Staff Management */}
+            <Col md={2} className="mb-4">
               <Card className="shadow-sm">
                 <Card.Body>
                   <Card.Title>Staff Management</Card.Title>
+                  <img
+                    src={sm}
+                    alt="Staff Management"
+                    className="card-image"
+                  />
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={4} className="mb-4">
+            {/* Card 5: Coupon Codes */}
+            <Col md={2} className="mb-4">
               <Card className="shadow-sm">
                 <Card.Body>
-                  <Card.Title>Coupon Codes</Card.Title>
+                  <Card.Title>Barcode Management</Card.Title>
+                  <img
+                    src= {barcode}
+                    alt="Coupon Codes"
+                    className="card-image"
+                  />
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={4} className="mb-4">
+            {/* Card 6: Order Management */}
+            <Col md={2} className="mb-4">
               <Card className="shadow-sm">
                 <Card.Body>
                   <Card.Title>Order Management</Card.Title>
+                  <img
+                    src={orderm}
+                    alt="Order Management"
+                    className="card-image"
+                  />
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={4} className="mb-4">
+            {/* Card 7: Inventory Management */}
+            <Col md={2} className="mb-4">
               <Card className="shadow-sm">
                 <Card.Body>
                   <Card.Title>Inventory Management</Card.Title>
+                  <img
+                    src={inventorym}
+                    alt="Inventory Management"
+                    className="card-image"
+                  />
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={4} className="mb-4">
+            {/* Card 8: Advanced Analytics */}
+            <Col md={2} className="mb-4">
               <Card className="shadow-sm">
                 <Card.Body>
                   <Card.Title>Advanced Analytics</Card.Title>
+                  <img
+                    src={advanaly}
+                    alt="Advanced Analytics"
+                    className="card-image"
+                  />
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={4} className="mb-4">
+            {/* Card 9: Logistics Integration */}
+            <Col md={2} className="mb-4">
               <Card className="shadow-sm">
                 <Card.Body>
                   <Card.Title>Logistics Integration</Card.Title>
+                  <img
+                    src={logicint}
+                    alt="Logistics Integration"
+                    className="card-image"
+                  />
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={4} className="mb-4">
+            {/* Card 10: Issue Management */}
+            <Col md={2} className="mb-4">
               <Card className="shadow-sm">
                 <Card.Body>
                   <Card.Title>Issue Management</Card.Title>
+                  <img
+                    src={issuem}
+                    alt="Issue Management"
+                    className="card-image"
+                  />
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={4} className="mb-4">
+            {/* Card 11: Google Analytics */}
+            <Col md={2} className="mb-4">
               <Card className="shadow-sm">
                 <Card.Body>
                   <Card.Title>Google Analytics</Card.Title>
+                  <img
+                    src={googlean}
+                    alt="Google Analytics"
+                    className="card-image"
+                  />
+                </Card.Body>
+              </Card>
+            </Col>
+            {/* Card 11: Google Analytics */}
+            <Col md={2} className="mb-4">
+              <Card className="shadow-sm">
+                <Card.Body>
+                  <Card.Title>Switchable Mode</Card.Title>
+                  <img
+                    src={sw}
+                    alt="Google Analytics"
+                    className="card-image"
+                  />
                 </Card.Body>
               </Card>
             </Col>
@@ -282,7 +376,6 @@ const WebCraft = () => {
         </Container>
       </section>
 
-      {/* FAQs Section */}
       {/* FAQs Section */}
       <section className="faqs py-5">
         <Container>

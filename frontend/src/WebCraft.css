@@ -223,3 +223,80 @@
 .footer p {
   margin: 0; /* Remove default margin for cleaner alignment */
 }
+
+/* General Section Styling */
+.features-overview {
+  background-color: #f8f9fa; /* Light background for contrast */
+  padding: 40px 0; /* Add vertical padding */
+}
+
+.features-overview h2 {
+  font-size: 2rem; /* Larger font size for the title */
+  color: #343a40; /* Dark text color for readability */
+  margin-bottom: 30px; /* Space between title and cards */
+  text-align: center; /* Center-align the title */
+}
+
+/* Container Styling */
+.features-overview .container {
+  max-width: 1400px; /* Limit container width for better alignment */
+}
+
+/* Card Styling */
+.features-overview .card {
+  border: none; /* Remove default card borders */
+  border-radius: 10px; /* Rounded corners for a modern look */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  overflow: hidden; /* Ensure content doesn't overflow */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effects */
+  height: 100%; /* Ensure cards have equal height */
+}
+
+.features-overview .card:hover {
+  transform: translateY(-5px); /* Slight upward movement on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Stronger shadow on hover */
+}
+
+.features-overview .card-body {
+  padding: 20px; /* Add padding inside the card */
+  display: flex; /* Use Flexbox for better alignment */
+  flex-direction: column; /* Stack title and image vertically */
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  height: 100%; /* Ensure card body fills the card */
+}
+
+.features-overview .card-title {
+  font-size: 1.2rem; /* Larger font size for card titles */
+  font-weight: 600; /* Bold font weight for emphasis */
+  margin-bottom: 15px; /* Space between title and image */
+  color: #343a40; /* Dark text color for readability */
+}
+
+.features-overview .card-image {
+  max-width: 100%; /* Ensure images fit within the card */
+  height: auto; /* Maintain aspect ratio */
+  display: block; /* Remove any inline gaps */
+  margin: 0 auto; /* Center-align images */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .features-overview .card {
+    margin-bottom: 20px; /* Add more spacing for smaller screens */
+  }
+
+  .features-overview h2 {
+    font-size: 1.5rem; /* Reduce font size for smaller screens */
+  }
+}
+
+@media (max-width: 576px) {
+  .features-overview .card {
+    margin-bottom: 15px; /* Further reduce spacing for very small screens */
+  }
+
+  .features-overview .card-title {
+    font-size: 1rem; /* Smaller font size for card titles */
+  }
+}
