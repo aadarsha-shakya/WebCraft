@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, Carousel, Card, Button, Accordion } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Accordion } from 'react-bootstrap';
 import './WebCraft.css'; // Import custom styles
 import logo from './assets/WebCraft.png'; 
 import nike from './assets/nike.jpg';
@@ -9,6 +9,10 @@ import cff from './assets/cff.jpg';
 import boba from './assets/boba.jpg';
 import icecream from './assets/icecream.jpg';
 import sprite from './assets/sprite.jpg';
+
+import delivery from './assets/wdelivery.jpg';
+import manage from './assets/wmanage.png';
+import notification from './assets/wordernotifi.jpg';
 
 // Sample data for businesses
 const businessData = [
@@ -85,7 +89,6 @@ const WebCraft = () => {
         </Container>
       </section>
 
-      {/* Business Showcase Section */}
       <section className="business-showcase py-5">
         <Container fluid>
           {" "}
@@ -98,7 +101,7 @@ const WebCraft = () => {
           </h2>
           <div className="business-slider">
             <div className="slider-container">
-              {/* Business cards with only images */}
+              {/* Original business cards */}
               {businessData.map((business) => (
                 <div key={business.id} className="business-card">
                   <img
@@ -108,14 +111,16 @@ const WebCraft = () => {
                   />
                 </div>
               ))}
-              {/* Duplicate the first image at the end for seamless looping */}
-              <div className="business-card">
-                <img
-                  src={businessData[0].image}
-                  alt={`Business 1`}
-                  className="business-image"
-                />
-              </div>
+              {/* Duplicate the first 4 images for seamless looping */}
+              {businessData.slice(0, 4).map((business) => (
+                <div key={`duplicate-${business.id}`} className="business-card">
+                  <img
+                    src={business.image}
+                    alt={`Business ${business.id}`}
+                    className="business-image"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </Container>
@@ -124,51 +129,66 @@ const WebCraft = () => {
       {/* How It Works Section */}
       <section className="how-it-works py-5">
         <Container>
-          <h2 className="text-center mb-4">
-            WebCraft works for every Business
-          </h2>
-          <Row>
-            <Col md={4} className="mb-4">
-              <Card className="shadow-sm">
-                <Card.Body>
-                  <Card.Title>Build a website within a minute</Card.Title>
-                  <Card.Text>
-                    Create a professional website effortlessly.
-                  </Card.Text>
-                </Card.Body>
-              </Card>
+          <h2 className="text-center mb-4">How It Works</h2>
+
+          {/* First Row: Receive Paid Orders */}
+          <Row className="align-items-center mb-5">
+            <div className="content-box bg-darkish text-white p-5 rounded d-flex flex-row align-items-center justify-content-between w-100">
+              {/* Text Section */}
+              <div className="text-section me-4">
+                <h3>1. Receive Paid orders directly to your dashboard.</h3>
+                <p>
+                  Customers don't have to wait for replies anymore. They can
+                  easily place orders directly through your website, simplifying
+                  the process for both parties. All paid orders are
+                  automatically updated on your WebCraft dashboard for
+                  hassle-free management.
+                </p>
+              </div>
+              {/* Image Section */}
+              <img
+                src={notification}
+                alt="Receive Paid Orders"
+                className="img-fluid"
+                style={{ maxWidth: "300px" }}
+              />
+            </div>
+          </Row>
+
+          {/* Second Row: Manage Everything in One Place & Deliver All Over Nepal */}
+          <Row className="mb-4">
+            {/* Manage Everything in One Place */}
+            <Col md={6}>
+              <div className="content-box bg-darkish text-white p-5 rounded d-flex flex-column align-items-center">
+                <img
+                  src={manage}
+                  alt="Manage Everything in One Place"
+                  className="img-fluid mb-3"
+                  style={{ maxWidth: "190px" }}
+                />
+                <h3>2. Manage everything in one place</h3>
+                <p>
+                  Manage orders, track inventory, and analyze sales data with
+                  ease.
+                </p>
+              </div>
             </Col>
-            <Col md={4} className="mb-4">
-              <Card className="shadow-sm">
-                <Card.Body>
-                  <Card.Title>Receive Paid orders directly</Card.Title>
-                  <Card.Text>
-                    Orders and payments are automatically updated in your
-                    dashboard.
-                  </Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={4} className="mb-4">
-              <Card className="shadow-sm">
-                <Card.Body>
-                  <Card.Title>Manage everything in one place</Card.Title>
-                  <Card.Text>
-                    Handle orders, inventory, and sales analytics smoothly.
-                  </Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={4} className="mb-4">
-              <Card className="shadow-sm">
-                <Card.Body>
-                  <Card.Title>Deliver all over Nepal</Card.Title>
-                  <Card.Text>
-                    Integrated with major logistics companies for nationwide
-                    delivery.
-                  </Card.Text>
-                </Card.Body>
-              </Card>
+
+            {/* Deliver All Over Nepal */}
+            <Col md={6}>
+              <div className="content-box bg-darkish text-white p-5 rounded d-flex flex-column align-items-center">
+                <img
+                  src={delivery}
+                  alt="Deliver All Over Nepal"
+                  className="img-fluid mb-3"
+                  style={{ maxWidth: "150px" }}
+                />
+                <h3>3. Deliver all over Nepal</h3>
+                <p>
+                  Seamlessly integrate with leading logistics companies in Nepal
+                  and effortlessly deliver nationwide.
+                </p>
+              </div>
             </Col>
           </Row>
         </Container>

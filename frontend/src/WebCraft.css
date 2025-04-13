@@ -112,6 +112,7 @@
     color: #7c53e6; /* Purple checkmark */
     font-size: 1.2rem;
   }
+
  /* Business Showcase Section */
 .business-showcase {
     background-color: #f9f9f9; /* Light background color */
@@ -128,7 +129,7 @@
   .slider-container {
     display: flex;
     gap: 20px;
-    animation: slideRight 20s linear infinite; /* Slow animation (20s) */
+    animation: slideRight 40s linear infinite; 
     transition: transform 0.5s ease;
   }
   
@@ -156,3 +157,61 @@
       transform: translateX(-100%); /* Scroll to the right */
     }
   }
+
+  /* General Section Styling */
+.how-it-works {
+  background-color: #f0faff; /* Light blue background */
+  color: #333; /* Default text color */
+}
+
+.content-box {
+  background-color: #351a79; /* Purple background */
+  color: white; /* White text */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  flex: 1; /* Allow the box to grow and fill available space */
+  display: flex; /* Make the content-box a flex container */
+  flex-direction: column; /* Arrange children in a column */
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  text-align: center; /* Center text alignment */
+  padding: 2rem; /* Add padding for spacing */
+  margin: 0.5rem; /* Add some margin for spacing between boxes */
+}
+
+.content-box img {
+  max-width: 100%; /* Ensure images are responsive */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.text-section {
+  font-size: 1rem; /* Adjust font size for readability */
+  line-height: 1.6; /* Improve text spacing */
+}
+
+h2 {
+  color: #333; /* Dark gray for main heading */
+  font-weight: bold; /* Bold text for emphasis */
+}
+
+h3 {
+  color: white; /* White text for subheadings inside boxes */
+  font-size: 1.5rem; /* Larger font size for subheadings */
+  margin-bottom: 1rem; /* Add spacing below subheadings */
+}
+
+p {
+  font-size: 1rem; /* Adjust paragraph font size */
+  margin-bottom: 0; /* Remove extra spacing at the bottom */
+}
+
+.row {
+  margin-bottom: 2rem; /* Add spacing between rows */
+}
+
+.col-md-6 {
+  display: flex; /* Make the column a flex container */
+  justify-content: center; /* Center content horizontally */
+  align-items: stretch; /* Stretch content vertically */
+}
+
