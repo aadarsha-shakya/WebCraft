@@ -215,3 +215,45 @@ p {
   align-items: stretch; /* Stretch content vertically */
 }
 
+/* Custom styles for FAQ section */
+.faqs {
+  background-color: #f0f8ff; /* Light blue background */
+  padding: 40px 0; /* Add some vertical padding for spacing */
+}
+
+.faq-item {
+  background-color: #ffffff; /* White background for individual FAQ items */
+  border-radius: 8px; /* Rounded corners */
+  margin-bottom: 16px; /* Spacing between FAQ items */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Customize Accordion Header */
+.faq-item .accordion-header {
+  background-color: #e6f7ff; /* Slightly darker shade for header */
+  padding: 16px; /* Padding for better spacing */
+  border-top-left-radius: 8px; /* Rounded top-left corner */
+  border-top-right-radius: 8px; /* Rounded top-right corner */
+  cursor: pointer; /* Change cursor to pointer for interactivity */
+}
+
+/* Customize Accordion Body */
+.faq-item .accordion-body {
+  padding: 16px; /* Padding for better spacing */
+  border-bottom-left-radius: 8px; /* Rounded bottom-left corner */
+  border-bottom-right-radius: 8px; /* Rounded bottom-right corner */
+}
+
+/* Custom styles for the footer */
+.footer {
+  background: linear-gradient(to bottom, #2d014c, #452384); /* Gradient from dark purple (#4b0082) to light purple (#e6f8ff) */
+  color: #ffffff; /* White text for better contrast */
+}
+
+.footer img {
+  filter: brightness(0) invert(1); /* Invert logo colors to make it white */
+}
+
+.footer p {
+  margin: 0; /* Remove default margin for cleaner alignment */
+}

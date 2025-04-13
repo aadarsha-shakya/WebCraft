@@ -283,6 +283,7 @@ const WebCraft = () => {
       </section>
 
       {/* FAQs Section */}
+      {/* FAQs Section */}
       <section className="faqs py-5">
         <Container>
           <h2 className="text-center mb-4">FAQs</h2>
@@ -418,7 +419,7 @@ const WebCraft = () => {
       {/* Footer */}
       <footer className="footer text-center py-3">
         <Container>
-          <img src="/path/to/logo.png" alt="WebCraft Logo" width="150" />
+          <img src={logo} alt="WebCraft Logo" width="500" />
           <p className="mt-2">© 2025, ALL RIGHTS RESERVED. WEBCRAFT</p>
         </Container>
       </footer>
