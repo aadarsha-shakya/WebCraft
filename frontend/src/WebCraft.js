@@ -288,7 +288,7 @@ const WebCraft = () => {
         <Container>
           <h2 className="text-center mb-4">FAQs</h2>
           <Accordion>
-            <Accordion.Item eventKey="0">
+            <Accordion.Item eventKey="0" className="faq-item">
               <Accordion.Header>
                 What is WebCraft and how does it work?
               </Accordion.Header>
@@ -299,7 +299,7 @@ const WebCraft = () => {
                 all from one place.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="1">
+            <Accordion.Item eventKey="1" className="faq-item">
               <Accordion.Header>
                 How does WebCraft ensure the security and privacy of user data?
               </Accordion.Header>
@@ -310,7 +310,7 @@ const WebCraft = () => {
                 and comply with all legal regulations.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="2">
+            <Accordion.Item eventKey="2" className="faq-item">
               <Accordion.Header>
                 Does WebCraft charge a commission for selling products?
               </Accordion.Header>
@@ -318,7 +318,7 @@ const WebCraft = () => {
                 No, WebCraft does not charge any commission on your sales.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="3">
+            <Accordion.Item eventKey="3" className="faq-item">
               <Accordion.Header>
                 Do I need to register my business to use WebCraft?
               </Accordion.Header>
@@ -327,7 +327,7 @@ const WebCraft = () => {
                 registered business is required to use online payment gateways.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="4">
+            <Accordion.Item eventKey="4" className="faq-item">
               <Accordion.Header>
                 Can I use my own domain with WebCraft?
               </Accordion.Header>
@@ -336,21 +336,21 @@ const WebCraft = () => {
                 one through us for easy integration.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="5">
+            <Accordion.Item eventKey="5" className="faq-item">
               <Accordion.Header>Can I upgrade my plan later?</Accordion.Header>
               <Accordion.Body>
                 Yes, you can upgrade anytime via your Account Details section or
                 by contacting support at support@WebCraft.com.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="6">
+            <Accordion.Item eventKey="6" className="faq-item">
               <Accordion.Header>Can I accept online payments?</Accordion.Header>
               <Accordion.Body>
                 Yes, we support eSewa, FonePay, Khalti, CyberSource
                 (Visa/MasterCard), and WebCraft Payment Fulfillment.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="7">
+            <Accordion.Item eventKey="7" className="faq-item">
               <Accordion.Header>
                 What is WebCraft Payment Fulfillment?
               </Accordion.Header>
@@ -359,7 +359,7 @@ const WebCraft = () => {
                 multiple options. We settle your payments every Friday.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="8">
+            <Accordion.Item eventKey="8" className="faq-item">
               <Accordion.Header>
                 What is the payment service fee?
               </Accordion.Header>
@@ -368,7 +368,7 @@ const WebCraft = () => {
                 The rest is deposited into your bank account.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="9">
+            <Accordion.Item eventKey="9" className="faq-item">
               <Accordion.Header>
                 Can I use my own merchant key for eSewa or FonePay?
               </Accordion.Header>
@@ -377,7 +377,7 @@ const WebCraft = () => {
                 payments directly into your company account.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="10">
+            <Accordion.Item eventKey="10" className="faq-item">
               <Accordion.Header>
                 Can I give staff access to my store?
               </Accordion.Header>
@@ -386,7 +386,7 @@ const WebCraft = () => {
                 your store.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="11">
+            <Accordion.Item eventKey="11" className="faq-item">
               <Accordion.Header>
                 What happens after my subscription expires?
               </Accordion.Header>
@@ -395,7 +395,7 @@ const WebCraft = () => {
                 saved for when you resume a premium plan.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="12">
+            <Accordion.Item eventKey="12" className="faq-item">
               <Accordion.Header>
                 How do I cancel my WebCraft account?
               </Accordion.Header>
@@ -404,7 +404,7 @@ const WebCraft = () => {
                 your account and address any concerns.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="13">
+            <Accordion.Item eventKey="13" className="faq-item">
               <Accordion.Header>Can I get a refund?</Accordion.Header>
               <Accordion.Body>
                 Refunds are handled case-by-case. Reach out to

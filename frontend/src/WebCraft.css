@@ -158,93 +158,59 @@
     }
   }
 
-  /* General Section Styling */
-.how-it-works {
-  background-color: #f0faff; /* Light blue background */
-  color: #333; /* Default text color */
-}
-
+/* How it Works */
+/* Gradient Scatter Dark Purple Style for Content Boxes */
 .content-box {
-  background-color: #351a79; /* Purple background */
-  color: white; /* White text */
-  border-radius: 10px; /* Rounded corners */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  flex: 1; /* Allow the box to grow and fill available space */
-  display: flex; /* Make the content-box a flex container */
-  flex-direction: column; /* Arrange children in a column */
-  justify-content: center; /* Center content vertically */
-  align-items: center; /* Center content horizontally */
-  text-align: center; /* Center text alignment */
-  padding: 2rem; /* Add padding for spacing */
-  margin: 0.5rem; /* Add some margin for spacing between boxes */
+  background: radial-gradient(circle at 10% 20%, #4b0082, transparent 30%),
+              radial-gradient(circle at 70% 50%, #6a0dad, transparent 40%),
+              radial-gradient(circle at 30% 80%, #3a0ca3, transparent 50%),
+              linear-gradient(to bottom, #4b0082, #3a0ca3);
+  background-size: 200% 200%; /* Create a repeating pattern */
+  border-radius: 12px; /* Rounded corners for the box */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+  color: #ffffff; /* White text for contrast */
+  overflow: hidden; /* Ensure the gradient doesn't overflow the box */
 }
 
-.content-box img {
-  max-width: 100%; /* Ensure images are responsive */
-  height: auto; /* Maintain aspect ratio */
+.content-box h3 {
+  font-size: 1.5rem; /* Adjust heading size */
+  margin-bottom: 12px; /* Spacing between heading and paragraph */
 }
 
-.text-section {
-  font-size: 1rem; /* Adjust font size for readability */
-  line-height: 1.6; /* Improve text spacing */
+.content-box p {
+  font-size: 1rem; /* Adjust paragraph size */
+  line-height: 1.6; /* Improve readability */
 }
 
-h2 {
-  color: #333; /* Dark gray for main heading */
-  font-weight: bold; /* Bold text for emphasis */
-}
-
-h3 {
-  color: white; /* White text for subheadings inside boxes */
-  font-size: 1.5rem; /* Larger font size for subheadings */
-  margin-bottom: 1rem; /* Add spacing below subheadings */
-}
-
-p {
-  font-size: 1rem; /* Adjust paragraph font size */
-  margin-bottom: 0; /* Remove extra spacing at the bottom */
-}
-
-.row {
-  margin-bottom: 2rem; /* Add spacing between rows */
-}
-
-.col-md-6 {
-  display: flex; /* Make the column a flex container */
-  justify-content: center; /* Center content horizontally */
-  align-items: stretch; /* Stretch content vertically */
-}
-
-/* Custom styles for FAQ section */
+/* FAQ */
 .faqs {
-  background-color: #f0f8ff; /* Light blue background */
+  background-color: #f0f8ff; /* Light blue background for the entire section */
   padding: 40px 0; /* Add some vertical padding for spacing */
 }
 
 .faq-item {
-  background-color: #ffffff; /* White background for individual FAQ items */
+  background: linear-gradient(135deg, #ff758c, #ff9d76, #ffd166, #84a2fd, #bd8ef5); /* Rainbow gradient */
+  background-size: 300% 300%; /* Create a smooth transition effect */
   border-radius: 8px; /* Rounded corners */
   margin-bottom: 16px; /* Spacing between FAQ items */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  animation: gradient 5s ease infinite; /* Add animation for dynamic gradient */
 }
 
-/* Customize Accordion Header */
-.faq-item .accordion-header {
-  background-color: #e6f7ff; /* Slightly darker shade for header */
-  padding: 16px; /* Padding for better spacing */
-  border-top-left-radius: 8px; /* Rounded top-left corner */
-  border-top-right-radius: 8px; /* Rounded top-right corner */
-  cursor: pointer; /* Change cursor to pointer for interactivity */
+/* Keyframes for gradient animation */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
-/* Customize Accordion Body */
-.faq-item .accordion-body {
-  padding: 16px; /* Padding for better spacing */
-  border-bottom-left-radius: 8px; /* Rounded bottom-left corner */
-  border-bottom-right-radius: 8px; /* Rounded bottom-right corner */
-}
-
-/* Custom styles for the footer */
+/* The footer */
 .footer {
   background: linear-gradient(to bottom, #2d014c, #452384); /* Gradient from dark purple (#4b0082) to light purple (#e6f8ff) */
   color: #ffffff; /* White text for better contrast */
