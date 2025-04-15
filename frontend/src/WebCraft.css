@@ -12,111 +12,122 @@
     line-height: 1.6;
     font-size: 1rem;
   }
-  
+
   /* Header Styles */
   .header {
-    background-color: #fff;
+    background: linear-gradient(to bottom, #eeebee, #bfd0dc); /* Light blue to light cyan gradient */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 15px 20px;
-  }
-  
-  .logo img {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    }
+    
+    .logo img {
     height: 50px; /* Adjust logo size */
-  }
-  
-  .nav-links {
+    width: auto; /* Maintain aspect ratio */
+    }
+    
+    .nav-links {
     display: flex;
     gap: 20px;
     align-items: center;
-  }
-  
-  .nav-link {
+    }
+    
+    .nav-link {
     text-decoration: none;
     color: #333;
-    font-weight: 500;
+    font-weight: 700; /* Bold text */
     transition: color 0.3s ease;
-  }
-  
-  .nav-link:hover {
+    }
+    
+    .nav-link:hover {
     color: #555;
-  }
-  
-  .register-btn {
+    }
+    
+    .register-btn {
     background-color: #7c53e6; /* Purple color */
     color: #fff;
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
-  }
-  
-  .register-btn:hover {
-    background-color: #6d48cf; /* Slightly darker purple */
-  }
-  
-  /* Hero Section Styles */
-  .hero-section {
-    background-color: #f0faff; /* Light purple background */
-    text-align: center;
-    padding: 100px 0;
-  }
-  
-  .main-message {
-    font-size: 2.5rem; /* Large heading */
-    line-height: 1.2;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 20px;
-  }
-  
-  .sub-message {
-    font-size: 1rem;
-    color: #666;
-    margin-top: 10px;
-  }
-  
-  .cta-button {
-    background-color: #7c53e6; /* Purple color */
-    color: #fff;
-    border: none;
-    padding: 15px 30px;
-    border-radius: 5px;
-    font-size: 1.2rem;
-    font-weight: 500;
+    font-weight: 700; /* Bold text */
     transition: background-color 0.3s ease;
     display: inline-block;
-  }
-  
-  .cta-button:hover {
+    }
+    
+    .register-btn:hover {
     background-color: #6d48cf; /* Slightly darker purple */
-  }
-  
-  .highlights {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 20px;
-  }
-  
-  .highlights p {
-    font-size: 1rem;
-    color: #666;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .highlights p::before {
-    content: "✓";
-    color: #7c53e6; /* Purple checkmark */
-    font-size: 1.2rem;
-  }
+    }
+
+  /* Hero Section Styles */
+.hero-section {
+  background-color: #bfd0dc; /* Light purple background */
+  text-align: center;
+  padding: 100px 0;
+}
+
+.main-message {
+  font-size: 4.5rem; /* Large heading */
+  line-height: 1.2;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.sub-message {
+  font-size: 1.5rem; /* Smaller font size */
+  color: #0f0f0f;
+  margin-top: 10px;
+}
+
+.sub-message-m {
+  font-size: 1rem; /* Smaller font size */
+  color: #0f0f0f;
+  margin-top: 10px;
+}
+
+.cta-button {
+  background-color: #7c53e6; /* Purple color */
+  color: #fff;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 5px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  display: inline-block;
+}
+
+.cta-button:hover {
+  background-color: #6d48cf; /* Slightly darker purple */
+}
+
+.highlights {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.highlights p {
+  font-size: 1rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.highlights p::before {
+  content: "✓";
+  color: #7c53e6; /* Purple checkmark */
+  font-size: 1.2rem;
+}
 
  /* Business Showcase Section */
 .business-showcase {
-    background-color: #f9f9f9; /* Light background color */
-    padding: 0; /* Remove padding to make the slider touch the edges */
+  background: linear-gradient(to bottom, #bfd0dc, #f0f8ff); /* Light blue to light cyan gradient */
+  padding: 0; /* Remove padding to make the slider touch the edges */
   }
   
   .business-slider {
@@ -160,6 +171,10 @@
 
 /* How it Works */
 /* Gradient Scatter Dark Purple Style for Content Boxes */
+.how-it-works {
+  background: linear-gradient(to top, #add8e6, #f0f8ff); /* Faded light blue from top to bottom */
+  padding: 40px 0; /* Add some vertical padding for spacing */
+}
 .content-box {
   background: radial-gradient(circle at 10% 20%, #4b0082, transparent 30%),
               radial-gradient(circle at 70% 50%, #6a0dad, transparent 40%),
@@ -184,7 +199,7 @@
 
 /* FAQ */
 .faqs {
-  background-color: #f0f8ff; /* Light blue background for the entire section */
+  background: linear-gradient(to top, #f0f8ff, #add8e6); /* Faded light blue from top to bottom */
   padding: 40px 0; /* Add some vertical padding for spacing */
 }
 
@@ -210,6 +225,19 @@
   }
 }
 
+/* Adjust Accordion Header Padding */
+.accordion-header {
+  padding: 5px; /* Reduced padding for header */
+  font-size: 2rem; /* Adjust font size */
+  margin: 0; /* Remove any default margin */
+}
+
+/* Adjust Accordion Body Padding */
+.accordion-body {
+  padding: 10px; /* Reduced padding for body content */
+  font-size: 0.9rem; /* Slightly smaller text for compactness */
+}
+
 /* The footer */
 .footer {
   background: linear-gradient(to bottom, #2d014c, #452384); /* Gradient from dark purple (#4b0082) to light purple (#e6f8ff) */
@@ -226,7 +254,7 @@
 
 /* General Section Styling */
 .features-overview {
-  background-color: #f8f9fa; /* Light background for contrast */
+  background-color: #add8e6; /* Light background for contrast */
   padding: 40px 0; /* Add vertical padding */
 }
 
@@ -271,6 +299,7 @@
   font-weight: 600; /* Bold font weight for emphasis */
   margin-bottom: 15px; /* Space between title and image */
   color: #343a40; /* Dark text color for readability */
+  text-align: center; /* Center-align the text */
 }
 
 .features-overview .card-image {
@@ -278,6 +307,10 @@
   height: auto; /* Maintain aspect ratio */
   display: block; /* Remove any inline gaps */
   margin: 0 auto; /* Center-align images */
+}
+
+.card-darkish-lightish-blue {
+  background-color: #fffeea; /* Lightish blue background */
 }
 
 /* Responsive Adjustments */

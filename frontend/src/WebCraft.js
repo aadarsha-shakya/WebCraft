@@ -67,35 +67,48 @@ const WebCraft = () => {
       {/* Header */}
       <header className="header d-flex justify-content-between align-items-center p-3">
         <div className="logo">
-          <img src={logo} alt="WebCraft Logo" width="150" />{" "}
+          <img
+            src={logo}
+            alt="WebCraft Logo"
+            style={{ height: "35px", width: "auto" }}
+          />{" "}
           {/* Use the imported logo */}
         </div>
         <nav className="nav-links">
-          <a href="/pricing" className="nav-link">
+          <a href="/pricing" className="nav-link bold-link">
             Pricing
           </a>
-          <a href="/login" className="nav-link">
+          <a href="/login" className="nav-link bold-link">
             Login
           </a>
-          <a href="/register" className="nav-link">
+          <Button
+            variant="primary"
+            size="sm"
+            className="register-btn bold-link"
+          >
             Register
-          </a>
+          </Button>
         </nav>
       </header>
 
       {/* Hero Section */}
       <section className="hero-section text-center py-5">
         <Container>
+          <br></br>
+          <br></br>
           <h1 className="main-message mb-3">
-            Launch your online business within few minutes.
-            <br />
-            Build a website, manage your business and deliver all over Nepal
-            with WebCraft.
+            Launch your online business within a few minutes.
           </h1>
+          <p className="sub-message mb-3">
+            Build a website, manage your business, and deliver all over Nepal
+            with WebCraft.
+          </p>
+          <br></br>
           <Button variant="primary" size="lg" className="cta-button mb-3">
             Start your Free Trial
           </Button>
-          <p className="sub-message">Try 3 months for free</p>
+          <br></br>
+          <p className="sub-message-m">Try 3 months for free</p>
           <div className="highlights">
             <p>Receive online payment directly</p>
             <p>Zero tech skills needed</p>
@@ -104,15 +117,21 @@ const WebCraft = () => {
         </Container>
       </section>
 
+      {/* Business Showcase Section */}
       <section className="business-showcase py-5">
         <Container fluid>
           {" "}
-          {/* Use fluid container to span the full width */}
           <h2 className="text-center mb-4">
-            WebCraft works for every Business.
+            <span style={{ fontSize: "3rem", fontWeight: "bold" }}>
+              WebCraft works for every Business.
+            </span>
             <br />
-            From sports teams selling jerseys to influencers launching their
-            brands — whatever you sell, WebCraft helps you sell it better!
+            <span style={{ fontSize: "1rem" }}>
+              From sports teams selling jerseys to influencers launching their
+              brands
+            </span>
+            <br />
+            <b>Whatever you sell, WebCraft helps you sell it better!</b>
           </h2>
           <div className="business-slider">
             <div className="slider-container">
@@ -144,15 +163,19 @@ const WebCraft = () => {
       {/* How It Works Section */}
       <section className="how-it-works py-5">
         <Container>
-          <h2 className="text-center mb-4">How It Works</h2>
+          <h2 className="text-center mb-4" style={{ fontSize: "2.5rem" }}>
+            <b>How It Works</b>
+          </h2>
 
           {/* First Row: Receive Paid Orders */}
           <Row className="align-items-center mb-5">
             <div className="content-box bg-darkish text-white p-5 rounded d-flex flex-row align-items-center justify-content-between w-100">
               {/* Text Section */}
               <div className="text-section me-4">
-                <h3>1. Receive Paid orders directly to your dashboard.</h3>
-                <p>
+                <h3 style={{ fontSize: "1.8rem" }}>
+                  <b>1. Receive Paid orders directly to your dashboard.</b>
+                </h3>
+                <p style={{ fontSize: "1.4rem" }}>
                   Customers don't have to wait for replies anymore. They can
                   easily place orders directly through your website, simplifying
                   the process for both parties. All paid orders are
@@ -179,10 +202,12 @@ const WebCraft = () => {
                   src={manage}
                   alt="Manage Everything in One Place"
                   className="img-fluid mb-3"
-                  style={{ maxWidth: "190px" }}
+                  style={{ maxWidth: "310px" }}
                 />
-                <h3>2. Manage everything in one place</h3>
-                <p>
+                <h3 style={{ fontSize: "1.8rem" }}>
+                  2. Manage everything in one place
+                </h3>
+                <p style={{ fontSize: "1.4rem" }}>
                   Manage orders, track inventory, and analyze sales data with
                   ease.
                 </p>
@@ -198,8 +223,10 @@ const WebCraft = () => {
                   className="img-fluid mb-3"
                   style={{ maxWidth: "150px" }}
                 />
-                <h3>3. Deliver all over Nepal</h3>
-                <p>
+                <h3 style={{ fontSize: "1.8rem" }}>
+                  3. Deliver all over Nepal
+                </h3>
+                <p style={{ fontSize: "1.4rem" }}>
                   Seamlessly integrate with leading logistics companies in Nepal
                   and effortlessly deliver nationwide.
                 </p>
@@ -213,12 +240,12 @@ const WebCraft = () => {
       <section className="features-overview py-5">
         <Container>
           <h2 className="text-center mb-4">
-            WebCraft gives you everything you need to succeed online
+            <b>WebCraft gives you everything you need to succeed online</b>
           </h2>
           <Row>
             {/* Card 1: Custom Domain */}
             <Col md={2} className="mb-4">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm card-darkish-lightish-blue">
                 <Card.Body>
                   <Card.Title>Custom Domain</Card.Title>
                   <img
@@ -231,7 +258,7 @@ const WebCraft = () => {
             </Col>
             {/* Card 2: Payment Gateway */}
             <Col md={2} className="mb-4">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm card-darkish-lightish-blue">
                 <Card.Body>
                   <Card.Title>Payment Gateway</Card.Title>
                   <img
@@ -244,11 +271,11 @@ const WebCraft = () => {
             </Col>
             {/* Card 3: Website Customization */}
             <Col md={2} className="mb-4">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm card-darkish-lightish-blue">
                 <Card.Body>
                   <Card.Title>Website Customization</Card.Title>
                   <img
-                    src= {wcust} // Replace with your image path
+                    src={wcust} // Replace with your image path
                     alt="Website Customization"
                     className="card-image"
                   />
@@ -257,25 +284,21 @@ const WebCraft = () => {
             </Col>
             {/* Card 4: Staff Management */}
             <Col md={2} className="mb-4">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm card-darkish-lightish-blue">
                 <Card.Body>
                   <Card.Title>Staff Management</Card.Title>
-                  <img
-                    src={sm}
-                    alt="Staff Management"
-                    className="card-image"
-                  />
+                  <img src={sm} alt="Staff Management" className="card-image" />
                 </Card.Body>
               </Card>
             </Col>
-            {/* Card 5: Coupon Codes */}
+            {/* Card 5: Barcode Management */}
             <Col md={2} className="mb-4">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm card-darkish-lightish-blue">
                 <Card.Body>
                   <Card.Title>Barcode Management</Card.Title>
                   <img
-                    src= {barcode}
-                    alt="Coupon Codes"
+                    src={barcode}
+                    alt="Barcode Management"
                     className="card-image"
                   />
                 </Card.Body>
@@ -283,7 +306,7 @@ const WebCraft = () => {
             </Col>
             {/* Card 6: Order Management */}
             <Col md={2} className="mb-4">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm card-darkish-lightish-blue">
                 <Card.Body>
                   <Card.Title>Order Management</Card.Title>
                   <img
@@ -296,7 +319,7 @@ const WebCraft = () => {
             </Col>
             {/* Card 7: Inventory Management */}
             <Col md={2} className="mb-4">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm card-darkish-lightish-blue">
                 <Card.Body>
                   <Card.Title>Inventory Management</Card.Title>
                   <img
@@ -309,7 +332,7 @@ const WebCraft = () => {
             </Col>
             {/* Card 8: Advanced Analytics */}
             <Col md={2} className="mb-4">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm card-darkish-lightish-blue">
                 <Card.Body>
                   <Card.Title>Advanced Analytics</Card.Title>
                   <img
@@ -322,7 +345,7 @@ const WebCraft = () => {
             </Col>
             {/* Card 9: Logistics Integration */}
             <Col md={2} className="mb-4">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm card-darkish-lightish-blue">
                 <Card.Body>
                   <Card.Title>Logistics Integration</Card.Title>
                   <img
@@ -335,7 +358,7 @@ const WebCraft = () => {
             </Col>
             {/* Card 10: Issue Management */}
             <Col md={2} className="mb-4">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm card-darkish-lightish-blue">
                 <Card.Body>
                   <Card.Title>Issue Management</Card.Title>
                   <img
@@ -348,7 +371,7 @@ const WebCraft = () => {
             </Col>
             {/* Card 11: Google Analytics */}
             <Col md={2} className="mb-4">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm card-darkish-lightish-blue">
                 <Card.Body>
                   <Card.Title>Google Analytics</Card.Title>
                   <img
@@ -359,16 +382,12 @@ const WebCraft = () => {
                 </Card.Body>
               </Card>
             </Col>
-            {/* Card 11: Google Analytics */}
+            {/* Card 12: Switchable Mode */}
             <Col md={2} className="mb-4">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm card-darkish-lightish-blue">
                 <Card.Body>
                   <Card.Title>Switchable Mode</Card.Title>
-                  <img
-                    src={sw}
-                    alt="Google Analytics"
-                    className="card-image"
-                  />
+                  <img src={sw} alt="Switchable Mode" className="card-image" />
                 </Card.Body>
               </Card>
             </Col>
@@ -377,9 +396,11 @@ const WebCraft = () => {
       </section>
 
       {/* FAQs Section */}
-      <section className="faqs py-5">
+      <section className="faqs py-1">
         <Container>
-          <h2 className="text-center mb-4">FAQs</h2>
+          <h2 className="text-center mb-1" style={{ fontSize: "1.8rem" }}>
+            <b>FAQs</b>
+          </h2>
           <Accordion>
             <Accordion.Item eventKey="0" className="faq-item">
               <Accordion.Header>
@@ -436,13 +457,7 @@ const WebCraft = () => {
                 by contacting support at support@WebCraft.com.
               </Accordion.Body>
             </Accordion.Item>
-            <Accordion.Item eventKey="6" className="faq-item">
-              <Accordion.Header>Can I accept online payments?</Accordion.Header>
-              <Accordion.Body>
-                Yes, we support eSewa, FonePay, Khalti, CyberSource
-                (Visa/MasterCard), and WebCraft Payment Fulfillment.
-              </Accordion.Body>
-            </Accordion.Item>
+
             <Accordion.Item eventKey="7" className="faq-item">
               <Accordion.Header>
                 What is WebCraft Payment Fulfillment?
@@ -450,15 +465,6 @@ const WebCraft = () => {
               <Accordion.Body>
                 It’s our in-house payment gateway. Customers can pay via
                 multiple options. We settle your payments every Friday.
-              </Accordion.Body>
-            </Accordion.Item>
-            <Accordion.Item eventKey="8" className="faq-item">
-              <Accordion.Header>
-                What is the payment service fee?
-              </Accordion.Header>
-              <Accordion.Body>
-                A 2.75–5% service fee is applied depending on your premium plan.
-                The rest is deposited into your bank account.
               </Accordion.Body>
             </Accordion.Item>
             <Accordion.Item eventKey="9" className="faq-item">
