@@ -1,24 +1,23 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Added useNavigate here
-import axios from 'axios'; // Imported axios here
-import './LoginValidation';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Validation from './LoginValidation';
-//rfce
+
 function Login() {
   const [values, setValues] = useState({
     email: '',
     password: ''
   });
-  const navigate = useNavigate(); // Added useNavigate hook
+  const navigate = useNavigate();
   const [errors, setErrors] = useState({});
 
   const handleInput = (event) => {
-    setValues((prev) => ({ ...prev, [event.target.name]: event.target.value })); // Corrected to store single value in an array
+    setValues((prev) => ({ ...prev, [event.target.name]: event.target.value }));
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const validationErrors = Validation(values); // Corrected to use the validation errors from the function
+    const validationErrors = Validation(values);
     setErrors(validationErrors);
 
     if (!validationErrors.email && !validationErrors.password) {
@@ -26,23 +25,31 @@ function Login() {
         .post('http://localhost:8081/login', values)
         .then((res) => {
           if (res.data.status === "success") {
-            // Store the user's ID in localStorage for future reference
             localStorage.setItem('userId', res.data.userId);
             navigate('/dashboard');
           } else {
             alert('No record existed');
           }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.error("Login failed:", err);
+          alert('Login failed. Please try again.');
+        });
     }
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100 custom-background">
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      background: 'linear-gradient(135deg, #004e92, #00b4db)' // Darker blue to lighter blue gradient
+    }}>
       <div className="bg-white p-3 rounded w-25">
         <div>
           <h2>Login</h2>
-          <form action="" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="email">
                 <strong>Email</strong>
@@ -75,9 +82,15 @@ function Login() {
             <p>You agree to our terms and conditions</p>
             <Link
               to="/signup"
-              className="btn btn-default border w-100 bg-light rounded-0 text-decoration-none"
+              className="btn btn-default border w-100 bg-light rounded-0 text-decoration-none mb-2"
             >
               Create Account
+            </Link>
+            <Link
+              to="/forgot-password"
+              className="btn btn-link w-100 text-center text-decoration-none"
+            >
+              Forgot Password?
             </Link>
           </form>
         </div>

@@ -72,11 +72,7 @@ function BarcodeGeneration() {
               <i className="fas fa-chart-line"></i> Analytics
             </Link>
           </li>
-          <li>
-            <Link to="/Inventory">
-              <i className="fas fa-warehouse"></i> Inventory
-            </Link>
-          </li>
+          
         </ul>
 
         <h2>Customizations</h2>

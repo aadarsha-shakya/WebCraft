@@ -74,15 +74,15 @@
   display: flex;
   flex-direction: column;
 }
-
 /* Header Panel for Main Content */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  background-color: #f8f8f8;
+  padding: 15px 20px;
+  background-color: #ffffff;
   border-bottom: 1px solid #ddd;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .header-icons {
@@ -115,6 +115,57 @@
   font-size: 20px;
   color: #fff;
   background-color: #020406; 
+  position: relative; /* Make the container position relative for dropdown positioning */
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  top: 100%; /* Align to the bottom of the "W" icon */
+  right: 0; /* Align to the right of the "W" icon */
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 10px;
+  display: none; /* Initially hidden */
+  min-width: 150px; /* Optional: set a minimum width for dropdown */
+  border-radius: 6px; /* Rounded corners */
+}
+
+.w-icon.open .dropdown-menu {
+  display: block; /* Show when open */
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.2s ease-in-out;
+}
+
+.dropdown-item i {
+  margin-right: 10px;
+}
+
+.dropdown-item:hover {
+  background: #f0f0f0;
+}
+
+.logout {
+  color: red;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.logout:hover {
+  background: #f0f0f0;
 }
 
 /* Logo Styling */
@@ -130,61 +181,6 @@
 .logo img {
   max-width: 100%; /* Ensures the image scales down but doesn't overflow */
   height: auto;    /* Keeps the aspect ratio intact */
-}
-
-/* Dropdown Menu */
-/* Update the position of the dropdown */
-.w-icon {
-  position: relative; /* Make the container position relative for dropdown positioning */
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 100%; /* Align to the bottom of the "W" icon */
-  left: -125px;
-  background-color: white;
-  border: 1px solid #ddd;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  padding: 10px;
-  display: none; /* Initially hidden */
-  min-width: 150px; /* Optional: set a minimum width for dropdown */
-}
-
-.w-icon.open .dropdown-menu {
-  display: block; /* Show when open */
-}
-
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  color: white;
-  text-decoration: none;
-  background: #333;
-  transition: background 0.2s ease-in-out;
-}
-
-.dropdown-item i {
-  margin-right: 10px;
-}
-
-.dropdown-item:hover {
-  background: #444;
-}
-
-.logout {
-  color: red;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  padding: 12px;
-  cursor: pointer;
-}
-
-.logout:hover {
-  background: #555;
 }
 
 /* Content Area Styling */

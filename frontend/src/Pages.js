@@ -335,7 +335,6 @@ function Pages() {
                     <li><Link to="/BarcodeGeneration"><i className="fas fa-barcode"></i> Barcode Scanner</Link></li>
                     <li><Link to="/Settlement"><i className="fas fa-wallet"></i> Settlement</Link></li>
                     <li><Link to="/Analytics"><i className="fas fa-chart-line"></i> Analytics</Link></li>
-                    <li><Link to="/Inventory"><i className="fas fa-warehouse"></i> Inventory</Link></li>
                 </ul>
                 <h2>Customizations</h2>
                 <ul>

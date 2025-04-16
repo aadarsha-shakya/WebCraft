@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Row, Col, Card, Button, Accordion } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './WebCraft.css'; // Import custom styles
 import logo from './assets/WebCraft.png'; 
 import nike from './assets/nike.jpg';
@@ -9,18 +10,15 @@ import cff from './assets/cff.jpg';
 import boba from './assets/boba.jpg';
 import icecream from './assets/icecream.jpg';
 import sprite from './assets/sprite.jpg';
-
 import delivery from './assets/wdelivery.jpg';
 import manage from './assets/wmanage.png';
 import notification from './assets/wordernotifi.jpg';
-
 import barcode from './assets/barcode.png';
 import customdomain from './assets/customdomain.png';
 import orderm from './assets/ordermanagement.png';
 import paymentg from './assets/paymentgateway.png';
 import sm from './assets/staffmanagement.png';
 import wcust from './assets/webcustomization.png';
-
 import googlean from './assets/googlean.png';
 import issuem from './assets/issuem.png';
 import logicint from './assets/logicint.png';
@@ -28,40 +26,49 @@ import advanaly from './assets/advanaly.png';
 import inventorym from './assets/inventorym.png';
 import sw from './assets/switchable.png';
 
-
 // Sample data for businesses
 const businessData = [
-    {
-      id: 1,
-      image: nike,
-    },
-    {
-      id: 2,
-      image: spik,
-    },
-    {
-      id: 3,
-      image: sprite,
-    },
-    {
-      id: 4,
-      image: boba,
-    },
-    {
-      id: 5,
-      image: zara,
-    },
-    {
-      id: 6,
-      image: cff,
-    },
-    {
-      id: 7,
-      image: icecream,
-    },
-  ];  
+  {
+    id: 1,
+    image: nike,
+  },
+  {
+    id: 2,
+    image: spik,
+  },
+  {
+    id: 3,
+    image: sprite,
+  },
+  {
+    id: 4,
+    image: boba,
+  },
+  {
+    id: 5,
+    image: zara,
+  },
+  {
+    id: 6,
+    image: cff,
+  },
+  {
+    id: 7,
+    image: icecream,
+  },
+];
 
 const WebCraft = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleRegister = () => {
+    navigate('/signup'); // Navigate to Signup page
+  };
+
+  const handleFreeTrial = () => {
+    navigate('/signup'); // Navigate to Signup page
+  };
+
   return (
     <div className="webcraft-page">
       {/* Header */}
@@ -75,9 +82,6 @@ const WebCraft = () => {
           {/* Use the imported logo */}
         </div>
         <nav className="nav-links">
-          <a href="/pricing" className="nav-link bold-link">
-            Pricing
-          </a>
           <a href="/login" className="nav-link bold-link">
             Login
           </a>
@@ -85,12 +89,12 @@ const WebCraft = () => {
             variant="primary"
             size="sm"
             className="register-btn bold-link"
+            onClick={handleRegister} // Add onClick event
           >
             Register
           </Button>
         </nav>
       </header>
-
       {/* Hero Section */}
       <section className="hero-section text-center py-5">
         <Container>
@@ -104,7 +108,12 @@ const WebCraft = () => {
             with WebCraft.
           </p>
           <br></br>
-          <Button variant="primary" size="lg" className="cta-button mb-3">
+          <Button
+            variant="primary"
+            size="lg"
+            className="cta-button mb-3"
+            onClick={handleFreeTrial} // Add onClick event
+          >
             Start your Free Trial
           </Button>
           <br></br>
@@ -116,7 +125,6 @@ const WebCraft = () => {
           </div>
         </Container>
       </section>
-
       {/* Business Showcase Section */}
       <section className="business-showcase py-5">
         <Container fluid>
@@ -159,14 +167,12 @@ const WebCraft = () => {
           </div>
         </Container>
       </section>
-
       {/* How It Works Section */}
       <section className="how-it-works py-5">
         <Container>
           <h2 className="text-center mb-4" style={{ fontSize: "2.5rem" }}>
             <b>How It Works</b>
           </h2>
-
           {/* First Row: Receive Paid Orders */}
           <Row className="align-items-center mb-5">
             <div className="content-box bg-darkish text-white p-5 rounded d-flex flex-row align-items-center justify-content-between w-100">
@@ -192,7 +198,6 @@ const WebCraft = () => {
               />
             </div>
           </Row>
-
           {/* Second Row: Manage Everything in One Place & Deliver All Over Nepal */}
           <Row className="mb-4">
             {/* Manage Everything in One Place */}
@@ -213,7 +218,6 @@ const WebCraft = () => {
                 </p>
               </div>
             </Col>
-
             {/* Deliver All Over Nepal */}
             <Col md={6}>
               <div className="content-box bg-darkish text-white p-5 rounded d-flex flex-column align-items-center">
@@ -235,7 +239,6 @@ const WebCraft = () => {
           </Row>
         </Container>
       </section>
-
       {/* Features Overview Section */}
       <section className="features-overview py-5">
         <Container>
@@ -394,7 +397,6 @@ const WebCraft = () => {
           </Row>
         </Container>
       </section>
-
       {/* FAQs Section */}
       <section className="faqs py-1">
         <Container>
@@ -457,7 +459,6 @@ const WebCraft = () => {
                 by contacting support at support@WebCraft.com.
               </Accordion.Body>
             </Accordion.Item>
-
             <Accordion.Item eventKey="7" className="faq-item">
               <Accordion.Header>
                 What is WebCraft Payment Fulfillment?
@@ -514,7 +515,6 @@ const WebCraft = () => {
           </Accordion>
         </Container>
       </section>
-
       {/* Footer */}
       <footer className="footer text-center py-3">
         <Container>

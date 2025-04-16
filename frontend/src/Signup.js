@@ -1,8 +1,7 @@
-// Signup.js
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import SignupValidation from './SignupValidation'; 
-import axios from 'axios'
+import SignupValidation from './SignupValidation';
+import axios from 'axios';
 
 function Signup() {
   const [values, setValues] = useState({
@@ -10,12 +9,12 @@ function Signup() {
     email: '',
     password: '',
   });
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const [errors, setErrors] = useState({});
 
   const handleInput = (event) => {
     setValues((prev) => ({ ...prev, [event.target.name]: event.target.value }));
-  }
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -28,14 +27,19 @@ const navigate = useNavigate();
         })
         .catch(err => console.log(err));
     }
-  }
-  
+  };
 
   return (
-    <div className="d-flex justify-content-center align-items-center bg-primary vh-100">
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      background: 'linear-gradient(135deg, #004e92, #00b4db)' // Darker blue to lighter blue gradient
+    }}>
       <div className="bg-white p-3 rounded w-25">
         <h2>Sign-Up</h2>
-        <form onSubmit={handleSubmit}>  
+        <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="name">
               <strong>Name</strong>
@@ -79,7 +83,7 @@ const navigate = useNavigate();
             Signup
           </button>
           <p>You agree to our terms and conditions</p>
-          <Link to="/" className="btn btn-default borde w-100 bg-light rounded-0 text-decoration-none">
+          <Link to="/" className="btn btn-default border w-100 bg-light rounded-0 text-decoration-none">
             Login
           </Link>
         </form>
