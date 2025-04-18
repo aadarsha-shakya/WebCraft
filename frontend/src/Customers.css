@@ -23,60 +23,41 @@
     color: #666;
 }
 
-/* Table Styles */
+/* Orders Table Container */
 .orders-table-container {
     width: 100%;
     overflow-x: auto;
-    margin-top: 20px;
-}
-
-.orders-table {
+  }
+  
+  /* Orders Table */
+  .orders-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.orders-table th,
-.orders-table td {
-    border: 1px solid #ddd;
+    margin-bottom: 20px;
+  }
+  
+  .orders-table th,
+  .orders-table td {
     padding: 12px;
+    border: 1px solid #ddd;
     text-align: left;
-}
+    font-size: 0.9rem;
+  }
 
-.orders-table th {
+  .orders-table th {
     background-color: #f4f4f4;
-    cursor: pointer;
-    position: relative;
-}
-
-.orders-table th::after {
-    content: '';
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 5px solid #333;
-}
-
-.orders-table th.sorted::after {
-    border-bottom: none;
-    border-top: 5px solid #333;
-}
-
-.orders-table tr:nth-child(even) {
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .orders-table tr:nth-child(even) {
     background-color: #f9f9f9;
-}
-
-.orders-table tr:hover {
+  }
+  
+  .orders-table tr:hover {
     background-color: #f1f1f1;
-}
-
+  }
+  
 /* No Records Message */
 .no-records {
     text-align: center;

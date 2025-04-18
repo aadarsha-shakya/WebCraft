@@ -12,6 +12,7 @@ import {
   Tooltip,
   Legend,
   BarElement,
+  Filler, // Import the Filler plugin
 } from 'chart.js'; // Import necessary scales and elements
 import './Dashboard.css'; // Import the CSS file for styling
 import Logo from './assets/WebCraft.png';
@@ -25,7 +26,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  BarElement
+  BarElement,
+  Filler // Register the Filler plugin
 );
 
 function Dashboard() {
@@ -98,9 +100,7 @@ function Dashboard() {
   }, {});
 
   const hourlyLabels = Array.from({ length: 24 }, (_, i) => i); // Hours of the day
-  const hourlyData = hourlyLabels.map((hour) =>
-    hourlyOrderData[hour] || 0
-  );
+  const hourlyData = hourlyLabels.map((hour) => hourlyOrderData[hour] || 0);
 
   // Prepare data for Weekly Sales Statistics
   const weeklySalesData = orders.reduce((acc, order) => {
@@ -111,9 +111,7 @@ function Dashboard() {
   }, {});
 
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const weeklySales = weekDays.map((day) =>
-    weeklySalesData[weekDays.indexOf(day)] || 0
-  );
+  const weeklySales = weekDays.map((day) => weeklySalesData[weekDays.indexOf(day)] || 0);
 
   // Toggle dropdown
   const toggleDropdown = () => {
@@ -280,8 +278,10 @@ function Dashboard() {
                     {
                       label: 'Orders',
                       data: hourlyData,
-                      borderColor: '#3e95cd',
-                      backgroundColor: '#3e95cd',
+                      borderColor: '#6a1b9a', // Deep purple
+                      backgroundColor: 'rgba(106, 27, 154, 0.2)', // Light purple
+                      fill: true,
+                      tension: 0.4,
                     },
                   ],
                 }}
@@ -294,6 +294,10 @@ function Dashboard() {
                       title: {
                         display: true,
                         text: 'Hour of the Day',
+                        color: '#555',
+                      },
+                      ticks: {
+                        color: '#555',
                       },
                     },
                     y: {
@@ -301,18 +305,32 @@ function Dashboard() {
                       title: {
                         display: true,
                         text: 'Number of Orders',
+                        color: '#555',
                       },
                       beginAtZero: true,
+                      ticks: {
+                        color: '#555',
+                      },
                     },
                   },
                   plugins: {
                     legend: {
                       position: 'top',
+                      labels: {
+                        color: '#555',
+                      },
                     },
                     tooltip: {
                       mode: 'index',
                       intersect: false,
+                      bodyColor: '#fff',
+                      backgroundColor: '#333',
+                      titleColor: '#fff',
                     },
+                  },
+                  animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuad',
                   },
                 }}
                 style={{ maxHeight: '400px' }} // Constrain chart height
@@ -327,8 +345,9 @@ function Dashboard() {
                     {
                       label: 'Sales',
                       data: weeklySales,
-                      borderColor: '#ff6384',
-                      backgroundColor: '#ff6384',
+                      borderColor: '#2196f3', // Blue
+                      backgroundColor: 'rgba(33, 150, 243, 0.2)', // Light blue
+                      borderWidth: 2,
                     },
                   ],
                 }}
@@ -341,6 +360,10 @@ function Dashboard() {
                       title: {
                         display: true,
                         text: 'Day of the Week',
+                        color: '#555',
+                      },
+                      ticks: {
+                        color: '#555',
                       },
                     },
                     y: {
@@ -348,18 +371,32 @@ function Dashboard() {
                       title: {
                         display: true,
                         text: 'Total Sales (NPR)',
+                        color: '#555',
                       },
                       beginAtZero: true,
+                      ticks: {
+                        color: '#555',
+                      },
                     },
                   },
                   plugins: {
                     legend: {
                       position: 'top',
+                      labels: {
+                        color: '#555',
+                      },
                     },
                     tooltip: {
                       mode: 'index',
                       intersect: false,
+                      bodyColor: '#fff',
+                      backgroundColor: '#333',
+                      titleColor: '#fff',
                     },
+                  },
+                  animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuad',
                   },
                 }}
                 style={{ maxHeight: '400px' }} // Constrain chart height

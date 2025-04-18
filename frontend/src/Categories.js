@@ -253,16 +253,16 @@ function Categories() {
             <table className="categories-table">
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th>#</th>
                   <th>Name</th>
                   <th>Image</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {categories.map((category) => (
+                {categories.map((category, index) => (
                   <tr key={category.id}>
-                    <td>{category.id}</td>
+                    <td>{index + 1}</td>
                     <td>{category.category_name}</td>
                     <td>
                       <img

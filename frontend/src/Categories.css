@@ -1,33 +1,117 @@
+/* Categories Container */
 .categories-container {
-    padding: 20px;
+  padding: 20px;
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Adds spacing between header and table */
 }
 
+/* Categories Header */
 .categories-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.add-category-form input[type='text'],
-.add-category-form input[type='file'] {
-    display: block;
-    margin-bottom: 10px;
+.categories-header h1 {
+  font-size: 1.8rem;
+  color: #333;
+  font-weight: bold;
 }
 
+.categories-header button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.categories-header button:hover {
+  background-color: #0056b3;
+}
+/* Add Category Form */
+.add-category-form {
+  background-color: #d6d6d6;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.add-category-form input[type="text"],
+.add-category-form input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.add-category-form button {
+  background-color: #44b6d2;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-category-form button:hover {
+  background-color: #357ba1;
+}
+
+/* Categories Table */
 .categories-table {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
 }
 
-.categories-table th, .categories-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+.categories-table th,
+.categories-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.categories-table th {
+  background-color: #f4f4f4;
+  color: #333;
+  font-weight: bold;
+}
+
+.categories-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.categories-table tr:hover {
+  background-color: #f1f1f1;
 }
 
 .categories-table img {
-    width: 50px;
-    height: auto;
+  vertical-align: middle;
+  max-width: 100px; /* Limits image width for better alignment */
+  height: auto;
+}
+
+/* Action Buttons */
+.categories-table td button {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.categories-table td button:hover {
+  background-color: #c82333;
 }
 

@@ -5,8 +5,7 @@ import './Products.css';
 import Logo from './assets/WebCraft.png';
 
 function Products() {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useState('Active');
+  const [isHeaderDropdownOpen, setIsHeaderDropdownOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -22,10 +21,11 @@ function Products() {
   const [variants, setVariants] = useState([]);
   const [sizes, setSizes] = useState([]);
   const [variantCombinations, setVariantCombinations] = useState([]);
+  const [productStatuses, setProductStatuses] = useState({});
   const navigate = useNavigate();
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen((prevState) => !prevState);
+  const toggleHeaderDropdown = () => {
+    setIsHeaderDropdownOpen((prevState) => !prevState);
   };
 
   const handleLogout = () => {
@@ -37,7 +37,15 @@ function Products() {
     if (userId) {
       fetch(`http://localhost:8081/api/products?userId=${userId}`)
         .then(response => response.json())
-        .then(data => setProducts(data))
+        .then(data => {
+          setProducts(data);
+          // Initialize product statuses
+          const initialStatuses = {};
+          data.forEach(product => {
+            initialStatuses[product.id] = product.status || 'Active'; // Default to 'Active' if status is missing
+          });
+          setProductStatuses(initialStatuses);
+        })
         .catch(error => console.error('Error fetching products:', error));
 
       fetch(`http://localhost:8081/api/categories/${userId}`)
@@ -53,10 +61,6 @@ function Products() {
     );
     setVariantCombinations(combinations);
   }, [variants, sizes]);
-
-  const handleTabChange = (tab) => {
-    setSelectedTab(tab);
-  };
 
   const openModal = () => {
     setShowModal(true);
@@ -133,16 +137,13 @@ function Products() {
         method: 'POST',
         body: formDataToSend
       });
-
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-
       const result = await response.json();
       console.log(result.message);
       closeModal();
       alert("Product added successfully!");
-
       const userId = localStorage.getItem('userId');
       if (userId) {
         fetch(`http://localhost:8081/api/products?userId=${userId}`)
@@ -153,6 +154,58 @@ function Products() {
     } catch (error) {
       console.error("Error adding product:", error);
       alert("Failed to add product. Please try again later.");
+    }
+  };
+
+  const handleStatusChange = (productId, status) => {
+    setProductStatuses(prevStatuses => ({
+      ...prevStatuses,
+      [productId]: status
+    }));
+    // Optionally, update the status on the server
+    fetch(`http://localhost:8081/api/products/${productId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ status })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Status updated:', data);
+    })
+    .catch(error => {
+      console.error('Error updating status:', error);
+      alert('Failed to update status. Please try again later.');
+    });
+  };
+
+  const handleDeleteProduct = (productId) => {
+    // Optionally, add a confirmation dialog
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      fetch(`http://localhost:8081/api/products/${productId}`, {
+        method: 'DELETE'
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Product deleted:', data);
+        setProducts(products.filter(product => product.id !== productId));
+        alert("Product deleted successfully!");
+      })
+      .catch(error => {
+        console.error('Error deleting product:', error);
+        alert('Failed to delete product. Please try again later.');
+      });
     }
   };
 
@@ -256,11 +309,11 @@ function Products() {
               <i className="fas fa-globe"></i>
             </Link>
             <div
-              className={`header-icon w-icon ${isDropdownOpen ? "open" : ""}`}
-              onClick={toggleDropdown}
+              className={`header-icon w-icon ${isHeaderDropdownOpen ? "open" : ""}`}
+              onClick={toggleHeaderDropdown}
             >
               W
-              {isDropdownOpen && (
+              {isHeaderDropdownOpen && (
                 <div className="dropdown-menu">
                   <Link to="/Accounts" className="dropdown-item">
                     <i className="fas fa-user"></i> Accounts
@@ -282,11 +335,6 @@ function Products() {
         <main className="content">
           <div className="products-container">
             <h1>Products</h1>
-            <div className="tabs">
-              <button onClick={() => handleTabChange('Active')} className={selectedTab === 'Active' ? 'active' : ''}>Active</button>
-              <button onClick={() => handleTabChange('Draft')} className={selectedTab === 'Draft' ? 'active' : ''}>Draft</button>
-              <button onClick={() => handleTabChange('Archived')} className={selectedTab === 'Archived' ? 'active' : ''}>Archived</button>
-            </div>
             <div className="search-bar">
               <input type="text" placeholder="Search..." />
               <button onClick={openModal}>+ Add Product</button>
@@ -323,10 +371,24 @@ function Products() {
                           </div>
                         ))}
                       </td>
-                      <td><span className="status">{selectedTab}</span></td>
+                      <td>
+                        <div className="status-dropdown">
+                          <select
+                            className="dropdown-button"
+                            value={productStatuses[product.id] || 'Active'}
+                            onChange={(e) => handleStatusChange(product.id, e.target.value)}
+                          >
+                            <option value="Active">Active</option>
+                            <option value="Draft">Draft</option>
+                            <option value="Archived">Archived</option>
+                          </select>
+                        </div>
+                      </td>
                       <td>{new Date(product.created_at).toLocaleDateString()}</td>
                       <td>
-                        <button>Delete</button>
+                        <button className="delete" onClick={() => handleDeleteProduct(product.id)}>
+                          Delete
+                        </button>
                       </td>
                     </tr>
                   ))
