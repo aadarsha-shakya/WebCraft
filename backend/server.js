@@ -348,7 +348,6 @@ app.get('/api/products', (req, res) => {
             console.error("Error fetching products:", err);
             return res.status(500).json({ error: "Database error" });
         }
-
         // Group variants by product
         const productsMap = {};
         data.forEach(row => {
@@ -361,6 +360,7 @@ app.get('/api/products', (req, res) => {
                     product_description: row.product_description,
                     product_images: JSON.parse(row.product_images),
                     status: row.status || 'Active', // Ensure status is included
+                    created_at: row.created_at, // Include created_at
                     variants: []
                 };
             }
@@ -380,7 +380,6 @@ app.get('/api/products', (req, res) => {
                 });
             }
         });
-
         const products = Object.values(productsMap);
         return res.json(products);
     });
@@ -400,6 +399,7 @@ app.post('/api/products', upload.array('productImages'), (req, res) => {
         }
         const productId = result.insertId;
         const parsedVariants = JSON.parse(variants);
+        console.log("Parsed Variants:", parsedVariants); // Log to verify SKU values
         const variantSql = `
             INSERT INTO variants(product_id, user_id, variant_name, size, crossed_price, selling_price, cost_price, weight, quantity, sku)
             VALUES ?
@@ -418,6 +418,9 @@ app.post('/api/products', upload.array('productImages'), (req, res) => {
         ]);
         db.query(variantSql, [variantValues], (err) => {
             if (err) {
+                if (err.code === 'ER_DUP_ENTRY') {
+                    return res.status(400).json({ error: "SKU already exists. Please use a unique SKU." });
+                }
                 console.error("Error adding variants:", err);
                 return res.status(500).json({ error: "Failed to add variants" });
             }

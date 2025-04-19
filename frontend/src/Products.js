@@ -132,8 +132,10 @@ function Products() {
       costPrice: document.querySelectorAll('input[type="number"]')[index * 6 + 2]?.value || 0,
       weight: document.querySelectorAll('input[type="number"]')[index * 6 + 3]?.value || 0,
       quantity: document.querySelectorAll('input[type="number"]')[index * 6 + 4]?.value || 0,
-      sku: document.querySelectorAll('input[type="text"]')[index]?.value || ''
+      sku: document.getElementById(`sku-${index}`)?.value || '' // Use unique ID for SKU input
     }));
+
+    console.log("Parsed Variants:", variantDetails); // Log to verify SKU values
 
     const formDataToSend = new FormData();
     formDataToSend.append('userId', localStorage.getItem('userId'));
@@ -150,9 +152,12 @@ function Products() {
         method: 'POST',
         body: formDataToSend
       });
+
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
       }
+
       const result = await response.json();
       console.log(result.message);
       closeModal();
@@ -166,7 +171,7 @@ function Products() {
       }
     } catch (error) {
       console.error("Error adding product:", error);
-      alert("Failed to add product. Please try again later.");
+      alert(error.message);
     }
   };
 
@@ -175,6 +180,7 @@ function Products() {
       ...prevStatuses,
       [productId]: status
     }));
+
     // Send the status update to the server
     fetch(`http://localhost:8081/api/products/${productId}`, {
       method: 'PUT',
@@ -206,7 +212,6 @@ function Products() {
   const handleDeleteProduct = (productId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       console.log("Deleting product with ID:", productId); // Debug statement
-
       // Fetch the product to verify its existence
       fetch(`http://localhost:8081/api/products/${productId}`, {
         method: 'GET'
@@ -223,7 +228,6 @@ function Products() {
           alert("Product not found. Please try again later.");
           return;
         }
-
         // Proceed with deletion if product exists
         fetch(`http://localhost:8081/api/products/${productId}`, {
           method: 'DELETE'
@@ -546,7 +550,7 @@ function Products() {
                               <td><input type="number" /></td>
                               <td><input type="number" /></td>
                               <td><input type="number" /></td>
-                              <td><input type="text" /></td>
+                              <td><input type="text" id={`sku-${index}`} /></td> {/* Assign unique ID */}
                             </tr>
                           ))}
                         </tbody>
