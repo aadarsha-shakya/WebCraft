@@ -115,6 +115,19 @@ function Issues() {
     }));
   };
 
+  const handleDeleteIssue = (id) => {
+    fetch(`http://localhost:8081/api/issues/${id}`, {
+      method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data) {
+        fetchIssues(userId); // Refresh the issues after deleting
+      }
+    })
+    .catch(error => console.error("Error deleting issue:", error));
+  };
+
   return (
     <div className="dashboard-container">
       {/* SIDEBAR */}
@@ -171,7 +184,6 @@ function Issues() {
               <i className="fas fa-chart-line"></i> Analytics
             </Link>
           </li>
-          
         </ul>
         <h2>Customizations</h2>
         <ul>
@@ -261,6 +273,7 @@ function Issues() {
                 {issues.created.map(issue => (
                   <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id)}>
                     {issue.text}
+                    <i className="fas fa-trash-alt delete-icon" onClick={() => handleDeleteIssue(issue.id)}></i>
                   </div>
                 ))}
               </div>
@@ -280,6 +293,7 @@ function Issues() {
                 {issues.inProgress.map(issue => (
                   <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id)}>
                     {issue.text}
+                    <i className="fas fa-trash-alt delete-icon" onClick={() => handleDeleteIssue(issue.id)}></i>
                   </div>
                 ))}
               </div>
@@ -299,6 +313,7 @@ function Issues() {
                 {issues.review.map(issue => (
                   <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id)}>
                     {issue.text}
+                    <i className="fas fa-trash-alt delete-icon" onClick={() => handleDeleteIssue(issue.id)}></i>
                   </div>
                 ))}
               </div>
@@ -318,6 +333,7 @@ function Issues() {
                 {issues.resolved.map(issue => (
                   <div key={issue.id} className="item" draggable onDragStart={(e) => handleDragStart(e, issue.id)}>
                     {issue.text}
+                    <i className="fas fa-trash-alt delete-icon" onClick={() => handleDeleteIssue(issue.id)}></i>
                   </div>
                 ))}
               </div>

@@ -56,8 +56,22 @@
   border-radius: 4px;
   cursor: move;
   color: #333333;
+  position: relative; /* Position relative for absolute positioning of the delete icon */
 }
 
 .item:hover {
   background-color: #e9ecef;
+}
+
+.delete-icon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #dc3545; /* Red color for the delete icon */
+}
+
+.delete-icon:hover {
+  color: #c82333; /* Darker red on hover */
 }
