@@ -991,12 +991,32 @@ app.post('/api/orders', (req, res) => {
         cartItems,
         userId // Ensure userId is passed in the request body
     } = orderDetails;
+
+    // Ensure cartItems is an array and has product_name
+    if (!Array.isArray(cartItems)) {
+        return res.status(400).json({ error: 'Invalid cart items format' });
+    }
+
+    // Map cartItems to include only necessary fields
+    const processedCartItems = cartItems.map(item => ({
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+        productName: item.productName,
+        sellingPrice: item.sellingPrice,
+        crossedPrice: item.crossedPrice,
+        variantName: item.variantName,
+        size: item.size,
+        imageUrl: item.imageUrl
+    }));
+
     const query = `
         INSERT INTO orders (
             user_id, full_name, email, phone_number, order_note, city_district, address, landmark, 
             payment_method, transaction_id, transaction_amount, transaction_state, purchase_order_id, total_price, cart_items
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
+
     db.query(query, [
         userId, // Include userId in the query
         fullName,
@@ -1012,7 +1032,7 @@ app.post('/api/orders', (req, res) => {
         transactionState || null,
         purchaseOrderId,
         totalPrice,
-        JSON.stringify(cartItems)
+        JSON.stringify(processedCartItems)
     ], (err, result) => {
         if (err) {
             console.error('Error inserting order:', err);

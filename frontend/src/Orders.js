@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css'; // Import the CSS file for styling
@@ -250,6 +250,7 @@ function Orders() {
                                     <th>#</th>
                                     <th>Customer Name</th>
                                     <th>Phone Number</th>
+                                    <th>Products</th>
                                     <th>Total Quantity</th>
                                     <th>Total Amount</th>
                                     <th>Payment Status</th>
@@ -262,18 +263,21 @@ function Orders() {
                             <tbody>
                                 {loading ? (
                                     <tr>
-                                        <td colSpan="9">Loading...</td>
+                                        <td colSpan="11">Loading...</td>
                                     </tr>
                                 ) : orders.length > 0 ? (
                                     orders.map((order, index) => {
                                         // Ensure cart_items is an array
                                         const cartItems = Array.isArray(order.cart_items) ? order.cart_items : [];
                                         const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+                                        const productNames = cartItems.map(item => item.productName).join(', ');
+
                                         return (
                                             <tr key={order.id}>
                                                 <td>{index + 1}</td>
                                                 <td>{order.full_name}</td>
                                                 <td>{order.phone_number}</td>
+                                                <td>{productNames}</td>
                                                 <td>{totalQuantity}</td>
                                                 <td>Rs {order.total_price}</td>
                                                 <td>
@@ -334,7 +338,7 @@ function Orders() {
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan="9">No orders found.</td>
+                                        <td colSpan="11">No orders found.</td>
                                     </tr>
                                 )}
                             </tbody>
