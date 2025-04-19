@@ -42,7 +42,7 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
     res.json({ filename: req.file.filename });
 });
 
-// Existing signup route
+// Existing SIGNIUP route
 app.post('/signup', (req, res) => {
     const sql = "INSERT INTO users(`name`, `email`, `password`) VALUES (?)";
     const values = [
@@ -58,7 +58,7 @@ app.post('/signup', (req, res) => {
     });
 });
 
-// Existing login route
+// Existing LOGIN route
 app.post('/login', (req, res) => {
     const sql = "SELECT * FROM users WHERE `email`= ? AND `password`= ?";
     db.query(sql, [req.body.email, req.body.password], (err, data) => {
@@ -73,7 +73,8 @@ app.post('/login', (req, res) => {
     });
 });
 
-// Business registration routes
+// STORE SETTINGS PAGE
+// BUSINESS REGISTRATION routes
 app.post('/api/businessregistration', (req, res) => {
     const { userId, registeredBusinessName, registeredAddress, businessPhoneNumber, panNumber, bankName, accountNumber, accountName, branchName } = req.body;
     const checkSql = "SELECT * FROM business_registration WHERE user_id = ?";
@@ -110,7 +111,7 @@ app.post('/api/businessregistration', (req, res) => {
     });
 });
 
-// Delivery charges routes
+// DELIVERY CHARGES routes
 app.post('/api/deliverycharges', (req, res) => {
     const { userId, insideValley, outsideValley } = req.body;
     const checkSql = "SELECT * FROM delivery_charges WHERE user_id = ?";
@@ -132,7 +133,7 @@ app.post('/api/deliverycharges', (req, res) => {
     });
 });
 
-// Domain settings routes
+// DOMAIN SETTINGS routes
 app.post('/api/domainsettings', (req, res) => {
     const { userId, subdomain, customDomain } = req.body;
     const checkSql = "SELECT * FROM domain_settings WHERE user_id = ?";
@@ -154,7 +155,7 @@ app.post('/api/domainsettings', (req, res) => {
     });
 });
 
-// Social accounts routes
+// SOCIAL ACCOUNTS routes
 app.post('/api/socialaccounts', (req, res) => {
     const { userId, facebookUrl, instagramUrl, tiktokUrl, whatsappNumber } = req.body;
     const checkSql = "SELECT * FROM social_accounts WHERE user_id = ?";
@@ -176,7 +177,7 @@ app.post('/api/socialaccounts', (req, res) => {
     });
 });
 
-// Store details routes
+// STORE DETAILS routes
 app.post('/api/storedetails', (req, res) => {
     const { userId, storeName, businessCategory, contactNumber, storeAddress, contactEmail } = req.body;
     const checkSql = "SELECT * FROM store_details WHERE user_id = ?";
@@ -207,6 +208,67 @@ app.post('/api/storedetails', (req, res) => {
     });
 });
 
+app.get('/api/storedetails', (req, res) => {
+    const userId = req.query.userId;
+    const sql = "SELECT * FROM store_details WHERE user_id = ?";
+    db.query(sql, [userId], (err, data) => {
+        if (err) {
+            console.error("Error fetching store details:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        return res.json(data[0] || {});
+    });
+});
+
+app.get('/api/socialaccounts', (req, res) => {
+    const userId = req.query.userId;
+    const sql = "SELECT * FROM social_accounts WHERE user_id = ?";
+    db.query(sql, [userId], (err, data) => {
+        if (err) {
+            console.error("Error fetching social accounts:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        return res.json(data[0] || {});
+    });
+});
+
+app.get('/api/deliverycharges', (req, res) => {
+    const userId = req.query.userId;
+    const sql = "SELECT * FROM delivery_charges WHERE user_id = ?";
+    db.query(sql, [userId], (err, data) => {
+        if (err) {
+            console.error("Error fetching delivery charges:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        return res.json(data[0] || {});
+    });
+});
+
+app.get('/api/domainsettings', (req, res) => {
+    const userId = req.query.userId;
+    const sql = "SELECT * FROM domain_settings WHERE user_id = ?";
+    db.query(sql, [userId], (err, data) => {
+        if (err) {
+            console.error("Error fetching domain settings:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        return res.json(data[0] || {});
+    });
+});
+
+app.get('/api/businessregistration', (req, res) => {
+    const userId = req.query.userId;
+    const sql = "SELECT * FROM business_registration WHERE user_id = ?";
+    db.query(sql, [userId], (err, data) => {
+        if (err) {
+            console.error("Error fetching business registration:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        return res.json(data[0] || {});
+    });
+});
+
+// CATEGORIES PAGE 
 // Category routes
 app.post('/api/categories', upload.single('categoryImage'), (req, res) => {
     const { userId, categoryName } = req.body;
@@ -298,6 +360,7 @@ app.get('/api/products', (req, res) => {
                     category_name: row.category_name,
                     product_description: row.product_description,
                     product_images: JSON.parse(row.product_images),
+                    status: row.status || 'Active', // Ensure status is included
                     variants: []
                 };
             }
@@ -327,10 +390,10 @@ app.post('/api/products', upload.array('productImages'), (req, res) => {
     const { userId, productName, category, productDescription, variants } = req.body;
     const productImages = req.files.map(file => file.filename);
     const productSql = `
-        INSERT INTO products(user_id, product_name, category_name, product_description, product_images)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO products(user_id, product_name, category_name, product_description, product_images, status)
+        VALUES (?, ?, ?, ?, ?, ?)
     `;
-    db.query(productSql, [userId, productName, category, productDescription, JSON.stringify(productImages)], (err, result) => {
+    db.query(productSql, [userId, productName, category, productDescription, JSON.stringify(productImages), 'Active'], (err, result) => {
         if (err) {
             console.error("Error adding product:", err);
             return res.status(500).json({ error: "Failed to add product" });
@@ -359,6 +422,44 @@ app.post('/api/products', upload.array('productImages'), (req, res) => {
                 return res.status(500).json({ error: "Failed to add variants" });
             }
             return res.json({ status: "created", message: "Product added successfully" });
+        });
+    });
+});
+
+app.put('/api/products/:productId', (req, res) => {
+    const { productId } = req.params;
+    const { status } = req.body;
+    const sql = "UPDATE products SET status = ? WHERE id = ?";
+    db.query(sql, [status, productId], (err, result) => {
+        if (err) {
+            console.error("Error updating product status:", err);
+            return res.status(500).json({ error: "Failed to update product status" });
+        }
+        return res.json({ status: "updated", message: "Product status updated successfully" });
+    });
+});
+
+app.delete('/api/products/:productId', (req, res) => {
+    const { productId } = req.params;
+    const deleteVariantsSql = "DELETE FROM variants WHERE product_id = ?";
+    const deleteProductSql = "DELETE FROM products WHERE id = ?";
+    // First, delete the variants associated with the product
+    db.query(deleteVariantsSql, [productId], (err, variantResult) => {
+        if (err) {
+            console.error("Error deleting variants:", err.stack);
+            return res.status(500).json({ status: "error", message: "Failed to delete variants" });
+        }
+        // Then, delete the product itself
+        db.query(deleteProductSql, [productId], (err, productResult) => {
+            if (err) {
+                console.error("Error deleting product:", err.stack);
+                return res.status(500).json({ status: "error", message: "Failed to delete product" });
+            }
+            if (productResult.affectedRows > 0) {
+                res.json({ status: "deleted", message: "Product and variants deleted successfully" });
+            } else {
+                res.status(404).json({ status: "error", message: "Product not found" });
+            }
         });
     });
 });

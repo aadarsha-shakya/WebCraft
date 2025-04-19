@@ -48,10 +48,23 @@ function Products() {
         })
         .catch(error => console.error('Error fetching products:', error));
 
-      fetch(`http://localhost:8081/api/categories/${userId}`)
-        .then(response => response.json())
-        .then(data => setCategories(data))
-        .catch(error => console.error('Error fetching categories:', error));
+      fetch(`http://localhost:8081/api/categories/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => setCategories(data))
+      .catch(error => {
+        console.error("Error fetching categories:", error);
+        alert("Error fetching categories. Please try again later.");
+      });
     }
   }, []);
 
@@ -162,7 +175,7 @@ function Products() {
       ...prevStatuses,
       [productId]: status
     }));
-    // Optionally, update the status on the server
+    // Send the status update to the server
     fetch(`http://localhost:8081/api/products/${productId}`, {
       method: 'PUT',
       headers: {
@@ -182,14 +195,21 @@ function Products() {
     .catch(error => {
       console.error('Error updating status:', error);
       alert('Failed to update status. Please try again later.');
+      // Revert the status change if the update fails
+      setProductStatuses(prevStatuses => ({
+        ...prevStatuses,
+        [productId]: prevStatuses[productId]
+      }));
     });
   };
 
   const handleDeleteProduct = (productId) => {
-    // Optionally, add a confirmation dialog
     if (window.confirm("Are you sure you want to delete this product?")) {
+      console.log("Deleting product with ID:", productId); // Debug statement
+
+      // Fetch the product to verify its existence
       fetch(`http://localhost:8081/api/products/${productId}`, {
-        method: 'DELETE'
+        method: 'GET'
       })
       .then(response => {
         if (!response.ok) {
@@ -197,14 +217,35 @@ function Products() {
         }
         return response.json();
       })
-      .then(data => {
-        console.log('Product deleted:', data);
-        setProducts(products.filter(product => product.id !== productId));
-        alert("Product deleted successfully!");
+      .then(product => {
+        if (product.error) {
+          console.error("Product not found:", product.error);
+          alert("Product not found. Please try again later.");
+          return;
+        }
+
+        // Proceed with deletion if product exists
+        fetch(`http://localhost:8081/api/products/${productId}`, {
+          method: 'DELETE'
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          setProducts(products.filter(product => product.id !== productId));
+          alert("Product deleted successfully!");
+        })
+        .catch(error => {
+          console.error("Error deleting product:", error);
+          alert('Failed to delete product. Please try again later.');
+        });
       })
       .catch(error => {
-        console.error('Error deleting product:', error);
-        alert('Failed to delete product. Please try again later.');
+        console.error("Error fetching product:", error);
+        alert("Product not found. Please try again later.");
       });
     }
   };

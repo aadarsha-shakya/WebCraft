@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import axios from "axios";
-
 import './Dashboard.css';
+import './StoreSettings.css';
 
 import Logo from './assets/WebCraft.png';
 
@@ -19,110 +19,137 @@ function StoreSettings() {
     navigate('/Login'); // Redirect to login page
   };
 
-// State for each section
-const [formData, setFormData] = useState({
-  storeName: "",
-  businessCategory: "",
-  contactNumber: "",
-  storeAddress: "",
-  contactEmail: "",
-});
+  // State for each section with default values
+  const [formData, setFormData] = useState({
+    storeName: "",
+    businessCategory: "",
+    contactNumber: "",
+    storeAddress: "",
+    contactEmail: "",
+  });
 
-const [socialAccounts, setSocialAccounts] = useState({
-  facebookUrl: "",
-  instagramUrl: "",
-  tiktokUrl: "",
-  whatsappNumber: "",
-});
+  const [socialAccounts, setSocialAccounts] = useState({
+    facebookUrl: "",
+    instagramUrl: "",
+    tiktokUrl: "",
+    whatsappNumber: "",
+  });
 
-const [deliveryCharges, setDeliveryCharges] = useState({
-  insideValley: "",
-  outsideValley: "",
-});
+  const [deliveryCharges, setDeliveryCharges] = useState({
+    insideValley: "",
+    outsideValley: "",
+  });
 
-const [domainSettings, setDomainSettings] = useState({
-  subdomain: "",
-  customDomain: "",
-});
+  const [domainSettings, setDomainSettings] = useState({
+    subdomain: "",
+    customDomain: "",
+  });
 
-const [businessRegistration, setBusinessRegistration] = useState({
-  registeredBusinessName: "",
-  registeredAddress: "",
-  businessPhoneNumber: "",
-  panNumber: "",
-  bankName: "",
-  accountNumber: "",
-  accountName: "",
-  branchName: "",
-});
+  const [businessRegistration, setBusinessRegistration] = useState({
+    registeredBusinessName: "",
+    registeredAddress: "",
+    businessPhoneNumber: "",
+    panNumber: "",
+    bankName: "",
+    accountNumber: "",
+    accountName: "",
+    branchName: "",
+  });
 
-// Track the active section
-const [activeSection, setActiveSection] = useState("storeDetails");
+  // Track the active section
+  const [activeSection, setActiveSection] = useState("storeDetails");
 
-// Fetch user ID and pre-fill data on component load
-useEffect(() => {
-  const loggedInUserId = localStorage.getItem("userId");
-  if (!loggedInUserId) {
-    alert("User not logged in. Redirecting to login...");
-    window.location.href = "/login"; // Redirect to login page
-  } else {
-    setUserId(loggedInUserId);
-    fetchInitialData(loggedInUserId);
-  }
-}, []);
-
-// Fetch initial data for all sections
-const fetchInitialData = async (userId) => {
-  try {
-    const [
-      storeDetailsResponse,
-      socialAccountsResponse,
-      deliveryChargesResponse,
-      domainSettingsResponse,
-      businessRegistrationResponse,
-    ] = await Promise.all([
-      axios.get(`http://localhost:8081/api/storedetails?userId=${userId}`),
-      axios.get(`http://localhost:8081/api/socialaccounts?userId=${userId}`),
-      axios.get(`http://localhost:8081/api/deliverycharges?userId=${userId}`),
-      axios.get(`http://localhost:8081/api/domainsettings?userId=${userId}`),
-      axios.get(`http://localhost:8081/api/businessregistration?userId=${userId}`),
-    ]);
-
-    // Pre-fill form data
-    setFormData(storeDetailsResponse.data);
-    setSocialAccounts(socialAccountsResponse.data);
-    setDeliveryCharges(deliveryChargesResponse.data);
-    setDomainSettings(domainSettingsResponse.data);
-    setBusinessRegistration(businessRegistrationResponse.data);
-  } catch (error) {
-    console.error("Error fetching initial data:", error);
-  }
-};
-
-// Handle input changes for each section
-const handleInputChange = (e, setState) => {
-  const { name, value } = e.target;
-  setState((prev) => ({ ...prev, [name]: value }));
-};
-
-// Submit handlers for each section
-const handleSubmit = async (e, apiEndpoint, stateData, successMessage) => {
-  e.preventDefault();
-  try {
-    const response = await axios.post(apiEndpoint, { userId, ...stateData });
-    if (
-      response.data.status === "created" ||
-      response.data.status === "updated"
-    ) {
-      alert(successMessage);
+  // Fetch user ID and pre-fill data on component load
+  useEffect(() => {
+    const loggedInUserId = localStorage.getItem("userId");
+    if (!loggedInUserId) {
+      alert("User not logged in. Redirecting to login...");
+      window.location.href = "/login"; // Redirect to login page
     } else {
-      alert("Failed to save data.");
+      setUserId(loggedInUserId);
+      fetchInitialData(loggedInUserId);
     }
-  } catch (error) {
-    console.error("Error saving data:", error.response?.data || error.message);
-    alert("An error occurred while saving data.");
-  }
-};
+  }, []);
+
+  // Fetch initial data for all sections
+  const fetchInitialData = async (userId) => {
+    try {
+      const [
+        storeDetailsResponse,
+        socialAccountsResponse,
+        deliveryChargesResponse,
+        domainSettingsResponse,
+        businessRegistrationResponse,
+      ] = await Promise.all([
+        axios.get(`http://localhost:8081/api/storedetails?userId=${userId}`),
+        axios.get(`http://localhost:8081/api/socialaccounts?userId=${userId}`),
+        axios.get(`http://localhost:8081/api/deliverycharges?userId=${userId}`),
+        axios.get(`http://localhost:8081/api/domainsettings?userId=${userId}`),
+        axios.get(`http://localhost:8081/api/businessregistration?userId=${userId}`),
+      ]);
+
+      // Pre-fill form data with default values if the response is empty
+      setFormData({
+        storeName: storeDetailsResponse.data.store_name || "",
+        businessCategory: storeDetailsResponse.data.business_category || "",
+        contactNumber: storeDetailsResponse.data.contact_number || "",
+        storeAddress: storeDetailsResponse.data.store_address || "",
+        contactEmail: storeDetailsResponse.data.contact_email || "",
+      });
+
+      setSocialAccounts({
+        facebookUrl: socialAccountsResponse.data.facebook_url || "",
+        instagramUrl: socialAccountsResponse.data.instagram_url || "",
+        tiktokUrl: socialAccountsResponse.data.tiktok_url || "",
+        whatsappNumber: socialAccountsResponse.data.whatsapp_number || "",
+      });
+
+      setDeliveryCharges({
+        insideValley: deliveryChargesResponse.data.inside_valley || "",
+        outsideValley: deliveryChargesResponse.data.outside_valley || "",
+      });
+
+      setDomainSettings({
+        subdomain: domainSettingsResponse.data.subdomain || "",
+        customDomain: domainSettingsResponse.data.custom_domain || "",
+      });
+
+      setBusinessRegistration({
+        registeredBusinessName: businessRegistrationResponse.data.registered_business_name || "",
+        registeredAddress: businessRegistrationResponse.data.registered_address || "",
+        businessPhoneNumber: businessRegistrationResponse.data.business_phone_number || "",
+        panNumber: businessRegistrationResponse.data.pan_number || "",
+        bankName: businessRegistrationResponse.data.bank_name || "",
+        accountNumber: businessRegistrationResponse.data.account_number || "",
+        accountName: businessRegistrationResponse.data.account_name || "",
+        branchName: businessRegistrationResponse.data.branch_name || "",
+      });
+    } catch (error) {
+      console.error("Error fetching initial data:", error);
+    }
+  };
+
+  // Handle input changes for each section
+  const handleInputChange = (e, setState) => {
+    const { name, value } = e.target;
+    setState((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Submit handlers for each section
+  const handleSubmit = async (e, apiEndpoint, stateData, successMessage) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(apiEndpoint, { userId, ...stateData });
+      if (response.data.status === "created" || response.data.status === "updated") {
+        alert(successMessage);
+      } else {
+        alert("Failed to save data.");
+      }
+    } catch (error) {
+      console.error("Error saving data:", error.response?.data || error.message);
+      alert("An error occurred while saving data.");
+    }
+  };
 
   return (
     <div className="dashboard-container">
@@ -180,9 +207,7 @@ const handleSubmit = async (e, apiEndpoint, stateData, successMessage) => {
               <i className="fas fa-chart-line"></i> Analytics
             </Link>
           </li>
-          
         </ul>
-
         <h2>Customizations</h2>
         <ul>
           <li>
@@ -212,7 +237,6 @@ const handleSubmit = async (e, apiEndpoint, stateData, successMessage) => {
           </li>
         </ul>
       </aside>
-
       {/* MAIN CONTENT AREA */}
       <div className="main-content">
         {/* HEADER PANEL */}
@@ -222,12 +246,10 @@ const handleSubmit = async (e, apiEndpoint, stateData, successMessage) => {
               <img src={Logo} alt="Logo" />
             </Link>
           </div>
-
           <div className="header-icons">
             <Link to="/YourWeb" className="header-icon">
               <i className="fas fa-globe"></i>
             </Link>
-
             <div
               className={`header-icon w-icon ${isDropdownOpen ? "open" : ""}`}
               onClick={toggleDropdown}
@@ -252,11 +274,10 @@ const handleSubmit = async (e, apiEndpoint, stateData, successMessage) => {
             </div>
           </div>
         </header>
-
         {/* CONTENT */}
         <main>
           <div>
-          <h1>Store Settings Page</h1>
+            <h1>Store Settings Page</h1>
             {/* Navigation Buttons */}
             <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
               <button onClick={() => setActiveSection("storeDetails")}>
@@ -275,7 +296,6 @@ const handleSubmit = async (e, apiEndpoint, stateData, successMessage) => {
                 Business Registration
               </button>
             </div>
-
             {/* Conditional Rendering of Sections */}
             {activeSection === "storeDetails" && (
               <form
@@ -332,7 +352,6 @@ const handleSubmit = async (e, apiEndpoint, stateData, successMessage) => {
                 <button type="submit">Save Changes</button>
               </form>
             )}
-
             {activeSection === "socialAccounts" && (
               <form
                 onSubmit={(e) =>
@@ -376,7 +395,6 @@ const handleSubmit = async (e, apiEndpoint, stateData, successMessage) => {
                 <button type="submit">Save Changes</button>
               </form>
             )}
-
             {activeSection === "deliveryCharges" && (
               <form
                 onSubmit={(e) =>
@@ -406,7 +424,6 @@ const handleSubmit = async (e, apiEndpoint, stateData, successMessage) => {
                 <button type="submit">Save Changes</button>
               </form>
             )}
-
             {activeSection === "domainSettings" && (
               <form
                 onSubmit={(e) =>
@@ -436,7 +453,6 @@ const handleSubmit = async (e, apiEndpoint, stateData, successMessage) => {
                 <button type="submit">Save Changes</button>
               </form>
             )}
-
             {activeSection === "businessRegistration" && (
               <form
                 onSubmit={(e) =>
@@ -540,4 +556,3 @@ const handleSubmit = async (e, apiEndpoint, stateData, successMessage) => {
 }
 
 export default StoreSettings;
-
