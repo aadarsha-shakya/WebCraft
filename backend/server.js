@@ -1206,6 +1206,40 @@ app.delete('/api/orders/:id', (req, res) => {
     });
 });
 
+// Endpoint to update inventory based on scanned SKUs
+app.post('/api/updateInventory', (req, res) => {
+    const { scannedSkus } = req.body;
+    if (!scannedSkus || typeof scannedSkus !== 'object') {
+        return res.status(400).json({ status: "error", message: "Invalid scanned SKUs" });
+    }
+
+    const updatePromises = Object.entries(scannedSkus).map(([sku, quantity]) => {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                UPDATE variants
+                SET quantity = quantity + ?
+                WHERE sku = ?
+            `;
+            db.query(sql, [quantity, sku], (err, result) => {
+                if (err) {
+                    console.error("Error updating inventory for SKU:", sku, err);
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    });
+
+    Promise.all(updatePromises)
+        .then(() => {
+            res.json({ status: "success", message: "Inventory updated successfully" });
+        })
+        .catch((err) => {
+            res.status(500).json({ status: "error", message: "Failed to update inventory", error: err.message });
+        });
+});
+
 app.listen(8081, () => {
     console.log("Listening on port 8081");
 });

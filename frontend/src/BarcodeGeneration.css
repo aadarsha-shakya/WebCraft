@@ -1,6 +1,6 @@
 /* Modal */
 .modal {
-  display: block; /* Hidden by default */
+  display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
   z-index: 1; /* Sit on top */
   left: 0;
@@ -8,9 +8,13 @@
   width: 100%; /* Full width */
   height: 100%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
   padding-top: 60px;
+}
+
+.modal.show {
+  display: block; /* Show the modal when .show class is applied */
 }
 
 .modal-content {
@@ -28,6 +32,7 @@
   float: right;
   font-size: 28px;
   font-weight: bold;
+  cursor: pointer;
 }
 
 .close:hover,
@@ -37,17 +42,20 @@
   cursor: pointer;
 }
 
-.generate-barcode-btn {
+/* Buttons */
+.generate-barcode-btn,
+.add-product-btn {
   padding: 10px 20px;
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
-.generate-barcode-btn:hover {
+.generate-barcode-btn:hover,
+.add-product-btn:hover {
   background-color: #0056b3;
 }
 
@@ -86,4 +94,38 @@
 
 .modal-content button:last-child:hover {
   background-color: #c82333;
+}
+
+/* Modal Content */
+.modal-content h2 {
+  margin-bottom: 20px;
+}
+
+.modal-content video {
+  display: block;
+  margin: 20px auto;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.modal-content ul {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.modal-content li {
+  background-color: #f8f9fa;
+  padding: 10px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-content li span {
+  font-weight: bold;
 }

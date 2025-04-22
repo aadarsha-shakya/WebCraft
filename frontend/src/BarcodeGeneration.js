@@ -1,18 +1,21 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import './BarcodeGeneration.css';
-
 import Logo from './assets/WebCraft.png';
 import JsBarcode from 'jsbarcode';
+import Quagga from 'quagga';
 
 function BarcodeGeneration() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
   const [sku, setSku] = useState('');
   const [barcodeImage, setBarcodeImage] = useState(null);
+  const [scannedSkus, setScannedSkus] = useState({});
   const navigate = useNavigate();
   const barcodeRef = useRef(null);
+  const videoRef = useRef(null);
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prevState) => !prevState); // Toggle state on each click
@@ -42,13 +45,11 @@ function BarcodeGeneration() {
       alert('Please enter a SKU.');
       return;
     }
-
     const canvas = document.createElement('canvas');
     JsBarcode(canvas, sku, {
       format: 'CODE128',
       displayValue: true,
     });
-
     setBarcodeImage(canvas.toDataURL('image/png'));
   };
 
@@ -57,7 +58,6 @@ function BarcodeGeneration() {
       alert('No barcode to download.');
       return;
     }
-
     const link = document.createElement('a');
     link.href = barcodeImage;
     link.download = `barcode_${sku}.png`;
@@ -65,6 +65,103 @@ function BarcodeGeneration() {
     link.click();
     document.body.removeChild(link);
   };
+
+  const openScannerModal = () => {
+    setIsScannerModalOpen(true);
+  };
+
+  const closeScannerModal = () => {
+    setIsScannerModalOpen(false);
+    stopScanner();
+    setScannedSkus({});
+  };
+
+  const startScanner = () => {
+    if (!videoRef.current) {
+      console.error("Video element not found");
+      return;
+    }
+
+    Quagga.init(
+      {
+        inputStream: {
+          name: "Live",
+          type: "LiveStream",
+          target: videoRef.current, // Or '#yourElement' (optional)
+          constraints: {
+            facingMode: "environment", // or "user"
+          },
+        },
+        decoder: {
+          readers: ["code_128_reader"],
+        },
+      },
+      function (err) {
+        if (err) {
+          console.error("Error initializing Quagga:", err);
+          return;
+        }
+        console.log("Quagga initialized successfully");
+        Quagga.start();
+      }
+    );
+
+    Quagga.onDetected((result) => {
+      const scannedSku = result.codeResult.code;
+      console.log("Scanned SKU:", scannedSku);
+      handleScan(scannedSku);
+    });
+  };
+
+  const stopScanner = () => {
+    if (Quagga.initialized) {
+      Quagga.stop();
+    }
+  };
+
+  const handleScan = (scannedSku) => {
+    const updatedSkus = { ...scannedSkus };
+    if (updatedSkus[scannedSku]) {
+      updatedSkus[scannedSku]++;
+    } else {
+      updatedSkus[scannedSku] = 1;
+    }
+    setScannedSkus(updatedSkus);
+  };
+
+  const updateInventory = async () => {
+    try {
+      const response = await fetch('http://localhost:8081/api/updateInventory', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ scannedSkus }),
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        alert('Inventory updated successfully!');
+        closeScannerModal();
+      } else {
+        alert('Failed to update inventory.');
+      }
+    } catch (error) {
+      console.error('Error updating inventory:', error);
+      alert('An error occurred while updating inventory.');
+    }
+  };
+
+  useEffect(() => {
+    if (isScannerModalOpen) {
+      startScanner();
+    } else {
+      stopScanner();
+    }
+
+    return () => {
+      stopScanner();
+    };
+  }, [isScannerModalOpen]);
 
   return (
     <div className="dashboard-container">
@@ -123,7 +220,6 @@ function BarcodeGeneration() {
             </Link>
           </li>
         </ul>
-
         <h2>Customizations</h2>
         <ul>
           <li>
@@ -153,7 +249,6 @@ function BarcodeGeneration() {
           </li>
         </ul>
       </aside>
-
       {/* MAIN CONTENT AREA */}
       <div className="main-content">
         {/* HEADER PANEL */}
@@ -164,13 +259,11 @@ function BarcodeGeneration() {
               <img src={Logo} alt="Logo" />
             </Link>
           </div>
-
           {/* Icons */}
           <div className="header-icons">
             <Link to="/YourWeb" className="header-icon">
               <i className="fas fa-globe"></i>
             </Link>
-
             {/* W Icon with Dropdown */}
             <div
               className={`header-icon w-icon ${isDropdownOpen ? "open" : ""}`}
@@ -196,17 +289,21 @@ function BarcodeGeneration() {
             </div>
           </div>
         </header>
-
         {/* CONTENT */}
         <main className="content">
           <h1>Barcode Generation</h1>
+          <p>This is a barcode page</p>
+          {/* Generate Barcode Button */}
           <button className="generate-barcode-btn" onClick={openModal}>
             Generate Barcode
           </button>
-
-          {/* Modal */}
+          {/* Add Product Button */}
+          <button className="add-product-btn" onClick={openScannerModal}>
+            Add Product (Inventory Restocking)
+          </button>
+          {/* Modal for Barcode Generation */}
           {isModalOpen && (
-            <div className="modal">
+            <div className="modal show">
               <div className="modal-content">
                 <span className="close" onClick={closeModal}>
                   &times;
@@ -232,6 +329,26 @@ function BarcodeGeneration() {
                     <button onClick={downloadBarcode}>Download Barcode</button>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+          {/* Modal for Barcode Scanning */}
+          {isScannerModalOpen && (
+            <div className="modal show">
+              <div className="modal-content">
+                <span className="close" onClick={closeScannerModal}>
+                  &times;
+                </span>
+                <h2>Inventory Restocking</h2>
+                <video ref={videoRef} width="600" height="400" autoPlay></video>
+                <ul>
+                  {Object.entries(scannedSkus).map(([sku, quantity]) => (
+                    <li key={sku}>
+                      <span>{sku}</span>: {quantity}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={updateInventory}>Update Inventory</button>
               </div>
             </div>
           )}
