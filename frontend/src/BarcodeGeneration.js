@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
+import './BarcodeGeneration.css';
+
 import Logo from './assets/WebCraft.png';
+import JsBarcode from 'jsbarcode';
 
 function BarcodeGeneration() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sku, setSku] = useState('');
+  const [barcodeImage, setBarcodeImage] = useState(null);
   const navigate = useNavigate();
+  const barcodeRef = useRef(null);
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prevState) => !prevState); // Toggle state on each click
@@ -14,6 +21,49 @@ function BarcodeGeneration() {
   const handleLogout = () => {
     // Perform logout actions if needed (e.g., clearing tokens)
     navigate('/Login'); // Redirect to login page
+  };
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSku('');
+    setBarcodeImage(null);
+  };
+
+  const handleSkuChange = (e) => {
+    setSku(e.target.value);
+  };
+
+  const generateBarcode = () => {
+    if (!sku) {
+      alert('Please enter a SKU.');
+      return;
+    }
+
+    const canvas = document.createElement('canvas');
+    JsBarcode(canvas, sku, {
+      format: 'CODE128',
+      displayValue: true,
+    });
+
+    setBarcodeImage(canvas.toDataURL('image/png'));
+  };
+
+  const downloadBarcode = () => {
+    if (!barcodeImage) {
+      alert('No barcode to download.');
+      return;
+    }
+
+    const link = document.createElement('a');
+    link.href = barcodeImage;
+    link.download = `barcode_${sku}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -72,7 +122,6 @@ function BarcodeGeneration() {
               <i className="fas fa-chart-line"></i> Analytics
             </Link>
           </li>
-          
         </ul>
 
         <h2>Customizations</h2>
@@ -150,8 +199,42 @@ function BarcodeGeneration() {
 
         {/* CONTENT */}
         <main className="content">
-          <h1>Barcode Gen</h1>
-          <p>this is a barcode page</p>
+          <h1>Barcode Generation</h1>
+          <button className="generate-barcode-btn" onClick={openModal}>
+            Generate Barcode
+          </button>
+
+          {/* Modal */}
+          {isModalOpen && (
+            <div className="modal">
+              <div className="modal-content">
+                <span className="close" onClick={closeModal}>
+                  &times;
+                </span>
+                <h2>Generate Barcode</h2>
+                <form onSubmit={(e) => e.preventDefault()}>
+                  <label htmlFor="sku">Enter Product SKU:</label>
+                  <input
+                    type="text"
+                    id="sku"
+                    value={sku}
+                    onChange={handleSkuChange}
+                    required
+                  />
+                  <button type="button" onClick={generateBarcode}>
+                    Generate
+                  </button>
+                </form>
+                {barcodeImage && (
+                  <div>
+                    <canvas ref={barcodeRef} style={{ display: 'none' }}></canvas>
+                    <img src={barcodeImage} alt="Generated Barcode" />
+                    <button onClick={downloadBarcode}>Download Barcode</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>
