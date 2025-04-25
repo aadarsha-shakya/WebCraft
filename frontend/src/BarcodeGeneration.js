@@ -4,7 +4,7 @@ import './Dashboard.css';
 import './BarcodeGeneration.css';
 import Logo from './assets/WebCraft.png';
 import JsBarcode from 'jsbarcode';
-import Quagga from 'quagga';
+import { BrowserQRCodeReader } from '@zxing/library'; // Import ZXing Web
 
 function BarcodeGeneration() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -16,13 +16,13 @@ function BarcodeGeneration() {
   const navigate = useNavigate();
   const barcodeRef = useRef(null);
   const videoRef = useRef(null);
+  const scannerRef = useRef(null);
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prevState) => !prevState); // Toggle state on each click
   };
 
   const handleLogout = () => {
-    // Perform logout actions if needed (e.g., clearing tokens)
     navigate('/Login'); // Redirect to login page
   };
 
@@ -76,46 +76,39 @@ function BarcodeGeneration() {
     setScannedSkus({});
   };
 
-  const startScanner = () => {
+  const startScanner = async () => {
     if (!videoRef.current) {
       console.error("Video element not found");
       return;
     }
-
-    Quagga.init(
-      {
-        inputStream: {
-          name: "Live",
-          type: "LiveStream",
-          target: videoRef.current, // Or '#yourElement' (optional)
-          constraints: {
-            facingMode: "environment", // or "user"
-          },
-        },
-        decoder: {
-          readers: ["code_128_reader"],
-        },
-      },
-      function (err) {
-        if (err) {
-          console.error("Error initializing Quagga:", err);
-          return;
+    try {
+      const scanner = new BrowserQRCodeReader();
+      scannerRef.current = scanner;
+      await scanner.getVideoInputDevices().then((devices) => {
+        if (devices && devices.length > 0) {
+          scanner.decodeFromVideoDevice(devices[0].deviceId, videoRef.current, (result, err) => {
+            if (result) {
+              console.log("Scanned SKU:", result.text);
+              handleScan(result.text);
+            }
+            if (err) {
+              console.error("Error scanning barcode:", err);
+            }
+          });
         }
-        console.log("Quagga initialized successfully");
-        Quagga.start();
-      }
-    );
-
-    Quagga.onDetected((result) => {
-      const scannedSku = result.codeResult.code;
-      console.log("Scanned SKU:", scannedSku);
-      handleScan(scannedSku);
-    });
+      });
+    } catch (error) {
+      console.error("Error initializing barcode scanner:", error);
+    }
   };
 
   const stopScanner = () => {
-    if (Quagga.initialized) {
-      Quagga.stop();
+    if (scannerRef.current) {
+      scannerRef.current.reset();
+    }
+    if (videoRef.current && videoRef.current.srcObject) {
+      videoRef.current.pause();
+      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
     }
   };
 
@@ -157,7 +150,6 @@ function BarcodeGeneration() {
     } else {
       stopScanner();
     }
-
     return () => {
       stopScanner();
     };
