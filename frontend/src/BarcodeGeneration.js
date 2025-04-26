@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import './BarcodeGeneration.css';
 import Logo from './assets/WebCraft.png';
 import JsBarcode from 'jsbarcode';
-import { BrowserQRCodeReader } from '@zxing/library'; // Import ZXing Web
+import { BrowserQRCodeReader, QRCodeReader, CanvasImage } from '@zxing/library'; // Import ZXing Web
 
 function BarcodeGeneration() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -13,10 +13,14 @@ function BarcodeGeneration() {
   const [sku, setSku] = useState('');
   const [barcodeImage, setBarcodeImage] = useState(null);
   const [scannedSkus, setScannedSkus] = useState({});
+  const [manualEntries, setManualEntries] = useState([]);
+  const [manualSku, setManualSku] = useState('');
+  const [manualQuantity, setManualQuantity] = useState('');
   const navigate = useNavigate();
   const barcodeRef = useRef(null);
   const videoRef = useRef(null);
   const scannerRef = useRef(null);
+  const fileInputRef = useRef(null); // Reference for the file input
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prevState) => !prevState); // Toggle state on each click
@@ -74,9 +78,100 @@ function BarcodeGeneration() {
     setIsScannerModalOpen(false);
     stopScanner();
     setScannedSkus({});
+    setManualEntries([]);
   };
 
-  const startScanner = async () => {
+  const handleScan = useCallback((scannedSku) => {
+    const updatedSkus = { ...scannedSkus };
+    if (updatedSkus[scannedSku]) {
+      updatedSkus[scannedSku]++;
+    } else {
+      updatedSkus[scannedSku] = 1;
+    }
+    setScannedSkus(updatedSkus);
+  }, [scannedSkus]);
+
+  const updateInventory = async () => {
+    try {
+      const combinedSkus = { ...scannedSkus };
+      manualEntries.forEach(entry => {
+        if (combinedSkus[entry.sku]) {
+          combinedSkus[entry.sku] += entry.quantity;
+        } else {
+          combinedSkus[entry.sku] = entry.quantity;
+        }
+      });
+
+      const response = await fetch('http://localhost:8081/api/updateInventory', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ scannedSkus: combinedSkus }),
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        alert('Inventory updated successfully!');
+        closeScannerModal();
+      } else {
+        alert('Failed to update inventory.');
+      }
+    } catch (error) {
+      console.error('Error updating inventory:', error);
+      alert('An error occurred while updating inventory.');
+    }
+  };
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const imgData = e.target.result; // Base64 string of the image
+
+      // Create a temporary canvas to draw the image
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Load the image from the base64 string
+      const img = new Image();
+      img.src = imgData;
+      img.onload = () => {
+        // Set canvas dimensions to match the image size
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // Draw the image onto the canvas
+        ctx.drawImage(img, 0, 0);
+
+        // Get the ImageData from the canvas
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        // Decode the barcode from the ImageData
+        decodeBarcodeFromImage(imageData);
+      };
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const decodeBarcodeFromImage = async (imageData) => {
+    try {
+      // Create a CanvasImage instance from the ImageData
+      const canvasImage = new CanvasImage(imageData);
+
+      // Decode the barcode
+      const qrCodeReader = new QRCodeReader();
+      const result = await qrCodeReader.decode(canvasImage);
+      console.log("Scanned SKU from image:", result.text);
+      handleScan(result.text);
+    } catch (error) {
+      console.error("Error decoding barcode from image:", error);
+      alert("Failed to scan barcode from image.");
+    }
+  };
+
+  const startScanner = useCallback(async () => {
     if (!videoRef.current) {
       console.error("Video element not found");
       return;
@@ -95,12 +190,14 @@ function BarcodeGeneration() {
               console.error("Error scanning barcode:", err);
             }
           });
+        } else {
+          console.error("No video input devices found");
         }
       });
     } catch (error) {
       console.error("Error initializing barcode scanner:", error);
     }
-  };
+  }, [handleScan]);
 
   const stopScanner = () => {
     if (scannerRef.current) {
@@ -112,36 +209,19 @@ function BarcodeGeneration() {
     }
   };
 
-  const handleScan = (scannedSku) => {
-    const updatedSkus = { ...scannedSkus };
-    if (updatedSkus[scannedSku]) {
-      updatedSkus[scannedSku]++;
-    } else {
-      updatedSkus[scannedSku] = 1;
+  const addManualEntry = () => {
+    if (!manualSku || !manualQuantity) {
+      alert('Please enter both SKU and quantity.');
+      return;
     }
-    setScannedSkus(updatedSkus);
+    setManualEntries([...manualEntries, { sku: manualSku, quantity: parseInt(manualQuantity, 10) }]);
+    setManualSku('');
+    setManualQuantity('');
   };
 
-  const updateInventory = async () => {
-    try {
-      const response = await fetch('http://localhost:8081/api/updateInventory', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ scannedSkus }),
-      });
-      const data = await response.json();
-      if (data.status === 'success') {
-        alert('Inventory updated successfully!');
-        closeScannerModal();
-      } else {
-        alert('Failed to update inventory.');
-      }
-    } catch (error) {
-      console.error('Error updating inventory:', error);
-      alert('An error occurred while updating inventory.');
-    }
+  const removeManualEntry = (index) => {
+    const newEntries = manualEntries.filter((_, i) => i !== index);
+    setManualEntries(newEntries);
   };
 
   useEffect(() => {
@@ -153,7 +233,7 @@ function BarcodeGeneration() {
     return () => {
       stopScanner();
     };
-  }, [isScannerModalOpen]);
+  }, [isScannerModalOpen, startScanner]);
 
   return (
     <div className="dashboard-container">
@@ -332,14 +412,71 @@ function BarcodeGeneration() {
                   &times;
                 </span>
                 <h2>Inventory Restocking</h2>
-                <video ref={videoRef} width="600" height="400" autoPlay></video>
-                <ul>
-                  {Object.entries(scannedSkus).map(([sku, quantity]) => (
-                    <li key={sku}>
-                      <span>{sku}</span>: {quantity}
-                    </li>
-                  ))}
-                </ul>
+                {/* Camera Scanning */}
+                <div>
+                  <h3>Camera Scanning</h3>
+                  <video ref={videoRef} width="600" height="400" autoPlay></video>
+                </div>
+                {/* Image Scanning */}
+                <div>
+                  <h3>Image Scanning</h3>
+                  <label htmlFor="fileInput">Upload Barcode Image:</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                  />
+                </div>
+                {/* Manual Restocking */}
+                <div>
+                  <h3>Manual Restocking</h3>
+                  <form onSubmit={(e) => e.preventDefault()}>
+                    <label htmlFor="manualSku">Enter SKU:</label>
+                    <input
+                      type="text"
+                      id="manualSku"
+                      value={manualSku}
+                      onChange={(e) => setManualSku(e.target.value)}
+                      required
+                    />
+                    <label htmlFor="manualQuantity">Enter Quantity:</label>
+                    <input
+                      type="number"
+                      id="manualQuantity"
+                      value={manualQuantity}
+                      onChange={(e) => setManualQuantity(e.target.value)}
+                      required
+                    />
+                    <button type="button" onClick={addManualEntry}>
+                      Add Entry
+                    </button>
+                  </form>
+                  <ul>
+                    {manualEntries.map((entry, index) => (
+                      <li key={index}>
+                        <span>{entry.sku}</span>: {entry.quantity}
+                        <button onClick={() => removeManualEntry(index)}>Remove</button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {/* Combined Scanned and Manual Entries */}
+                <div>
+                  <h3>Scanned and Manual Entries</h3>
+                  <ul>
+                    {[...Object.entries(scannedSkus)].map(([sku, quantity], index) => (
+                      <li key={index}>
+                        <span>{sku}</span>: {quantity}
+                      </li>
+                    ))}
+                    {manualEntries.map((entry, index) => (
+                      <li key={`manual-${index}`}>
+                        <span>{entry.sku}</span>: {entry.quantity}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
                 <button onClick={updateInventory}>Update Inventory</button>
               </div>
             </div>
