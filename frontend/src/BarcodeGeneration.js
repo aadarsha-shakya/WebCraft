@@ -10,12 +10,23 @@ function BarcodeGeneration() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
+  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
   const [sku, setSku] = useState('');
   const [barcodeImage, setBarcodeImage] = useState(null);
   const [scannedSkus, setScannedSkus] = useState({});
   const [manualEntries, setManualEntries] = useState([]);
   const [manualSku, setManualSku] = useState('');
   const [manualQuantity, setManualQuantity] = useState('');
+  const [sellFormData, setSellFormData] = useState({
+    fullName: '',
+    phoneNumber: '',
+    orderNote: '',
+    address: '',
+    paymentMethod: 'Cash',
+    selectedProduct: null,
+  });
+  const [products, setProducts] = useState([]); // Initialize as empty array
+  const [variants, setVariants] = useState([]); // Initialize as empty array
   const navigate = useNavigate();
   const barcodeRef = useRef(null);
   const videoRef = useRef(null);
@@ -101,7 +112,6 @@ function BarcodeGeneration() {
           combinedSkus[entry.sku] = entry.quantity;
         }
       });
-
       const response = await fetch('http://localhost:8081/api/updateInventory', {
         method: 'POST',
         headers: {
@@ -125,15 +135,12 @@ function BarcodeGeneration() {
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = async (e) => {
       const imgData = e.target.result; // Base64 string of the image
-
       // Create a temporary canvas to draw the image
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-
       // Load the image from the base64 string
       const img = new Image();
       img.src = imgData;
@@ -141,13 +148,10 @@ function BarcodeGeneration() {
         // Set canvas dimensions to match the image size
         canvas.width = img.width;
         canvas.height = img.height;
-
         // Draw the image onto the canvas
         ctx.drawImage(img, 0, 0);
-
         // Get the ImageData from the canvas
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
         // Decode the barcode from the ImageData
         decodeBarcodeFromImage(imageData);
       };
@@ -159,7 +163,6 @@ function BarcodeGeneration() {
     try {
       // Create a CanvasImage instance from the ImageData
       const canvasImage = new CanvasImage(imageData);
-
       // Decode the barcode
       const qrCodeReader = new QRCodeReader();
       const result = await qrCodeReader.decode(canvasImage);
@@ -224,16 +227,129 @@ function BarcodeGeneration() {
     setManualEntries(newEntries);
   };
 
-  useEffect(() => {
-    if (isScannerModalOpen) {
-      startScanner();
-    } else {
-      stopScanner();
+  const openSellModal = () => {
+    setIsSellModalOpen(true);
+  };
+
+  const closeSellModal = () => {
+    setIsSellModalOpen(false);
+    setSellFormData({
+      fullName: '',
+      phoneNumber: '',
+      orderNote: '',
+      address: '',
+      paymentMethod: 'Cash',
+      selectedProduct: null,
+    });
+  };
+
+  const handleSellInputChange = (e) => {
+    const { name, value } = e.target;
+    setSellFormData({
+      ...sellFormData,
+      [name]: value,
+    });
+  };
+
+  const handleSelectProduct = (product) => {
+    setSellFormData({
+      ...sellFormData,
+      selectedProduct: product,
+    });
+  };
+
+  const handleScanProduct = useCallback(async (scannedSku) => {
+    try {
+      const response = await fetch(`http://localhost:8081/api/variant/${scannedSku}`);
+      const data = await response.json();
+      if (data.variant) {
+        handleSelectProduct(data.variant);
+      } else {
+        alert('Product not found.');
+      }
+    } catch (error) {
+      console.error('Error fetching product:', error);
+      alert('Failed to fetch product.');
     }
-    return () => {
-      stopScanner();
+  }, []);
+
+  const handleSell = async () => {
+    if (!sellFormData.fullName || !sellFormData.phoneNumber || !sellFormData.selectedProduct) {
+      alert('Please fill in all required fields and select a product.');
+      return;
+    }
+    try {
+      const response = await fetch('http://localhost:8081/api/sellProduct', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: sellFormData.fullName,
+          phoneNumber: sellFormData.phoneNumber,
+          orderNote: sellFormData.orderNote,
+          address: sellFormData.address,
+          paymentMethod: sellFormData.paymentMethod,
+          product: sellFormData.selectedProduct,
+        }),
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        alert('Product sold successfully!');
+        closeSellModal();
+        // Decrease inventory
+        const updatedVariant = {
+          ...sellFormData.selectedProduct,
+          quantity: sellFormData.selectedProduct.quantity - 1,
+        };
+        await fetch(`http://localhost:8081/api/updateVariant/${updatedVariant.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedVariant),
+        });
+      } else {
+        alert('Failed to sell product.');
+      }
+    } catch (error) {
+      console.error('Error selling product:', error);
+      alert('An error occurred while selling the product.');
+    }
+  };
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:8081/api/products');
+        const data = await response.json();
+        if (data.products) {
+          setProducts(data.products);
+        } else {
+          console.error('Unexpected response format for products:', data);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
     };
-  }, [isScannerModalOpen, startScanner]);
+
+    const fetchVariants = async () => {
+      try {
+        const response = await fetch('http://localhost:8081/api/variants');
+        const data = await response.json();
+        if (data.variants) {
+          setVariants(data.variants);
+        } else {
+          console.error('Unexpected response format for variants:', data);
+        }
+      } catch (error) {
+        console.error('Error fetching variants:', error);
+      }
+    };
+
+    fetchProducts();
+    fetchVariants();
+  }, []);
 
   return (
     <div className="dashboard-container">
@@ -373,6 +489,10 @@ function BarcodeGeneration() {
           <button className="add-product-btn" onClick={openScannerModal}>
             Add Product (Inventory Restocking)
           </button>
+          {/* Sell Product In-Store Button */}
+          <button className="sell-product-btn" onClick={openSellModal}>
+            Sell Product In-Store
+          </button>
           {/* Modal for Barcode Generation */}
           {isModalOpen && (
             <div className="modal show">
@@ -478,6 +598,102 @@ function BarcodeGeneration() {
                   </ul>
                 </div>
                 <button onClick={updateInventory}>Update Inventory</button>
+              </div>
+            </div>
+          )}
+          {/* Modal for Selling Product */}
+          {isSellModalOpen && (
+            <div className="modal show">
+              <div className="modal-content">
+                <span className="close" onClick={closeSellModal}>
+                  &times;
+                </span>
+                <h2>Sell Product In-Store</h2>
+                <form onSubmit={(e) => e.preventDefault()}>
+                  <label htmlFor="fullName">Full Name:</label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    value={sellFormData.fullName}
+                    onChange={handleSellInputChange}
+                    required
+                  />
+                  <label htmlFor="phoneNumber">Phone Number:</label>
+                  <input
+                    type="tel"
+                    id="phoneNumber"
+                    name="phoneNumber"
+                    value={sellFormData.phoneNumber}
+                    onChange={handleSellInputChange}
+                    required
+                  />
+                  <label htmlFor="orderNote">Order Note:</label>
+                  <textarea
+                    id="orderNote"
+                    name="orderNote"
+                    value={sellFormData.orderNote}
+                    onChange={handleSellInputChange}
+                  ></textarea>
+                  <label htmlFor="address">Address:</label>
+                  <textarea
+                    id="address"
+                    name="address"
+                    value={sellFormData.address}
+                    onChange={handleSellInputChange}
+                  ></textarea>
+                  <label htmlFor="paymentMethod">Payment Method:</label>
+                  <select
+                    id="paymentMethod"
+                    name="paymentMethod"
+                    value={sellFormData.paymentMethod}
+                    onChange={handleSellInputChange}
+                  >
+                    <option value="Cash">Cash</option>
+                    <option value="Card">Card</option>
+                    <option value="PhonePay">PhonePay</option>
+                  </select>
+                  <div>
+                    <h3>Product Selector</h3>
+                    <div>
+                      <button type="button" onClick={openScannerModal}>
+                        Scan Barcode
+                      </button>
+                      <select
+                        value={sellFormData.selectedProduct ? sellFormData.selectedProduct.sku : ''}
+                        onChange={(e) => {
+                          const selectedSku = e.target.value;
+                          const selectedProduct = variants.find(variant => variant.sku === selectedSku);
+                          if (selectedProduct) {
+                            handleSelectProduct(selectedProduct);
+                          }
+                        }}
+                      >
+                        <option value="">Select Product</option>
+                        {products.map(product => (
+                          <optgroup key={product.id} label={product.name}>
+                            {product.variants.map(variant => (
+                              <option key={variant.id} value={variant.sku}>
+                                {variant.sku} - {variant.size} - ${variant.price}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  {sellFormData.selectedProduct && (
+                    <div>
+                      <h3>Selected Product Details</h3>
+                      <p><strong>Name:</strong> {sellFormData.selectedProduct.productName}</p>
+                      <p><strong>Size:</strong> {sellFormData.selectedProduct.size}</p>
+                      <p><strong>Price:</strong> ${sellFormData.selectedProduct.price}</p>
+                    </div>
+                  )}
+                  <button type="button" onClick={handleSell}>
+                    Sell
+                  </button>
+                </form>
               </div>
             </div>
           )}

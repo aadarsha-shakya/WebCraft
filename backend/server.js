@@ -338,7 +338,8 @@ if (!fs.existsSync('./uploads')) {
 app.get('/api/products', (req, res) => {
     const userId = req.query.userId;
     const sql = `
-        SELECT p.*, v.*
+        SELECT p.id AS product_id, p.user_id, p.product_name, p.category_name, p.product_description, p.product_images, p.status, p.created_at,
+               v.id AS variant_id, v.product_id AS variant_product_id, v.user_id AS variant_user_id, v.variant_name, v.size, v.crossed_price, v.selling_price, v.cost_price, v.weight, v.quantity, v.sku
         FROM products p
         LEFT JOIN variants v ON p.id = v.product_id
         WHERE p.user_id = ?
@@ -351,24 +352,25 @@ app.get('/api/products', (req, res) => {
         // Group variants by product
         const productsMap = {};
         data.forEach(row => {
-            if (!productsMap[row.id]) {
-                productsMap[row.id] = {
-                    id: row.id,
+            const productId = row.product_id;
+            if (!productsMap[productId]) {
+                productsMap[productId] = {
+                    id: productId,
                     user_id: row.user_id,
                     product_name: row.product_name,
                     category_name: row.category_name,
                     product_description: row.product_description,
                     product_images: JSON.parse(row.product_images),
-                    status: row.status || 'Active', // Ensure status is included
-                    created_at: row.created_at, // Include created_at
+                    status: row.status || 'Active',
+                    created_at: row.created_at,
                     variants: []
                 };
             }
-            if (row.variant_name) {
-                productsMap[row.id].variants.push({
-                    id: row.id,
-                    product_id: row.product_id,
-                    user_id: row.user_id,
+            if (row.variant_id) {
+                productsMap[productId].variants.push({
+                    id: row.variant_id,
+                    product_id: row.variant_product_id,
+                    user_id: row.variant_user_id,
                     variant_name: row.variant_name,
                     size: row.size,
                     crossed_price: row.crossed_price,

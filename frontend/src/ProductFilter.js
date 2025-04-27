@@ -26,7 +26,7 @@ function ProductFilter() {
             alert("User ID not found. Please log in again.");
             navigate('/Login');
         }
-    }, [userId, navigate]); // Include navigate in the dependency array
+    }, [userId, navigate]);
 
     const fetchBranding = (userId) => {
         fetch(`http://localhost:8081/api/branding/${userId}`)
@@ -68,6 +68,7 @@ function ProductFilter() {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
+            console.log("Fetched Products:", data); // Debugging statement
             setProducts(data);
             setFilteredProducts(data); // Initialize filtered products with all products
         } catch (error) {
