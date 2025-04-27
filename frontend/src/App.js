@@ -30,6 +30,7 @@ import { CartProvider } from './CartContext'; // Import CartProvider
 import CartPanel from './CartPanel'; // Import CartPanel
 import YourOrders from './YourOrders';
 import WebCraft from './WebCraft';
+import Instore from './Instore';
 
 function App() {
     return (
@@ -65,6 +66,7 @@ function App() {
                     <Route path="/payment-success" element={<PaymentSuccess />} /> 
                     <Route path="/YourOrders" element={<YourOrders />} />
                     <Route path="/WebCraft" element={<WebCraft />} />
+                    <Route path="/Instore" element={<Instore />} />
                 </Routes>
                 <CartPanel />
             </CartProvider>

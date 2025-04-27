@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import Logo from './assets/WebCraft.png';
 
-function StoreUsers() {
+function InStore() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -77,6 +77,7 @@ function StoreUsers() {
               <i className="fas fa-chart-line"></i> Analytics
             </Link>
           </li>
+          
         </ul>
 
         <h2>Customizations</h2>
@@ -154,12 +155,12 @@ function StoreUsers() {
 
         {/* CONTENT */}
         <main className="content">
-          <h1>StoreUsers</h1>
-          <p>this is a storeusers page</p>
+          <h1>InStore </h1>
+          <p>this is a instore page</p>
         </main>
       </div>
     </div>
   );
 }
 
-export default StoreUsers;
+export default InStore;

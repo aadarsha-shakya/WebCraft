@@ -198,6 +198,11 @@ function StoreSettings() {
             </Link>
           </li>
           <li>
+            <Link to="/Instore">
+              <i className="fas fa-store"></i> Instore
+            </Link>
+          </li>
+          <li>
             <Link to="/Settlement">
               <i className="fas fa-wallet"></i> Settlement
             </Link>

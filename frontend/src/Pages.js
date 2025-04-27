@@ -333,6 +333,7 @@ function Pages() {
                     <li><Link to="/Orders"><i className="fas fa-shopping-cart"></i> Orders</Link></li>
                     <li><Link to="/Issues"><i className="fas fa-exclamation-circle"></i> Issues</Link></li>
                     <li><Link to="/BarcodeGeneration"><i className="fas fa-barcode"></i> Barcode Scanner</Link></li>
+                    <li><Link to="/Instore"><i className="fas fa-store"></i> Instore</Link></li>
                     <li><Link to="/Settlement"><i className="fas fa-wallet"></i> Settlement</Link></li>
                     <li><Link to="/Analytics"><i className="fas fa-chart-line"></i> Analytics</Link></li>
                 </ul>
