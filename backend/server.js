@@ -1242,6 +1242,110 @@ app.post('/api/updateInventory', (req, res) => {
         });
 });
 
+// Endpoint to handle in-store sales
+app.post('/api/instore', (req, res) => {
+    const orderDetails = req.body;
+    const {
+        fullName,
+        phoneNumber,
+        orderNote,
+        address,
+        paymentMethod,
+        productId,
+        variantId,
+        productName,
+        variantName,
+        size,
+        sellingPrice,
+        quantity,
+        userId // Ensure userId is passed in the request body
+    } = orderDetails;
+
+    // Ensure quantity is a number
+    const quantityToSell = parseInt(quantity, 10);
+    if (isNaN(quantityToSell) || quantityToSell <= 0) {
+        return res.status(400).json({ error: 'Invalid quantity' });
+    }
+
+    // Start a transaction to ensure data integrity
+    db.beginTransaction((err) => {
+        if (err) {
+            console.error('Error starting transaction:', err);
+            return res.status(500).json({ error: 'Failed to start transaction' });
+        }
+
+        // Insert the in-store sale record
+        const insertInstoreQuery = `
+            INSERT INTO instore (
+                user_id, full_name, phone_number, order_note, address, payment_method, 
+                product_id, variant_id, product_name, variant_name, size, selling_price, quantity
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        db.query(insertInstoreQuery, [
+            userId,
+            fullName,
+            phoneNumber,
+            orderNote,
+            address,
+            paymentMethod,
+            productId,
+            variantId,
+            productName,
+            variantName,
+            size,
+            sellingPrice,
+            quantityToSell
+        ], (insertErr, insertResult) => {
+            if (insertErr) {
+                console.error('Error inserting in-store sale:', insertErr);
+                return db.rollback(() => {
+                    res.status(500).json({ error: 'Failed to insert in-store sale' });
+                });
+            }
+
+            // Decrease the inventory of the selected product variant by the sold quantity
+            const updateInventoryQuery = `
+                UPDATE variants
+                SET quantity = quantity - ?
+                WHERE id = ?
+            `;
+            db.query(updateInventoryQuery, [quantityToSell, variantId], (updateErr, updateResult) => {
+                if (updateErr) {
+                    console.error('Error updating inventory:', updateErr);
+                    return db.rollback(() => {
+                        res.status(500).json({ error: 'Failed to update inventory' });
+                    });
+                }
+
+                // Commit the transaction
+                db.commit((commitErr) => {
+                    if (commitErr) {
+                        console.error('Error committing transaction:', commitErr);
+                        return db.rollback(() => {
+                            res.status(500).json({ error: 'Failed to commit transaction' });
+                        });
+                    }
+
+                    res.status(200).json({ message: 'In-store sale recorded successfully' });
+                });
+            });
+        });
+    });
+});
+
+// Endpoint to fetch in-store sales for a specific user
+app.get('/api/instore/user/:userId', (req, res) => {
+    const userId = req.params.userId;
+    const sql = "SELECT * FROM instore WHERE user_id = ?";
+    db.query(sql, [userId], (err, data) => {
+        if (err) {
+            console.error('Error fetching in-store sales:', err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        return res.json(data);
+    });
+});
+
 app.listen(8081, () => {
     console.log("Listening on port 8081");
 });
