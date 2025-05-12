@@ -1346,6 +1346,49 @@ app.get('/api/instore/user/:userId', (req, res) => {
     });
 });
 
+// Endpoint to fetch settlement records for a specific date
+app.get('/api/settlement', (req, res) => {
+    const date = req.query.date;
+    if (!date) {
+        return res.status(400).json({ status: "error", message: "Date parameter is required" });
+    }
+    const startOfDay = new Date(date);
+    const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+    const sql = `
+        SELECT 
+            full_name, 
+            address, 
+            order_note, 
+            payment_method, 
+            phone_number, 
+            product_name, 
+            variant_name, 
+            size
+        FROM instore
+        WHERE created_at >= ? AND created_at < ?
+        UNION ALL
+        SELECT 
+            full_name, 
+            address, 
+            order_note, 
+            payment_method, 
+            phone_number, 
+            JSON_UNQUOTE(JSON_EXTRACT(cart_items, '$[0].productName')) AS product_name, 
+            JSON_UNQUOTE(JSON_EXTRACT(cart_items, '$[0].variantName')) AS variant_name, 
+            JSON_UNQUOTE(JSON_EXTRACT(cart_items, '$[0].size')) AS size
+        FROM orders
+        WHERE created_at >= ? AND created_at < ?
+    `;
+    db.query(sql, [startOfDay, endOfDay, startOfDay, endOfDay], (err, data) => {
+        if (err) {
+            console.error("Error fetching settlement records:", err);
+            return res.status(500).json({ status: "error", message: "Database error", details: err.message });
+        }
+        console.log("Settlement records fetched successfully:", data); // Debugging line
+        return res.json(data);
+    });
+});
+
 app.listen(8081, () => {
     console.log("Listening on port 8081");
 });

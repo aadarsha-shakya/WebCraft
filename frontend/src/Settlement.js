@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
+import './Settlement.css';
+
 import Logo from './assets/WebCraft.png';
 
 function Settlement() {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [records, setRecords] = useState([]);
   const navigate = useNavigate();
 
   const toggleDropdown = () => {
@@ -12,8 +17,96 @@ function Settlement() {
   };
 
   const handleLogout = () => {
-    // Perform logout actions if needed (e.g., clearing tokens)
     navigate('/Login'); // Redirect to login page
+  };
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const navigateToPreviousMonth = () => {
+    setCurrentDate(prevDate => new Date(prevDate.getFullYear(), prevDate.getMonth() - 1, 1));
+  };
+
+  const navigateToNextMonth = () => {
+    setCurrentDate(prevDate => new Date(prevDate.getFullYear(), prevDate.getMonth() + 1, 1));
+  };
+
+  const renderCalendar = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const calendarDays = [];
+
+    // Fill in leading empty days
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      calendarDays.push(<div key={`empty-${i}`} className="empty-day"></div>);
+    }
+
+    // Fill in actual days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      calendarDays.push(
+        <div 
+          key={day} 
+          className="calendar-day"
+          onClick={() => handleDateClick(date)}
+        >
+          {day}
+        </div>
+      );
+    }
+
+    return (
+      <div className="calendar">
+        <div className="calendar-header">
+          <button onClick={navigateToPreviousMonth}>⇐</button>
+          <span>{new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
+          <button onClick={navigateToNextMonth}>⇒</button>
+        </div>
+        <div className="days-of-week">
+          {daysOfWeek.map(day => (
+            <div key={day} className="day-of-week">{day}</div>
+          ))}
+        </div>
+        <div className="calendar-body">
+          {calendarDays}
+        </div>
+      </div>
+    );
+  };
+
+  const handleDateClick = (date) => {
+    setSelectedDate(date);
+    fetchRecordsForDate(date);
+    setModalVisible(true);
+  };
+
+  const fetchRecordsForDate = async (date) => {
+    const formattedDate = date.toISOString().split('T')[0];
+    try {
+        const response = await fetch(`http://localhost:8081/api/settlement?date=${formattedDate}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        if (!response.ok) {
+            const text = await response.text(); // Read the response as text
+            console.error("HTTP error! Status:", response.status, "Response:", text);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        setRecords(data);
+    } catch (error) {
+        console.error("Error fetching records:", error);
+        alert("Failed to fetch records. Please try again later.");
+    }
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
   };
 
   return (
@@ -77,7 +170,6 @@ function Settlement() {
               <i className="fas fa-chart-line"></i> Analytics
             </Link>
           </li>
-          
         </ul>
 
         <h2>Customizations</h2>
@@ -155,10 +247,52 @@ function Settlement() {
 
         {/* CONTENT */}
         <main className="content">
-          <h1>Settlement </h1>
-          <p>this is a settlement page</p>
+          <h1>Settlement</h1>
+          <div className="calendar-container">
+            {renderCalendar()}
+          </div>
         </main>
       </div>
+
+      {/* MODAL */}
+      {modalVisible && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Records for {selectedDate?.toLocaleDateString()}</h2>
+            <button className="close-modal" onClick={closeModal}>X</button>
+            <div className="records-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Note</th>
+                    <th>Payment Method</th>
+                    <th>Phone Number</th>
+                    <th>Product Name</th>
+                    <th>Variant</th>
+                    <th>Size</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {records.map((record, index) => (
+                    <tr key={index}>
+                      <td>{record.full_name}</td>
+                      <td>{record.address}</td>
+                      <td>{record.order_note}</td>
+                      <td>{record.payment_method}</td>
+                      <td>{record.phone_number}</td>
+                      <td>{record.product_name}</td>
+                      <td>{record.variant_name}</td>
+                      <td>{record.size}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
