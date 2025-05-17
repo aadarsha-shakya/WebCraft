@@ -130,10 +130,6 @@ function PaymentSettings() {
           <div className="payment-box">
             <img src={KhaltiLogo} alt="Khalti Payment" className="payment-logo" />
             <div className="payment-info">
-              <label className="switch">
-                <input type="checkbox" />
-                <span className="slider round"></span>
-              </label>
               <i className="fas fa-cog settings-icon" onClick={toggleSettings}></i>
             </div>
           </div>
