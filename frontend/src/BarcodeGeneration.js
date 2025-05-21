@@ -21,6 +21,7 @@ function BarcodeGeneration() {
   const videoRef = useRef(null);
   const scannerRef = useRef(null);
   const fileInputRef = useRef(null); // Reference for the file input
+  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid'); // Load mode from localStorage or default to 'Hybrid'
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prevState) => !prevState); // Toggle state on each click
@@ -101,7 +102,6 @@ function BarcodeGeneration() {
           combinedSkus[entry.sku] = entry.quantity;
         }
       });
-
       const response = await fetch('http://localhost:8081/api/updateInventory', {
         method: 'POST',
         headers: {
@@ -125,15 +125,12 @@ function BarcodeGeneration() {
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = async (e) => {
       const imgData = e.target.result; // Base64 string of the image
-
       // Create a temporary canvas to draw the image
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-
       // Load the image from the base64 string
       const img = new Image();
       img.src = imgData;
@@ -141,13 +138,10 @@ function BarcodeGeneration() {
         // Set canvas dimensions to match the image size
         canvas.width = img.width;
         canvas.height = img.height;
-
         // Draw the image onto the canvas
         ctx.drawImage(img, 0, 0);
-
         // Get the ImageData from the canvas
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
         // Decode the barcode from the ImageData
         decodeBarcodeFromImage(imageData);
       };
@@ -159,7 +153,6 @@ function BarcodeGeneration() {
     try {
       // Create a CanvasImage instance from the ImageData
       const canvasImage = new CanvasImage(imageData);
-
       // Decode the barcode
       const qrCodeReader = new QRCodeReader();
       const result = await qrCodeReader.decode(canvasImage);
@@ -235,95 +228,88 @@ function BarcodeGeneration() {
     };
   }, [isScannerModalOpen, startScanner]);
 
+  // Update mode based on button click and save to localStorage
+  const selectMode = (newMode) => {
+    setMode(newMode);
+    localStorage.setItem('mode', newMode); // Save mode to localStorage
+  };
+
+  // Determine which links to show based on the mode
+  const getLinks = () => {
+    const hybridLinks = [
+      { name: 'Home', icon: 'fa-home', path: '/dashboard' },
+      { name: 'Store Users', icon: 'fa-users', path: '/StoreUsers' },
+      { name: 'Categories', icon: 'fa-th', path: '/Categories' },
+      { name: 'Products', icon: 'fa-box', path: '/Products' },
+      { name: 'Customers', icon: 'fa-user', path: '/Customers' },
+      { name: 'Orders', icon: 'fa-shopping-cart', path: '/Orders' },
+      { name: 'Issues', icon: 'fa-exclamation-circle', path: '/Issues' },
+      { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
+      { name: 'Instore', icon: 'fa-store', path: '/Instore' },
+      { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
+      { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
+      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Pages', icon: 'fa-file', path: '/Pages' },
+      { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
+      { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
+      { name: 'Store Setting', icon: 'fa-cog', path: '/StoreSettings' },
+      { name: 'Payment Setting', icon: 'fa-credit-card', path: '/PaymentSettings' },
+    ];
+    const onlineLinks = [
+      { name: 'Home', icon: 'fa-home', path: '/dashboard' },
+      { name: 'Store Users', icon: 'fa-users', path: '/StoreUsers' },
+      { name: 'Categories', icon: 'fa-th', path: '/Categories' },
+      { name: 'Products', icon: 'fa-box', path: '/Products' },
+      { name: 'Customers', icon: 'fa-user', path: '/Customers' },
+      { name: 'Orders', icon: 'fa-shopping-cart', path: '/Orders' },
+      { name: 'Issues', icon: 'fa-exclamation-circle', path: '/Issues' },
+      { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
+      { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
+      { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
+      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Pages', icon: 'fa-file', path: '/Pages' },
+      { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
+      { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
+      { name: 'Store Setting', icon: 'fa-cog', path: '/StoreSettings' },
+      { name: 'Payment Setting', icon: 'fa-credit-card', path: '/PaymentSettings' },
+    ];
+    const instoreLinks = [
+      { name: 'Home', icon: 'fa-home', path: '/dashboard' },
+      { name: 'Issues', icon: 'fa-exclamation-circle', path: '/Issues' },
+      { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
+      { name: 'Instore', icon: 'fa-store', path: '/Instore' },
+      { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
+      { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
+    ];
+    switch (mode) {
+      case 'Hybrid':
+        return hybridLinks;
+      case 'Online':
+        return onlineLinks;
+      case 'Instore':
+        return instoreLinks;
+      default:
+        return hybridLinks;
+    }
+  };
+
   return (
     <div className="dashboard-container">
       {/* SIDEBAR */}
       <aside className="sidebar">
         <h2>Main Links</h2>
         <ul>
-          <li>
-            <Link to="/dashboard">
-              <i className="fas fa-home"></i> Home
-            </Link>
-          </li>
-          <li>
-            <Link to="/StoreUsers">
-              <i className="fas fa-users"></i> Store Users
-            </Link>
-          </li>
-          <li>
-            <Link to="/Categories">
-              <i className="fas fa-th"></i> Categories
-            </Link>
-          </li>
-          <li>
-            <Link to="/Products">
-              <i className="fas fa-box"></i> Products
-            </Link>
-          </li>
-          <li>
-            <Link to="/Customers">
-              <i className="fas fa-user"></i> Customers
-            </Link>
-          </li>
-          <li>
-            <Link to="/Orders">
-              <i className="fas fa-shopping-cart"></i> Orders
-            </Link>
-          </li>
-          <li>
-            <Link to="/Issues">
-              <i className="fas fa-exclamation-circle"></i> Issues
-            </Link>
-          </li>
-          <li>
-            <Link to="/BarcodeGeneration">
-              <i className="fas fa-barcode"></i> Barcode Scanner
-            </Link>
-          </li>
-          <li>
-            <Link to="/Instore">
-              <i className="fas fa-store"></i> Instore
-            </Link>
-          </li>
-          <li>
-            <Link to="/Settlement">
-              <i className="fas fa-wallet"></i> Settlement
-            </Link>
-          </li>
-          <li>
-            <Link to="/Analytics">
-              <i className="fas fa-chart-line"></i> Analytics
-            </Link>
-          </li>
-        </ul>
-        <h2>Customizations</h2>
-        <ul>
-          <li>
-            <Link to="/Pages">
-              <i className="fas fa-file"></i> Pages
-            </Link>
-          </li>
-          <li>
-            <Link to="/Plugins">
-              <i className="fas fa-plug"></i> Plugins
-            </Link>
-          </li>
-          <li>
-            <Link to="/Appearance">
-              <i className="fas fa-paint-brush"></i> Appearance
-            </Link>
-          </li>
-          <li>
-            <Link to="/StoreSettings">
-              <i className="fas fa-cog"></i> Store Setting
-            </Link>
-          </li>
-          <li>
-            <Link to="/PaymentSettings">
-              <i className="fas fa-credit-card"></i> Payment Setting
-            </Link>
-          </li>
+          {getLinks().map((link) => (
+            <li key={link.name}>
+              {link.type === 'header' ? (
+                <h3 className={link.className}>{link.name}</h3>
+              ) : (
+                <Link to={link.path}>
+                  <i className={`fas ${link.icon}`}></i> {link.name}
+                </Link>
+              )}
+            </li>
+          ))}
         </ul>
       </aside>
       {/* MAIN CONTENT AREA */}
@@ -364,128 +350,151 @@ function BarcodeGeneration() {
                 </div>
               )}
             </div>
+            {/* Mode Toggle Button */}
+            <div className="mode-toggle">
+              <div className="toggle-container">
+                <button
+                  className={`toggle-button ${mode === 'Instore' ? 'active' : ''}`}
+                  onClick={() => selectMode('Instore')}
+                >
+                  <i className="fas fa-store"></i>
+                </button>
+                <button
+                  className={`toggle-button ${mode === 'Hybrid' ? 'active' : ''}`}
+                  onClick={() => selectMode('Hybrid')}
+                >
+                  <i className="fas fa-code-branch"></i>
+                </button>
+                <button
+                  className={`toggle-button ${mode === 'Online' ? 'active' : ''}`}
+                  onClick={() => selectMode('Online')}
+                >
+                  <i className="fas fa-globe"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </header>
         {/* CONTENT */}
         <main className="content">
-  <h1>Barcode Generation</h1>
-  {/* Generate Barcode Button */}
-  <button className="generate-barcode-btn" onClick={openModal}>
-    Generate Barcode
-  </button>
-  {/* Add Product Button */}
-  <button className="add-product-btn" onClick={openScannerModal}>
-    Add Product (Inventory Restocking)
-  </button>
-  {/* Modal for Barcode Generation */}
-  {isModalOpen && (
-    <div className="modal show">
-      <div className="modal-content">
-        <span className="close" onClick={closeModal}>
-          &times;
-        </span>
-        <h2>Generate Barcode</h2>
-        <form onSubmit={(e) => e.preventDefault()}>
-          <label htmlFor="sku">Enter Product SKU:</label>
-          <input
-            type="text"
-            id="sku"
-            value={sku}
-            onChange={handleSkuChange}
-            required
-          />
-          <button type="button" onClick={generateBarcode}>
-            Generate
+          <h1>Barcode Generation</h1>
+          {/* Generate Barcode Button */}
+          <button className="generate-barcode-btn" onClick={openModal}>
+            Generate Barcode
           </button>
-        </form>
-        {barcodeImage && (
-          <div>
-            <canvas ref={barcodeRef} style={{ display: 'none' }}></canvas>
-            <img src={barcodeImage} alt="Generated Barcode" />
-            <button onClick={downloadBarcode}>Download Barcode</button>
-          </div>
-        )}
-      </div>
-    </div>
-  )}
-  {/* Modal for Barcode Scanning */}
-  {isScannerModalOpen && (
-    <div className="modal show">
-      <div className="modal-content">
-        <span className="close" onClick={closeScannerModal}>
-          &times;
-        </span>
-        <h2>Inventory Restocking</h2>
-        {/* Camera Scanning */}
-        <div>
-          <h3>Camera Scanning</h3>
-          <video ref={videoRef} width="600" height="400" autoPlay></video>
-        </div>
-        {/* Image Scanning */}
-        <div>
-          <h3>Image Scanning</h3>
-          <label htmlFor="fileInput">Upload Barcode Image:</label>
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-          />
-        </div>
-        {/* Manual Restocking */}
-        <div>
-          <h3>Manual Restocking</h3>
-          <form onSubmit={(e) => e.preventDefault()}>
-            <label htmlFor="manualSku">Enter SKU:</label>
-            <input
-              type="text"
-              id="manualSku"
-              value={manualSku}
-              onChange={(e) => setManualSku(e.target.value)}
-              required
-            />
-            <label htmlFor="manualQuantity">Enter Quantity:</label>
-            <input
-              type="number"
-              id="manualQuantity"
-              value={manualQuantity}
-              onChange={(e) => setManualQuantity(e.target.value)}
-              required
-            />
-            <button type="button" onClick={addManualEntry}>
-              Add Entry
-            </button>
-          </form>
-          <ul>
-            {manualEntries.map((entry, index) => (
-              <li key={index}>
-                <span>{entry.sku}</span>: {entry.quantity}
-                <button onClick={() => removeManualEntry(index)}>Remove</button>
-              </li>
-            ))}
-          </ul>
-        </div>
-        {/* Combined Scanned and Manual Entries */}
-        <div>
-          <h3>Scanned and Manual Entries</h3>
-          <ul>
-            {[...Object.entries(scannedSkus)].map(([sku, quantity], index) => (
-              <li key={index}>
-                <span>{sku}</span>: {quantity}
-              </li>
-            ))}
-            {manualEntries.map((entry, index) => (
-              <li key={`manual-${index}`}>
-                <span>{entry.sku}</span>: {entry.quantity}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <button onClick={updateInventory}>Update Inventory</button>
-      </div>
-    </div>
-  )}
-</main>
+          {/* Add Product Button */}
+          <button className="add-product-btn" onClick={openScannerModal}>
+            Add Product (Inventory Restocking)
+          </button>
+          {/* Modal for Barcode Generation */}
+          {isModalOpen && (
+            <div className="modal show">
+              <div className="modal-content">
+                <span className="close" onClick={closeModal}>
+                  &times;
+                </span>
+                <h2>Generate Barcode</h2>
+                <form onSubmit={(e) => e.preventDefault()}>
+                  <label htmlFor="sku">Enter Product SKU:</label>
+                  <input
+                    type="text"
+                    id="sku"
+                    value={sku}
+                    onChange={handleSkuChange}
+                    required
+                  />
+                  <button type="button" onClick={generateBarcode}>
+                    Generate
+                  </button>
+                </form>
+                {barcodeImage && (
+                  <div>
+                    <canvas ref={barcodeRef} style={{ display: 'none' }}></canvas>
+                    <img src={barcodeImage} alt="Generated Barcode" />
+                    <button onClick={downloadBarcode}>Download Barcode</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          {/* Modal for Barcode Scanning */}
+          {isScannerModalOpen && (
+            <div className="modal show">
+              <div className="modal-content">
+                <span className="close" onClick={closeScannerModal}>
+                  &times;
+                </span>
+                <h2>Inventory Restocking</h2>
+                {/* Camera Scanning */}
+                <div>
+                  <h3>Camera Scanning</h3>
+                  <video ref={videoRef} width="600" height="400" autoPlay></video>
+                </div>
+                {/* Image Scanning */}
+                <div>
+                  <h3>Image Scanning</h3>
+                  <label htmlFor="fileInput">Upload Barcode Image:</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                  />
+                </div>
+                {/* Manual Restocking */}
+                <div>
+                  <h3>Manual Restocking</h3>
+                  <form onSubmit={(e) => e.preventDefault()}>
+                    <label htmlFor="manualSku">Enter SKU:</label>
+                    <input
+                      type="text"
+                      id="manualSku"
+                      value={manualSku}
+                      onChange={(e) => setManualSku(e.target.value)}
+                      required
+                    />
+                    <label htmlFor="manualQuantity">Enter Quantity:</label>
+                    <input
+                      type="number"
+                      id="manualQuantity"
+                      value={manualQuantity}
+                      onChange={(e) => setManualQuantity(e.target.value)}
+                      required
+                    />
+                    <button type="button" onClick={addManualEntry}>
+                      Add Entry
+                    </button>
+                  </form>
+                  <ul>
+                    {manualEntries.map((entry, index) => (
+                      <li key={index}>
+                        <span>{entry.sku}</span>: {entry.quantity}
+                        <button onClick={() => removeManualEntry(index)}>Remove</button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {/* Combined Scanned and Manual Entries */}
+                <div>
+                  <h3>Scanned and Manual Entries</h3>
+                  <ul>
+                    {[...Object.entries(scannedSkus)].map(([sku, quantity], index) => (
+                      <li key={index}>
+                        <span>{sku}</span>: {quantity}
+                      </li>
+                    ))}
+                    {manualEntries.map((entry, index) => (
+                      <li key={`manual-${index}`}>
+                        <span>{entry.sku}</span>: {entry.quantity}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <button onClick={updateInventory}>Update Inventory</button>
+              </div>
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );

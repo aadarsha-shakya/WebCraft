@@ -19,6 +19,7 @@ function Issues() {
     resolved: ''
   });
   const [userId, setUserId] = useState(null);
+  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid'); // Load mode from localStorage or default to 'Hybrid'
   const navigate = useNavigate();
 
   const toggleDropdown = () => {
@@ -36,6 +37,9 @@ function Issues() {
     if (storedUserId) {
       setUserId(storedUserId);
       fetchIssues(storedUserId);
+    } else {
+      alert('User not logged in. Redirecting to login...');
+      window.location.href = '/login';
     }
   }, []);
 
@@ -128,95 +132,88 @@ function Issues() {
     .catch(error => console.error("Error deleting issue:", error));
   };
 
+  // Update mode based on button click and save to localStorage
+  const selectMode = (newMode) => {
+    setMode(newMode);
+    localStorage.setItem('mode', newMode); // Save mode to localStorage
+  };
+
+  // Determine which links to show based on the mode
+  const getLinks = () => {
+    const hybridLinks = [
+      { name: 'Home', icon: 'fa-home', path: '/dashboard' },
+      { name: 'Store Users', icon: 'fa-users', path: '/StoreUsers' },
+      { name: 'Categories', icon: 'fa-th', path: '/Categories' },
+      { name: 'Products', icon: 'fa-box', path: '/Products' },
+      { name: 'Customers', icon: 'fa-user', path: '/Customers' },
+      { name: 'Orders', icon: 'fa-shopping-cart', path: '/Orders' },
+      { name: 'Issues', icon: 'fa-exclamation-circle', path: '/Issues' },
+      { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
+      { name: 'Instore', icon: 'fa-store', path: '/Instore' },
+      { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
+      { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
+      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Pages', icon: 'fa-file', path: '/Pages' },
+      { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
+      { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
+      { name: 'Store Setting', icon: 'fa-cog', path: '/StoreSettings' },
+      { name: 'Payment Setting', icon: 'fa-credit-card', path: '/PaymentSettings' },
+    ];
+    const onlineLinks = [
+      { name: 'Home', icon: 'fa-home', path: '/dashboard' },
+      { name: 'Store Users', icon: 'fa-users', path: '/StoreUsers' },
+      { name: 'Categories', icon: 'fa-th', path: '/Categories' },
+      { name: 'Products', icon: 'fa-box', path: '/Products' },
+      { name: 'Customers', icon: 'fa-user', path: '/Customers' },
+      { name: 'Orders', icon: 'fa-shopping-cart', path: '/Orders' },
+      { name: 'Issues', icon: 'fa-exclamation-circle', path: '/Issues' },
+      { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
+      { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
+      { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
+      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Pages', icon: 'fa-file', path: '/Pages' },
+      { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
+      { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
+      { name: 'Store Setting', icon: 'fa-cog', path: '/StoreSettings' },
+      { name: 'Payment Setting', icon: 'fa-credit-card', path: '/PaymentSettings' },
+    ];
+    const instoreLinks = [
+      { name: 'Home', icon: 'fa-home', path: '/dashboard' },
+      { name: 'Issues', icon: 'fa-exclamation-circle', path: '/Issues' },
+      { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
+      { name: 'Instore', icon: 'fa-store', path: '/Instore' },
+      { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
+      { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
+    ];
+    switch (mode) {
+      case 'Hybrid':
+        return hybridLinks;
+      case 'Online':
+        return onlineLinks;
+      case 'Instore':
+        return instoreLinks;
+      default:
+        return hybridLinks;
+    }
+  };
+
   return (
     <div className="dashboard-container">
       {/* SIDEBAR */}
       <aside className="sidebar">
         <h2>Main Links</h2>
         <ul>
-          <li>
-            <Link to="/dashboard">
-              <i className="fas fa-home"></i> Home
-            </Link>
-          </li>
-          <li>
-            <Link to="/StoreUsers">
-              <i className="fas fa-users"></i> Store Users
-            </Link>
-          </li>
-          <li>
-            <Link to="/Categories">
-              <i className="fas fa-th"></i> Categories
-            </Link>
-          </li>
-          <li>
-            <Link to="/Products">
-              <i className="fas fa-box"></i> Products
-            </Link>
-          </li>
-          <li>
-            <Link to="/Customers">
-              <i className="fas fa-user"></i> Customers
-            </Link>
-          </li>
-          <li>
-            <Link to="/Orders">
-              <i className="fas fa-shopping-cart"></i> Orders
-            </Link>
-          </li>
-          <li>
-            <Link to="/Issues">
-              <i className="fas fa-exclamation-circle"></i> Issues
-            </Link>
-          </li>
-          <li>
-            <Link to="/BarcodeGeneration">
-              <i className="fas fa-barcode"></i> Barcode Scanner
-            </Link>
-          </li>
-          <li>
-            <Link to="/Instore">
-              <i className="fas fa-store"></i> Instore
-            </Link>
-          </li>
-          <li>
-            <Link to="/Settlement">
-              <i className="fas fa-wallet"></i> Settlement
-            </Link>
-          </li>
-          <li>
-            <Link to="/Analytics">
-              <i className="fas fa-chart-line"></i> Analytics
-            </Link>
-          </li>
-        </ul>
-        <h2>Customizations</h2>
-        <ul>
-          <li>
-            <Link to="/Pages">
-              <i className="fas fa-file"></i> Pages
-            </Link>
-          </li>
-          <li>
-            <Link to="/Plugins">
-              <i className="fas fa-plug"></i> Plugins
-            </Link>
-          </li>
-          <li>
-            <Link to="/Appearance">
-              <i className="fas fa-paint-brush"></i> Appearance
-            </Link>
-          </li>
-          <li>
-            <Link to="/StoreSettings">
-              <i className="fas fa-cog"></i> Store Setting
-            </Link>
-          </li>
-          <li>
-            <Link to="/PaymentSettings">
-              <i className="fas fa-credit-card"></i> Payment Setting
-            </Link>
-          </li>
+          {getLinks().map((link) => (
+            <li key={link.name}>
+              {link.type === 'header' ? (
+                <h3 className={link.className}>{link.name}</h3>
+              ) : (
+                <Link to={link.path}>
+                  <i className={`fas ${link.icon}`}></i> {link.name}
+                </Link>
+              )}
+            </li>
+          ))}
         </ul>
       </aside>
       {/* MAIN CONTENT AREA */}
@@ -256,6 +253,29 @@ function Issues() {
                   </button>
                 </div>
               )}
+            </div>
+            {/* Mode Toggle Button */}
+            <div className="mode-toggle">
+              <div className="toggle-container">
+                <button
+                  className={`toggle-button ${mode === 'Instore' ? 'active' : ''}`}
+                  onClick={() => selectMode('Instore')}
+                >
+                  <i className="fas fa-store"></i>
+                </button>
+                <button
+                  className={`toggle-button ${mode === 'Hybrid' ? 'active' : ''}`}
+                  onClick={() => selectMode('Hybrid')}
+                >
+                  <i className="fas fa-code-branch"></i>
+                </button>
+                <button
+                  className={`toggle-button ${mode === 'Online' ? 'active' : ''}`}
+                  onClick={() => selectMode('Online')}
+                >
+                  <i className="fas fa-globe"></i>
+                </button>
+              </div>
             </div>
           </div>
         </header>
