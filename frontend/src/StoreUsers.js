@@ -1,29 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import Logo from './assets/WebCraft.png';
+import axios from 'axios';
 
 function StoreUsers() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid'); // Load mode from localStorage or default to 'Hybrid'
+  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid');
+  const [staffList, setStaffList] = useState([]);
+  const [newStaff, setNewStaff] = useState({ name: '', email: '', password: '' });
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const userId = localStorage.getItem('userId'); // Assuming userId is stored in localStorage
+
+  // Define fetchStaffList using useCallback to memoize it
+  const fetchStaffList = useCallback(() => {
+    axios.get(`http://localhost:8081/api/listStaff?userId=${userId}`)
+      .then(res => {
+        setStaffList(res.data);
+      })
+      .catch(err => {
+        console.error("Failed to fetch staff list:", err);
+      });
+  }, [userId]); // Include userId in the dependency array
+
+  useEffect(() => {
+    fetchStaffList();
+  }, [fetchStaffList]); // Include fetchStaffList in the dependency array
 
   const toggleDropdown = () => {
-    setIsDropdownOpen((prevState) => !prevState); // Toggle state on each click
+    setIsDropdownOpen((prevState) => !prevState);
   };
 
   const handleLogout = () => {
-    // Perform logout actions if needed (e.g., clearing tokens)
-    navigate('/Login'); // Redirect to login page
+    navigate('/Login');
   };
 
-  // Update mode based on button click and save to localStorage
   const selectMode = (newMode) => {
     setMode(newMode);
-    localStorage.setItem('mode', newMode); // Save mode to localStorage
+    localStorage.setItem('mode', newMode);
   };
 
-  // Determine which links to show based on the mode
   const getLinks = () => {
     const hybridLinks = [
       { name: 'Home', icon: 'fa-home', path: '/dashboard' },
@@ -37,7 +54,7 @@ function StoreUsers() {
       { name: 'Instore', icon: 'fa-store', path: '/Instore' },
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Customization', type: 'header', className: 'customization-header' },
       { name: 'Pages', icon: 'fa-file', path: '/Pages' },
       { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
       { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
@@ -55,7 +72,7 @@ function StoreUsers() {
       { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Customization', type: 'header', className: 'customization-header' },
       { name: 'Pages', icon: 'fa-file', path: '/Pages' },
       { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
       { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
@@ -79,6 +96,60 @@ function StoreUsers() {
         return instoreLinks;
       default:
         return hybridLinks;
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewStaff((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    if (!newStaff.name) errors.name = 'Name is required';
+    if (!newStaff.email) errors.email = 'Email is required';
+    if (!newStaff.password) errors.password = 'Password is required';
+    return errors;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const validationErrors = validateForm();
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length === 0) {
+      axios.post('http://localhost:8081/api/createStaff', { ...newStaff, createdBy: userId })
+        .then(res => {
+          if (res.data.status === "created") {
+            alert("Staff account created successfully!");
+            fetchStaffList();
+            setNewStaff({ name: '', email: '', password: '' });
+          } else {
+            alert("Failed to create staff account.");
+          }
+        })
+        .catch(err => {
+          console.error("Failed to create staff account:", err);
+          alert("Failed to create staff account.");
+        });
+    }
+  };
+
+  const handleDeleteStaff = (id) => {
+    if (window.confirm("Are you sure you want to delete this staff account?")) {
+      axios.delete(`http://localhost:8081/api/deleteStaff/${id}?userId=${userId}`)
+        .then(res => {
+          if (res.data.status === "deleted") {
+            alert("Staff account deleted successfully!");
+            fetchStaffList();
+          } else {
+            alert("Failed to delete staff account.");
+          }
+        })
+        .catch(err => {
+          console.error("Failed to delete staff account:", err);
+          alert("Failed to delete staff account.");
+        });
     }
   };
 
@@ -166,8 +237,82 @@ function StoreUsers() {
         </header>
         {/* CONTENT */}
         <main className="content">
-          <h1>StoreUsers</h1>
-          <p>This is a store users page.</p>
+          <h1>Store Users</h1>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label htmlFor="name">
+                <strong>Name</strong>
+              </label>
+              <input
+                type="text"
+                placeholder="Enter Name"
+                name="name"
+                value={newStaff.name}
+                onChange={handleInputChange}
+                className="form-control rounded-0"
+              />
+              {errors.name && <span className="text-danger">{errors.name}</span>}
+            </div>
+            <div className="mb-3">
+              <label htmlFor="email">
+                <strong>Email</strong>
+              </label>
+              <input
+                type="email"
+                placeholder="Enter Email"
+                name="email"
+                value={newStaff.email}
+                onChange={handleInputChange}
+                className="form-control rounded-0"
+              />
+              {errors.email && <span className="text-danger">{errors.email}</span>}
+            </div>
+            <div className="mb-3">
+              <label htmlFor="password">
+                <strong>Password</strong>
+              </label>
+              <input
+                type="password"
+                placeholder="Enter Password"
+                name="password"
+                value={newStaff.password}
+                onChange={handleInputChange}
+                className="form-control rounded-0"
+              />
+              {errors.password && <span className="text-danger">{errors.password}</span>}
+            </div>
+            <button type="submit" className="btn btn-success w-100 rounded-0">
+              Create Staff
+            </button>
+          </form>
+          <h2>Staff List</h2>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {staffList.map(staff => (
+                <tr key={staff.id}>
+                  <td>{staff.name}</td>
+                  <td>{staff.email}</td>
+                  <td>{staff.role}</td>
+                  <td>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleDeleteStaff(staff.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </main>
       </div>
     </div>

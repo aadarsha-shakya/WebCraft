@@ -42,19 +42,25 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
     res.json({ filename: req.file.filename });
 });
 
-// Existing SIGNIUP route
+// Existing SIGNUP route
 app.post('/signup', (req, res) => {
-    const sql = "INSERT INTO users(`name`, `email`, `password`) VALUES (?)";
+    const { name, email, password, role } = req.body;
+    const sql = "INSERT INTO users (`name`, `email`, `password`, `role`) VALUES (?, ?, ?, ?)";
     const values = [
-        req.body.name,
-        req.body.email,
-        req.body.password
+        name,
+        email,
+        password,
+        role || 'vendor' // Default to 'vendor' if role is not provided
     ];
-    db.query(sql, [values], (err, data) => {
+    db.query(sql, values, (err, data) => {
         if (err) {
-            return res.json("Error");
+            console.error("Error signing up user:", err);
+            if (err.code === 'ER_DUP_ENTRY') {
+                return res.status(400).json({ status: "error", message: "Email already exists. Please use a different email." });
+            }
+            return res.status(500).json({ status: "error", message: "Server error" });
         }
-        return res.json(data);
+        return res.json({ status: "created", message: "User created successfully", userId: data.insertId, userRole: role || 'vendor' });
     });
 });
 
@@ -1386,6 +1392,54 @@ app.get('/api/settlement', (req, res) => {
         }
         console.log("Settlement records fetched successfully:", data); // Debugging line
         return res.json(data);
+    });
+});
+
+// New endpoint to create staff account
+app.post('/api/createStaff', (req, res) => {
+    const { name, email, password, createdBy } = req.body;
+    const role = 'staff'; // Role is always 'staff' for this endpoint
+    const sql = "INSERT INTO users (`name`, `email`, `password`, `role`, `created_by`) VALUES (?, ?, ?, ?, ?)";
+    const values = [name, email, password, role, createdBy];
+    db.query(sql, values, (err, data) => {
+        if (err) {
+            console.error("Error creating staff account:", err);
+            if (err.code === 'ER_DUP_ENTRY') {
+                return res.status(400).json({ status: "error", message: "Email already exists. Please use a different email." });
+            }
+            return res.status(500).json({ status: "error", message: "Server error" });
+        }
+        return res.json({ status: "created", message: "Staff account created successfully", userId: data.insertId });
+    });
+});
+
+// New endpoint to list staff accounts
+app.get('/api/listStaff', (req, res) => {
+    const userId = req.query.userId;
+    const sql = "SELECT id, name, email, role FROM users WHERE role = 'staff' AND created_by = ?";
+    db.query(sql, [userId], (err, data) => {
+        if (err) {
+            console.error("Error fetching staff accounts:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        return res.json(data);
+    });
+});
+
+// New endpoint to delete staff account
+app.delete('/api/deleteStaff/:id', (req, res) => {
+    const { id } = req.params;
+    const userId = req.query.userId; // Assuming userId is passed as a query parameter
+    const sql = "DELETE FROM users WHERE id = ? AND role = 'staff' AND created_by = ?";
+    db.query(sql, [id, userId], (err, data) => {
+        if (err) {
+            console.error("Error deleting staff account:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+        if (data.affectedRows === 0) {
+            return res.status(404).json({ status: "error", message: "Staff account not found or you do not have permission to delete it" });
+        }
+        return res.json({ status: "deleted", message: "Staff account deleted successfully" });
     });
 });
 
