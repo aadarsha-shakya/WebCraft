@@ -31,6 +31,7 @@ import CartPanel from './CartPanel'; // Import CartPanel
 import YourOrders from './YourOrders';
 import WebCraft from './WebCraft';
 import Instore from './Instore';
+import ForgotPassword from './forgotpassword'; // Import the ForgotPassword component
 
 function App() {
     return (
@@ -67,6 +68,7 @@ function App() {
                     <Route path="/YourOrders" element={<YourOrders />} />
                     <Route path="/WebCraft" element={<WebCraft />} />
                     <Route path="/Instore" element={<Instore />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} /> {/* Add this line */}
                 </Routes>
                 <CartPanel />
             </CartProvider>
