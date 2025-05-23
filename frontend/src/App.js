@@ -26,12 +26,13 @@ import Checkout from './Checkout';
 import ProductFilter from './ProductFilter';
 import ProductDetail from './ProductDetail';
 import PaymentSuccess from './PaymentSuccess'; 
-import { CartProvider } from './CartContext'; // Import CartProvider
-import CartPanel from './CartPanel'; // Import CartPanel
+import { CartProvider } from './CartContext'; 
+import CartPanel from './CartPanel'; 
 import YourOrders from './YourOrders';
 import WebCraft from './WebCraft';
 import Instore from './Instore';
-import ForgotPassword from './forgotpassword'; // Import the ForgotPassword component
+import ForgotPassword from './forgotpassword';
+import ResetPassword from './ResetPassword'; 
 
 function App() {
     return (
@@ -68,7 +69,8 @@ function App() {
                     <Route path="/YourOrders" element={<YourOrders />} />
                     <Route path="/WebCraft" element={<WebCraft />} />
                     <Route path="/Instore" element={<Instore />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} /> {/* Add this line */}
+                    <Route path="/forgot-password" element={<ForgotPassword />} /> 
+                    <Route path="/reset-password/:token" element={<ResetPassword />} /> 
                 </Routes>
                 <CartPanel />
             </CartProvider>

@@ -5,10 +5,13 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const axios = require('axios'); // Import axios for making HTTP requests
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // To support URL-encoded bodies
 const db = mysql.createConnection({
     host: "localhost", 
     user: "root",
@@ -1441,6 +1444,100 @@ app.delete('/api/deleteStaff/:id', (req, res) => {
         }
         return res.json({ status: "deleted", message: "Staff account deleted successfully" });
     });
+});
+
+// Forgot Password Route
+app.post('/forgot-password', (req, res) => {
+    const { email } = req.body;
+    console.log("Received forgot-password request for email:", email);
+
+    if (!email) {
+        return res.status(400).json({ status: "error", message: "Email is required" });
+    }
+
+    const sql = "SELECT * FROM users WHERE email = ?";
+    db.query(sql, [email], (err, data) => {
+        if (err) {
+            console.error("Error checking user:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+
+        if (data.length === 0) {
+            return res.status(404).json({ status: "error", message: "No user found with that email." });
+        }
+
+        const token = crypto.randomBytes(20).toString('hex');
+        const tokenExpiry = Date.now() + 3600000;
+
+        const updateSql = "UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE email = ?";
+        db.query(updateSql, [token, tokenExpiry, email], (updateErr) => {
+            if (updateErr) {
+                console.error("Error updating user with reset token:", updateErr);
+                return res.status(500).json({ status: "error", message: "Server error" });
+            }
+
+            // Log token to terminal
+            console.log("Generated Reset Token:", token);
+
+            const transporter = nodemailer.createTransport({
+                service: 'Gmail',
+                auth: {
+                    user: 'np03cs4a220351@heraldcollege.edu.np',
+                    pass: 'yttbtmviookmymlI'
+                }
+            });
+
+            const mailOptions = {
+                from: '"Your Company" <np03cs4a220351@heraldcollege.edu.np>',
+                to: email,
+                subject: 'Password Reset',
+                text: `You requested a password reset.\n\nClick this link to reset your password:\nhttp://localhost:3000/reset-password/${token}\n\nIf you didn't request this, ignore this email.`
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error('Error sending email:', error);
+                    return res.status(500).json({ status: "error", message: "Error sending email." });
+                }
+                console.log('Reset email sent:', info.response);
+                res.json({ status: "success", message: "A password reset link has been sent to your email." });
+            });
+        });
+    });
+});
+
+app.post('/reset-password/:token', (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    console.log("Received reset-password request with token:", token);
+
+    const sql = "SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > ?";
+    db.query(sql, [token, Date.now()], (err, data) => {
+        if (err) {
+            console.error("Error checking reset token:", err);
+            return res.status(500).json({ status: "error", message: "Database error" });
+        }
+
+        if (data.length === 0) {
+            return res.status(400).json({ status: "error", message: "Invalid or expired token." });
+        }
+
+        const user = data[0];
+        const updateSql = "UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?";
+        db.query(updateSql, [password, user.id], (updateErr) => {
+            if (updateErr) {
+                console.error("Error updating password:", updateErr);
+                return res.status(500).json({ status: "error", message: "Server error" });
+            }
+
+            res.json({ status: "success", message: "Your password has been updated successfully." });
+        });
+    });
+});
+
+app.get('/test', (req, res) => {
+    res.json({ status: "ok", message: "Server is working!" });
 });
 
 app.listen(8081, () => {
