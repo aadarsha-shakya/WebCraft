@@ -9,16 +9,25 @@ function Settlement() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [records, setRecords] = useState([]);
+  const [verifiedDates, setVerifiedDates] = useState(() => {
+    const saved = localStorage.getItem('verifiedDates');
+    return saved ? JSON.parse(saved) : [];
+  });
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid'); // Load mode from localStorage or default to 'Hybrid'
+  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid');
+
+  // Save verified dates to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('verifiedDates', JSON.stringify(verifiedDates));
+  }, [verifiedDates]);
 
   const toggleDropdown = () => {
-    setIsDropdownOpen((prevState) => !prevState); // Toggle state on each click
+    setIsDropdownOpen((prevState) => !prevState);
   };
 
   const handleLogout = () => {
-    navigate('/Login'); // Redirect to login page
+    navigate('/Login');
   };
 
   const navigateToPreviousMonth = () => {
@@ -34,22 +43,22 @@ function Settlement() {
     const month = currentDate.getMonth();
     const firstDayOfMonth = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-
     const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const calendarDays = [];
 
-    // Fill in leading empty days
     for (let i = 0; i < firstDayOfMonth; i++) {
       calendarDays.push(<div key={`empty-${i}`} className="empty-day"></div>);
     }
 
-    // Fill in actual days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
+      const dateString = date.toISOString().split('T')[0];
+      const isVerified = verifiedDates.includes(dateString);
+
       calendarDays.push(
-        <div 
-          key={day} 
-          className="calendar-day"
+        <div
+          key={day}
+          className={`calendar-day ${isVerified ? 'verified' : ''}`}
           onClick={() => handleDateClick(date)}
         >
           {day}
@@ -91,11 +100,13 @@ function Settlement() {
           'Content-Type': 'application/json',
         }
       });
+
       if (!response.ok) {
-        const text = await response.text(); // Read the response as text
+        const text = await response.text();
         console.error("HTTP error! Status:", response.status, "Response:", text);
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+
       const data = await response.json();
       setRecords(data);
     } catch (error) {
@@ -108,13 +119,24 @@ function Settlement() {
     setModalVisible(false);
   };
 
-  // Update mode based on button click and save to localStorage
-  const selectMode = (newMode) => {
-    setMode(newMode);
-    localStorage.setItem('mode', newMode); // Save mode to localStorage
+  const handleVerifyChange = (e) => {
+    const isChecked = e.target.checked;
+    const dateString = selectedDate.toISOString().split('T')[0];
+
+    if (isChecked) {
+      if (!verifiedDates.includes(dateString)) {
+        setVerifiedDates([...verifiedDates, dateString]);
+      }
+    } else {
+      setVerifiedDates(verifiedDates.filter(date => date !== dateString));
+    }
   };
 
-  // Determine which links to show based on the mode
+  const selectMode = (newMode) => {
+    setMode(newMode);
+    localStorage.setItem('mode', newMode);
+  };
+
   const getLinks = () => {
     const hybridLinks = [
       { name: 'Home', icon: 'fa-home', path: '/dashboard' },
@@ -128,7 +150,7 @@ function Settlement() {
       { name: 'Instore', icon: 'fa-store', path: '/Instore' },
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Customization', type: 'header', className: 'customization-header' },
       { name: 'Pages', icon: 'fa-file', path: '/Pages' },
       { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
       { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
@@ -146,7 +168,7 @@ function Settlement() {
       { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Customization', type: 'header', className: 'customization-header' },
       { name: 'Pages', icon: 'fa-file', path: '/Pages' },
       { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
       { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
@@ -161,6 +183,7 @@ function Settlement() {
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
     ];
+
     switch (mode) {
       case 'Hybrid':
         return hybridLinks;
@@ -205,20 +228,15 @@ function Settlement() {
       <div className="main-content">
         {/* HEADER PANEL */}
         <header className="dashboard-header">
-          {/* Logo - Clickable to navigate to the dashboard */}
           <div className="logo">
             <Link to="/dashboard">
               <img src={Logo} alt="Logo" />
             </Link>
           </div>
-
-          {/* Icons */}
           <div className="header-icons">
             <Link to="/YourWeb" className="header-icon">
               <i className="fas fa-globe"></i>
             </Link>
-
-            {/* W Icon with Dropdown */}
             <div
               className={`header-icon w-icon ${isDropdownOpen ? "open" : ""}`}
               onClick={toggleDropdown}
@@ -241,8 +259,6 @@ function Settlement() {
                 </div>
               )}
             </div>
-
-            {/* Mode Toggle Button */}
             <div className="mode-toggle">
               <div className="toggle-container">
                 <button
@@ -267,8 +283,6 @@ function Settlement() {
             </div>
           </div>
         </header>
-
-        {/* CONTENT */}
         <main className="content">
           <h1>Settlement</h1>
           <div className="calendar-container">
@@ -283,6 +297,14 @@ function Settlement() {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>Records for {selectedDate?.toLocaleDateString()}</h2>
             <button className="close-modal" onClick={closeModal}>X</button>
+            <label style={{ marginBottom: '10px' }}>
+              <input
+                type="checkbox"
+                onChange={handleVerifyChange}
+                checked={verifiedDates.includes(selectedDate?.toISOString().split('T')[0]) || false}
+              />
+              &nbsp;Verified
+            </label>
             <div className="records-table">
               <table>
                 <thead>

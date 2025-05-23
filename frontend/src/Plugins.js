@@ -11,23 +11,21 @@ import GoogleAnalyticsLogo from './assets/googleanalytics.png';
 function Plugins() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
-  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid'); // Load mode from localStorage or default to 'Hybrid'
+  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid');
 
   const toggleDropdown = () => {
-    setIsDropdownOpen((prevState) => !prevState); // Toggle state on each click
+    setIsDropdownOpen((prevState) => !prevState);
   };
 
   const handleLogout = () => {
-    navigate('/Login'); // Redirect to login page
+    navigate('/Login');
   };
 
-  // Update mode based on button click and save to localStorage
   const selectMode = (newMode) => {
     setMode(newMode);
-    localStorage.setItem('mode', newMode); // Save mode to localStorage
+    localStorage.setItem('mode', newMode);
   };
 
-  // Determine which links to show based on the mode
   const getLinks = () => {
     const hybridLinks = [
       { name: 'Home', icon: 'fa-home', path: '/dashboard' },
@@ -41,7 +39,7 @@ function Plugins() {
       { name: 'Instore', icon: 'fa-store', path: '/Instore' },
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Customization', type: 'header', className: 'customization-header' },
       { name: 'Pages', icon: 'fa-file', path: '/Pages' },
       { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
       { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
@@ -59,7 +57,7 @@ function Plugins() {
       { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Customization', type: 'header', className: 'customization-header' },
       { name: 'Pages', icon: 'fa-file', path: '/Pages' },
       { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
       { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
@@ -188,35 +186,47 @@ function Plugins() {
           {/* Plugins Boxes */}
           <div className="plugins-grid">
             {/* Box 1: Whatsapp Chat */}
-            <div className="plugin-box">
-              <img src={WhatsappLogo} alt="Whatsapp Logo" className="plugin-logo" />
-              <h3>Whatsapp Chat</h3>
-              <p>Show whatsapp chat box on your website</p>
-              <button className="configure-button">Configure</button>
+            <div className="plugin-wrapper">
+              <div className="plugin-box">
+                <img src={WhatsappLogo} alt="Whatsapp Logo" className="plugin-logo" />
+                <h3>Whatsapp Chat</h3>
+                <p>Show whatsapp chat box on your website</p>
+                <button className="configure-button">Configure</button>
+              </div>
+              <span className="coming-soon-badge">Coming Soon</span>
             </div>
 
             {/* Box 2: Pathao Parcel */}
-            <div className="plugin-box">
-              <img src={PathaoLogo} alt="Pathao Logo" className="plugin-logo" />
-              <h3>Pathao Parcel</h3>
-              <p>Ship order to Pathao parcel dashboard</p>
-              <button className="configure-button">Configure</button>
+            <div className="plugin-wrapper">
+              <div className="plugin-box">
+                <img src={PathaoLogo} alt="Pathao Logo" className="plugin-logo" />
+                <h3>Pathao Parcel</h3>
+                <p>Ship order to Pathao parcel dashboard</p>
+                <button className="configure-button">Configure</button>
+              </div>
+              <span className="coming-soon-badge">Coming Soon</span>
             </div>
 
             {/* Box 3: Aramex */}
-            <div className="plugin-box">
-              <img src={AramexLogo} alt="Aramex Logo" className="plugin-logo" />
-              <h3>Aramex</h3>
-              <p>Ship order to Aramex dashboard</p>
-              <button className="configure-button">Configure</button>
+            <div className="plugin-wrapper">
+              <div className="plugin-box">
+                <img src={AramexLogo} alt="Aramex Logo" className="plugin-logo" />
+                <h3>Aramex</h3>
+                <p>Ship order to Aramex dashboard</p>
+                <button className="configure-button">Configure</button>
+              </div>
+              <span className="coming-soon-badge">Coming Soon</span>
             </div>
 
             {/* Box 4: Google Analytics */}
-            <div className="plugin-box">
-              <img src={GoogleAnalyticsLogo} alt="Google Analytics Logo" className="plugin-logo" />
-              <h3>Google Analytics</h3>
-              <p>Analyze real-time traffic, user-interaction statistics on your website</p>
-              <button className="configure-button">Configure</button>
+            <div className="plugin-wrapper">
+              <div className="plugin-box">
+                <img src={GoogleAnalyticsLogo} alt="Google Analytics Logo" className="plugin-logo" />
+                <h3>Google Analytics</h3>
+                <p>Analyze real-time traffic, user-interaction statistics on your website</p>
+                <button className="configure-button">Configure</button>
+              </div>
+              <span className="coming-soon-badge">Coming Soon</span>
             </div>
           </div>
         </main>

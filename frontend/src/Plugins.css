@@ -1,45 +1,67 @@
-/* Plugins Grid */
+/* === Plugin Grid Layout === */
 .plugins-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2x2 layout */
-    gap: 20px; /* Space between boxes */
-    margin-top: 20px;
-  }
-  
-  /* Plugin Box */
-  .plugin-box {
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-    background-color: #f9f9f9;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  }
-  
-  .plugin-box:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Plugin Logo */
-  .plugin-logo {
-    width: 50px;
-    height: 50px;
-    margin-bottom: 10px;
-  }
-  
-  /* Configure Button */
-  .configure-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s ease-in-out;
-  }
-  
-  .configure-button:hover {
-    background-color: #0056b3;
-  }
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2x2 layout */
+  gap: 20px; /* Space between boxes */
+  margin-top: 20px;
+}
+
+/* === Plugin Wrapper for Badge Positioning === */
+.plugin-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+/* === Plugin Box Styling === */
+.plugin-box {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  background-color: #f9f9f9;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.plugin-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* === Plugin Logo === */
+.plugin-logo {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 10px;
+}
+
+/* === Configure Button === */
+.configure-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.configure-button:hover {
+  background-color: #0056b3;
+}
+
+/* === Coming Soon Badge === */
+.coming-soon-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(255, 165, 0, 0.8); /* Semi-transparent orange */
+  color: white;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  z-index: 2;
+  pointer-events: none;
+}

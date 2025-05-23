@@ -1,17 +1,15 @@
-/* Settlement.css */
-
 /* Basic styling for the calendar container */
 .calendar-container {
   display: flex;
-  justify-content: center; /* Center the calendar horizontally */
+  justify-content: center;
   margin-top: 20px;
-  width: 100%; /* Ensure it occupies full width */
+  width: 100%;
 }
 
 /* Calendar container */
 .calendar {
   width: 100%;
-  max-width: 8000px; /* Adjust as needed for responsiveness */
+  max-width: 8000px;
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -39,56 +37,53 @@
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
   background-color: #f9f9f9;
-  border-bottom: 1px solid #ccc; /* Add grid line */
+  border-bottom: 1px solid #ccc;
 }
 
 .day-of-week {
   padding: 10px 0;
   font-weight: bold;
-  border-right: 1px solid #ccc; /* Add vertical grid lines */
+  border-right: 1px solid #ccc;
 }
 
 .day-of-week:last-child {
-  border-right: none; /* Remove last vertical grid line */
+  border-right: none;
 }
 
 .calendar-body {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 1px; /* Add small gaps for grid lines */
+  gap: 1px;
   background-color: white;
 }
 
 .empty-day {
   padding: 15px 0;
-  border-right: 1px solid #ccc; /* Add vertical grid lines */
-  border-bottom: 1px solid #ccc; /* Add horizontal grid lines */
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
 }
 
 .calendar-day {
   padding: 15px 0;
   text-align: center;
   cursor: pointer;
-  border-right: 1px solid #ccc; /* Add vertical grid lines */
-  border-bottom: 1px solid #ccc; /* Add horizontal grid lines */
-}
-
-.calendar-day:last-child {
-  border-right: none; /* Remove last vertical grid line */
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
 }
 
 .calendar-day:hover {
   background-color: #f0f0f0;
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  .calendar {
-    max-width: 100%;
-  }
+.calendar-day.verified {
+  background-color: #d4edda;
+  color: #155724;
 }
 
-/* Additional styles for buttons and inputs */
+.calendar-day:last-child {
+  border-right: none;
+}
+
 .input-wrapper {
   margin-bottom: 10px;
 }
@@ -113,7 +108,6 @@
   background-color: #0056b3;
 }
 
-/* Modal styling */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -152,7 +146,8 @@
   margin-top: 20px;
 }
 
-.records-table th, .records-table td {
+.records-table th,
+.records-table td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
