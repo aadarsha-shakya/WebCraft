@@ -21,7 +21,7 @@ function InStore() {
   });
   const [soldProducts, setSoldProducts] = useState([]);
   const navigate = useNavigate();
-  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid'); // Load mode from localStorage or default to 'Hybrid'
+  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid');
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prevState) => !prevState);
@@ -40,6 +40,7 @@ function InStore() {
           setProducts(data);
         })
         .catch(error => console.error('Error fetching products:', error));
+
       fetch(`http://localhost:8081/api/instore/user/${userId}`)
         .then(response => response.json())
         .then(data => {
@@ -77,13 +78,13 @@ function InStore() {
     const productId = e.target.value;
     const product = products.find(p => p.id === parseInt(productId));
     setSelectedProduct(product);
-    setSelectedVariant(null); // Reset variant when product changes
-    setFormData({ ...formData, productId, variantId: '' }); // Clear variantId when product changes
+    setSelectedVariant(null);
+    setFormData({ ...formData, productId, variantId: '' });
   };
 
   const handleVariantChange = (e) => {
     const variantId = e.target.value;
-    const variant = selectedProduct.variants.find(v => v.id === parseInt(variantId));
+    const variant = selectedProduct?.variants.find(v => v.id === parseInt(variantId));
     setSelectedVariant(variant);
     setFormData({ ...formData, variantId });
   };
@@ -93,6 +94,7 @@ function InStore() {
       alert('Please select a product and variant.');
       return;
     }
+
     const orderDetails = {
       ...formData,
       userId: localStorage.getItem('userId'),
@@ -104,6 +106,7 @@ function InStore() {
       sellingPrice: selectedVariant.selling_price,
       quantity: 1
     };
+
     try {
       const response = await fetch('http://localhost:8081/api/instore', {
         method: 'POST',
@@ -112,15 +115,17 @@ function InStore() {
         },
         body: JSON.stringify(orderDetails)
       });
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
       }
+
       const result = await response.json();
       console.log(result.message);
       closeModal();
       alert("Product sold successfully!");
-      // Refresh sold products list
+
       fetch(`http://localhost:8081/api/instore/user/${localStorage.getItem('userId')}`)
         .then(response => response.json())
         .then(data => setSoldProducts(data))
@@ -131,13 +136,11 @@ function InStore() {
     }
   };
 
-  // Update mode based on button click and save to localStorage
   const selectMode = (newMode) => {
     setMode(newMode);
-    localStorage.setItem('mode', newMode); // Save mode to localStorage
+    localStorage.setItem('mode', newMode);
   };
 
-  // Determine which links to show based on the mode
   const getLinks = () => {
     const hybridLinks = [
       { name: 'Home', icon: 'fa-home', path: '/dashboard' },
@@ -151,7 +154,7 @@ function InStore() {
       { name: 'Instore', icon: 'fa-store', path: '/Instore' },
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Customization', type: 'header', className: 'customization-header' },
       { name: 'Pages', icon: 'fa-file', path: '/Pages' },
       { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
       { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
@@ -169,7 +172,7 @@ function InStore() {
       { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Customization', type: 'header', className: 'customization-header' },
       { name: 'Pages', icon: 'fa-file', path: '/Pages' },
       { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
       { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
@@ -184,6 +187,7 @@ function InStore() {
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
     ];
+
     switch (mode) {
       case 'Hybrid':
         return hybridLinks;
@@ -215,6 +219,7 @@ function InStore() {
           ))}
         </ul>
       </aside>
+
       {/* MAIN CONTENT AREA */}
       <div className="main-content">
         {/* HEADER PANEL */}
@@ -278,11 +283,12 @@ function InStore() {
             </div>
           </div>
         </header>
+
         {/* CONTENT */}
         <main className="content">
           <h1>InStore</h1>
           <button onClick={openModal} className="sell-button">Sell Product In-Store</button>
-          <table className="categories-table">
+          <table className="sold-products-table">
             <thead>
               <tr>
                 <th>#</th>
@@ -305,7 +311,7 @@ function InStore() {
                     <td>{product.address}</td>
                     <td>{product.payment_method}</td>
                     <td>
-                      {product.product_name} / {product.variant_name} / {product.size} / {product.selling_price}
+                      {product.product_name} / {product.variant_name} / {product.size} / ₹{product.selling_price}
                     </td>
                   </tr>
                 ))
@@ -317,13 +323,14 @@ function InStore() {
             </tbody>
           </table>
         </main>
+
         {/* MODAL */}
         {showModal && (
-          <div className={`modal ${showModal ? 'show' : ''}`}>
+          <div className="instore-modal">
             <div className="modal-content">
               <h2>Sell Product In-Store</h2>
               <button className="close-button" onClick={closeModal}>X</button>
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
                 <label htmlFor="fullName">Full Name *</label>
                 <input
                   type="text"
@@ -407,7 +414,7 @@ function InStore() {
                         <p>Product Details:</p>
                         <p>Name: {selectedProduct.product_name}</p>
                         <p>Size: {selectedVariant.size}</p>
-                        <p>Price: {selectedVariant.selling_price}</p>
+                        <p>Price: ₹{selectedVariant.selling_price}</p>
                       </div>
                     )}
                   </>

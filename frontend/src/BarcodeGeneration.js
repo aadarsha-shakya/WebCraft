@@ -4,7 +4,7 @@ import './Dashboard.css';
 import './BarcodeGeneration.css';
 import Logo from './assets/WebCraft.png';
 import JsBarcode from 'jsbarcode';
-import { BrowserQRCodeReader, QRCodeReader, CanvasImage } from '@zxing/library'; // Import ZXing Web
+import { BrowserQRCodeReader, QRCodeReader, CanvasImage } from '@zxing/library';
 
 function BarcodeGeneration() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -21,14 +21,14 @@ function BarcodeGeneration() {
   const videoRef = useRef(null);
   const scannerRef = useRef(null);
   const fileInputRef = useRef(null); // Reference for the file input
-  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid'); // Load mode from localStorage or default to 'Hybrid'
+  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid');
 
   const toggleDropdown = () => {
-    setIsDropdownOpen((prevState) => !prevState); // Toggle state on each click
+    setIsDropdownOpen((prevState) => !prevState);
   };
 
   const handleLogout = () => {
-    navigate('/Login'); // Redirect to login page
+    navigate('/Login');
   };
 
   const openModal = () => {
@@ -127,22 +127,16 @@ function BarcodeGeneration() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = async (e) => {
-      const imgData = e.target.result; // Base64 string of the image
-      // Create a temporary canvas to draw the image
+      const imgData = e.target.result;
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      // Load the image from the base64 string
       const img = new Image();
       img.src = imgData;
       img.onload = () => {
-        // Set canvas dimensions to match the image size
         canvas.width = img.width;
         canvas.height = img.height;
-        // Draw the image onto the canvas
         ctx.drawImage(img, 0, 0);
-        // Get the ImageData from the canvas
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        // Decode the barcode from the ImageData
         decodeBarcodeFromImage(imageData);
       };
     };
@@ -151,9 +145,7 @@ function BarcodeGeneration() {
 
   const decodeBarcodeFromImage = async (imageData) => {
     try {
-      // Create a CanvasImage instance from the ImageData
       const canvasImage = new CanvasImage(imageData);
-      // Decode the barcode
       const qrCodeReader = new QRCodeReader();
       const result = await qrCodeReader.decode(canvasImage);
       console.log("Scanned SKU from image:", result.text);
@@ -165,10 +157,7 @@ function BarcodeGeneration() {
   };
 
   const startScanner = useCallback(async () => {
-    if (!videoRef.current) {
-      console.error("Video element not found");
-      return;
-    }
+    if (!videoRef.current) return;
     try {
       const scanner = new BrowserQRCodeReader();
       scannerRef.current = scanner;
@@ -183,8 +172,6 @@ function BarcodeGeneration() {
               console.error("Error scanning barcode:", err);
             }
           });
-        } else {
-          console.error("No video input devices found");
         }
       });
     } catch (error) {
@@ -193,9 +180,7 @@ function BarcodeGeneration() {
   }, [handleScan]);
 
   const stopScanner = () => {
-    if (scannerRef.current) {
-      scannerRef.current.reset();
-    }
+    if (scannerRef.current) scannerRef.current.reset();
     if (videoRef.current && videoRef.current.srcObject) {
       videoRef.current.pause();
       videoRef.current.srcObject.getTracks().forEach(track => track.stop());
@@ -228,68 +213,63 @@ function BarcodeGeneration() {
     };
   }, [isScannerModalOpen, startScanner]);
 
-  // Update mode based on button click and save to localStorage
   const selectMode = (newMode) => {
     setMode(newMode);
-    localStorage.setItem('mode', newMode); // Save mode to localStorage
+    localStorage.setItem('mode', newMode);
   };
 
-  // Determine which links to show based on the mode
   const getLinks = () => {
-    const hybridLinks = [
-      { name: 'Home', icon: 'fa-home', path: '/dashboard' },
-      { name: 'Store Users', icon: 'fa-users', path: '/StoreUsers' },
-      { name: 'Categories', icon: 'fa-th', path: '/Categories' },
-      { name: 'Products', icon: 'fa-box', path: '/Products' },
-      { name: 'Customers', icon: 'fa-user', path: '/Customers' },
-      { name: 'Orders', icon: 'fa-shopping-cart', path: '/Orders' },
-      { name: 'Issues', icon: 'fa-exclamation-circle', path: '/Issues' },
-      { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
-      { name: 'Instore', icon: 'fa-store', path: '/Instore' },
-      { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
-      { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
-      { name: 'Pages', icon: 'fa-file', path: '/Pages' },
-      { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
-      { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
-      { name: 'Store Setting', icon: 'fa-cog', path: '/StoreSettings' },
-      { name: 'Payment Setting', icon: 'fa-credit-card', path: '/PaymentSettings' },
-    ];
-    const onlineLinks = [
-      { name: 'Home', icon: 'fa-home', path: '/dashboard' },
-      { name: 'Store Users', icon: 'fa-users', path: '/StoreUsers' },
-      { name: 'Categories', icon: 'fa-th', path: '/Categories' },
-      { name: 'Products', icon: 'fa-box', path: '/Products' },
-      { name: 'Customers', icon: 'fa-user', path: '/Customers' },
-      { name: 'Orders', icon: 'fa-shopping-cart', path: '/Orders' },
-      { name: 'Issues', icon: 'fa-exclamation-circle', path: '/Issues' },
-      { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
-      { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
-      { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
-      { name: 'Pages', icon: 'fa-file', path: '/Pages' },
-      { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
-      { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
-      { name: 'Store Setting', icon: 'fa-cog', path: '/StoreSettings' },
-      { name: 'Payment Setting', icon: 'fa-credit-card', path: '/PaymentSettings' },
-    ];
-    const instoreLinks = [
-      { name: 'Home', icon: 'fa-home', path: '/dashboard' },
-      { name: 'Issues', icon: 'fa-exclamation-circle', path: '/Issues' },
-      { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
-      { name: 'Instore', icon: 'fa-store', path: '/Instore' },
-      { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
-      { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-    ];
     switch (mode) {
       case 'Hybrid':
-        return hybridLinks;
+        return [
+          { name: 'Home', icon: 'fa-home', path: '/dashboard' },
+          { name: 'Store Users', icon: 'fa-users', path: '/StoreUsers' },
+          { name: 'Categories', icon: 'fa-th', path: '/Categories' },
+          { name: 'Products', icon: 'fa-box', path: '/Products' },
+          { name: 'Customers', icon: 'fa-user', path: '/Customers' },
+          { name: 'Orders', icon: 'fa-shopping-cart', path: '/Orders' },
+          { name: 'Issues', icon: 'fa-exclamation-circle', path: '/Issues' },
+          { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
+          { name: 'Instore', icon: 'fa-store', path: '/Instore' },
+          { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
+          { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
+          { name: 'Customization', type: 'header', className: 'customization-header' },
+          { name: 'Pages', icon: 'fa-file', path: '/Pages' },
+          { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
+          { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
+          { name: 'Store Setting', icon: 'fa-cog', path: '/StoreSettings' },
+          { name: 'Payment Setting', icon: 'fa-credit-card', path: '/PaymentSettings' },
+        ];
       case 'Online':
-        return onlineLinks;
+        return [
+          { name: 'Home', icon: 'fa-home', path: '/dashboard' },
+          { name: 'Store Users', icon: 'fa-users', path: '/StoreUsers' },
+          { name: 'Categories', icon: 'fa-th', path: '/Categories' },
+          { name: 'Products', icon: 'fa-box', path: '/Products' },
+          { name: 'Customers', icon: 'fa-user', path: '/Customers' },
+          { name: 'Orders', icon: 'fa-shopping-cart', path: '/Orders' },
+          { name: 'Issues', icon: 'fa-exclamation-circle', path: '/Issues' },
+          { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
+          { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
+          { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
+          { name: 'Customization', type: 'header', className: 'customization-header' },
+          { name: 'Pages', icon: 'fa-file', path: '/Pages' },
+          { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
+          { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
+          { name: 'Store Setting', icon: 'fa-cog', path: '/StoreSettings' },
+          { name: 'Payment Setting', icon: 'fa-credit-card', path: '/PaymentSettings' },
+        ];
       case 'Instore':
-        return instoreLinks;
+        return [
+          { name: 'Home', icon: 'fa-home', path: '/dashboard' },
+          { name: 'Issues', icon: 'fa-exclamation-circle', path: '/Issues' },
+          { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
+          { name: 'Instore', icon: 'fa-store', path: '/Instore' },
+          { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
+          { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
+        ];
       default:
-        return hybridLinks;
+        return [];
     }
   };
 
@@ -299,39 +279,41 @@ function BarcodeGeneration() {
       <aside className="sidebar">
         <h2>Main Links</h2>
         <ul>
-          {getLinks().map((link) => (
-            <li key={link.name}>
-              {link.type === 'header' ? (
+          {getLinks().map((link) =>
+            link.type === 'header' ? (
+              <li key={link.name}>
                 <h3 className={link.className}>{link.name}</h3>
-              ) : (
+              </li>
+            ) : (
+              <li key={link.name}>
                 <Link to={link.path}>
                   <i className={`fas ${link.icon}`}></i> {link.name}
                 </Link>
-              )}
-            </li>
-          ))}
+              </li>
+            )
+          )}
         </ul>
       </aside>
+
       {/* MAIN CONTENT AREA */}
       <div className="main-content">
         {/* HEADER PANEL */}
         <header className="dashboard-header">
-          {/* Logo - Clickable to navigate to the dashboard */}
+          {/* Logo */}
           <div className="logo">
             <Link to="/dashboard">
               <img src={Logo} alt="Logo" />
             </Link>
           </div>
+
           {/* Icons */}
           <div className="header-icons">
             <Link to="/YourWeb" className="header-icon">
               <i className="fas fa-globe"></i>
             </Link>
-            {/* W Icon with Dropdown */}
-            <div
-              className={`header-icon w-icon ${isDropdownOpen ? "open" : ""}`}
-              onClick={toggleDropdown}
-            >
+
+            {/* W Icon Dropdown */}
+            <div className={`header-icon w-icon ${isDropdownOpen ? "open" : ""}`} onClick={toggleDropdown}>
               W
               {isDropdownOpen && (
                 <div className="dropdown-menu">
@@ -341,58 +323,49 @@ function BarcodeGeneration() {
                   <Link to="/Subscription" className="dropdown-item">
                     <i className="fas fa-dollar-sign"></i> Subscription
                   </Link>
-                  <button
-                    className="dropdown-item logout"
-                    onClick={handleLogout}
-                  >
+                  <button className="dropdown-item logout" onClick={handleLogout}>
                     <i className="fas fa-sign-out-alt"></i> Logout
                   </button>
                 </div>
               )}
             </div>
+
             {/* Mode Toggle Button */}
             <div className="mode-toggle">
               <div className="toggle-container">
-                <button
-                  className={`toggle-button ${mode === 'Instore' ? 'active' : ''}`}
-                  onClick={() => selectMode('Instore')}
-                >
+                <button className={`toggle-button ${mode === 'Instore' ? 'active' : ''}`} onClick={() => selectMode('Instore')}>
                   <i className="fas fa-store"></i>
                 </button>
-                <button
-                  className={`toggle-button ${mode === 'Hybrid' ? 'active' : ''}`}
-                  onClick={() => selectMode('Hybrid')}
-                >
+                <button className={`toggle-button ${mode === 'Hybrid' ? 'active' : ''}`} onClick={() => selectMode('Hybrid')}>
                   <i className="fas fa-code-branch"></i>
                 </button>
-                <button
-                  className={`toggle-button ${mode === 'Online' ? 'active' : ''}`}
-                  onClick={() => selectMode('Online')}
-                >
+                <button className={`toggle-button ${mode === 'Online' ? 'active' : ''}`} onClick={() => selectMode('Online')}>
                   <i className="fas fa-globe"></i>
                 </button>
               </div>
             </div>
           </div>
         </header>
+
         {/* CONTENT */}
         <main className="content">
           <h1>Barcode Generation</h1>
-          {/* Generate Barcode Button */}
-          <button className="generate-barcode-btn" onClick={openModal}>
-            Generate Barcode
-          </button>
-          {/* Add Product Button */}
-          <button className="add-product-btn" onClick={openScannerModal}>
-            Add Product (Inventory Restocking)
-          </button>
+
+          {/* Buttons Container */}
+          <div className="button-container">
+            <button className="generate-barcode-btn" onClick={openModal}>
+              Generate<br />Barcode
+            </button>
+            <button className="add-product-btn" onClick={openScannerModal}>
+              Add Product<br />(Restocking)
+            </button>
+          </div>
+
           {/* Modal for Barcode Generation */}
           {isModalOpen && (
             <div className="modal show">
               <div className="modal-content">
-                <span className="close" onClick={closeModal}>
-                  &times;
-                </span>
+                <span className="close" onClick={closeModal}>&times;</span>
                 <h2>Generate Barcode</h2>
                 <form onSubmit={(e) => e.preventDefault()}>
                   <label htmlFor="sku">Enter Product SKU:</label>
@@ -403,9 +376,7 @@ function BarcodeGeneration() {
                     onChange={handleSkuChange}
                     required
                   />
-                  <button type="button" onClick={generateBarcode}>
-                    Generate
-                  </button>
+                  <button type="button" onClick={generateBarcode}>Generate</button>
                 </form>
                 {barcodeImage && (
                   <div>
@@ -417,19 +388,20 @@ function BarcodeGeneration() {
               </div>
             </div>
           )}
+
           {/* Modal for Barcode Scanning */}
           {isScannerModalOpen && (
             <div className="modal show">
               <div className="modal-content">
-                <span className="close" onClick={closeScannerModal}>
-                  &times;
-                </span>
+                <span className="close" onClick={closeScannerModal}>&times;</span>
                 <h2>Inventory Restocking</h2>
+
                 {/* Camera Scanning */}
                 <div>
                   <h3>Camera Scanning</h3>
                   <video ref={videoRef} width="600" height="400" autoPlay></video>
                 </div>
+
                 {/* Image Scanning */}
                 <div>
                   <h3>Image Scanning</h3>
@@ -441,6 +413,7 @@ function BarcodeGeneration() {
                     onChange={handleFileUpload}
                   />
                 </div>
+
                 {/* Manual Restocking */}
                 <div>
                   <h3>Manual Restocking</h3>
@@ -461,9 +434,7 @@ function BarcodeGeneration() {
                       onChange={(e) => setManualQuantity(e.target.value)}
                       required
                     />
-                    <button type="button" onClick={addManualEntry}>
-                      Add Entry
-                    </button>
+                    <button type="button" onClick={addManualEntry}>Add Entry</button>
                   </form>
                   <ul>
                     {manualEntries.map((entry, index) => (
@@ -474,6 +445,7 @@ function BarcodeGeneration() {
                     ))}
                   </ul>
                 </div>
+
                 {/* Combined Scanned and Manual Entries */}
                 <div>
                   <h3>Scanned and Manual Entries</h3>
