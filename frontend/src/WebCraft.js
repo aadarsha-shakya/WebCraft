@@ -10,9 +10,9 @@ import cff from './assets/cff.jpg';
 import boba from './assets/boba.jpg';
 import icecream from './assets/icecream.jpg';
 import sprite from './assets/sprite.jpg';
-import delivery from './assets/wdelivery.jpg';
+import delivery from './assets/wdelivery.png';
 import manage from './assets/wmanage.png';
-import notification from './assets/wordernotifi.jpg';
+import notification from './assets/wordernotifi.png';
 import barcode from './assets/barcode.png';
 import customdomain from './assets/customdomain.png';
 import orderm from './assets/ordermanagement.png';
@@ -200,43 +200,42 @@ const WebCraft = () => {
           </Row>
           {/* Second Row: Manage Everything in One Place & Deliver All Over Nepal */}
           <Row className="mb-4">
-            {/* Manage Everything in One Place */}
-            <Col md={6}>
-              <div className="content-box bg-darkish text-white p-5 rounded d-flex flex-column align-items-center">
-                <img
-                  src={manage}
-                  alt="Manage Everything in One Place"
-                  className="img-fluid mb-3"
-                  style={{ maxWidth: "310px" }}
-                />
-                <h3 style={{ fontSize: "1.8rem" }}>
-                  2. Manage everything in one place
-                </h3>
-                <p style={{ fontSize: "1.4rem" }}>
-                  Manage orders, track inventory, and analyze sales data with
-                  ease.
-                </p>
-              </div>
-            </Col>
-            {/* Deliver All Over Nepal */}
-            <Col md={6}>
-              <div className="content-box bg-darkish text-white p-5 rounded d-flex flex-column align-items-center">
-                <img
-                  src={delivery}
-                  alt="Deliver All Over Nepal"
-                  className="img-fluid mb-3"
-                  style={{ maxWidth: "150px" }}
-                />
-                <h3 style={{ fontSize: "1.8rem" }}>
-                  3. Deliver all over Nepal
-                </h3>
-                <p style={{ fontSize: "1.4rem" }}>
-                  Seamlessly integrate with leading logistics companies in Nepal
-                  and effortlessly deliver nationwide.
-                </p>
-              </div>
-            </Col>
-          </Row>
+  {/* Manage Everything in One Place */}
+  <Col md={6}>
+    <div className="content-box bg-darkish text-white p-5 rounded d-flex flex-column align-items-center">
+      <img
+        src={manage}
+        alt="Manage Everything in One Place"
+        className="img-fluid mb-3"
+        style={{ maxWidth: "310px" }} // Set a consistent maxWidth
+      />
+      <h3 style={{ fontSize: "1.8rem" }}>
+        2. Manage everything in one place
+      </h3>
+      <p style={{ fontSize: "1.4rem" }}>
+        Manage orders, track inventory, and analyze sales data with ease.
+      </p>
+    </div>
+  </Col>
+  {/* Deliver All Over Nepal */}
+  <Col md={6}>
+    <div className="content-box bg-darkish text-white p-5 rounded d-flex flex-column align-items-center">
+      <img
+        src={delivery}
+        alt="Deliver All Over Nepal"
+        className="img-fluid mb-3"
+        style={{ maxWidth: "310px" }} // Set a consistent maxWidth
+      />
+      <h3 style={{ fontSize: "1.8rem" }}>
+        3. Deliver all over Nepal
+      </h3>
+      <p style={{ fontSize: "1.4rem" }}>
+        Seamlessly integrate with leading logistics companies in Nepal
+        and effortlessly deliver nationwide.
+      </p>
+    </div>
+  </Col>
+</Row>
         </Container>
       </section>
       {/* Features Overview Section */}
