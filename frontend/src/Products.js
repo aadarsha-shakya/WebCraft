@@ -22,7 +22,7 @@ function Products() {
   const [sizes, setSizes] = useState([]);
   const [variantCombinations, setVariantCombinations] = useState([]);
   const [productStatuses, setProductStatuses] = useState({});
-  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid'); // Load mode from localStorage or default to 'Hybrid'
+  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid');
   const navigate = useNavigate();
 
   const toggleHeaderDropdown = () => {
@@ -40,10 +40,9 @@ function Products() {
         .then(response => response.json())
         .then(data => {
           setProducts(data);
-          // Initialize product statuses
           const initialStatuses = {};
           data.forEach(product => {
-            initialStatuses[product.id] = product.status || 'Active'; // Default to 'Active' if status is missing
+            initialStatuses[product.id] = product.status || 'Active';
           });
           setProductStatuses(initialStatuses);
         })
@@ -56,9 +55,7 @@ function Products() {
         }
       })
       .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         return response.json();
       })
       .then(data => setCategories(data))
@@ -68,13 +65,6 @@ function Products() {
       });
     }
   }, []);
-
-  useEffect(() => {
-    const combinations = variants.flatMap(variant =>
-      sizes.map(size => ({ variant, size }))
-    );
-    setVariantCombinations(combinations);
-  }, [variants, sizes]);
 
   const openModal = () => {
     setShowModal(true);
@@ -124,6 +114,13 @@ function Products() {
     }
   };
 
+  useEffect(() => {
+    const combinations = variants.flatMap(variant =>
+      sizes.map(size => ({ variant, size }))
+    );
+    setVariantCombinations(combinations);
+  }, [variants, sizes]);
+
   const handleSubmit = async () => {
     const variantDetails = variantCombinations.map((combination, index) => ({
       variant: combination.variant,
@@ -133,9 +130,9 @@ function Products() {
       costPrice: document.querySelectorAll('input[type="number"]')[index * 6 + 2]?.value || 0,
       weight: document.querySelectorAll('input[type="number"]')[index * 6 + 3]?.value || 0,
       quantity: document.querySelectorAll('input[type="number"]')[index * 6 + 4]?.value || 0,
-      sku: document.getElementById(`sku-${index}`)?.value || '' // Use unique ID for SKU input
+      sku: document.getElementById(`sku-${index}`)?.value || ''
     }));
-    console.log("Parsed Variants:", variantDetails); // Log to verify SKU values
+
     const formDataToSend = new FormData();
     formDataToSend.append('userId', localStorage.getItem('userId'));
     formDataToSend.append('productName', formData.productName);
@@ -145,6 +142,7 @@ function Products() {
     formData.productImages.forEach((file) => {
       formDataToSend.append('productImages', file);
     });
+
     try {
       const response = await fetch('http://localhost:8081/api/products', {
         method: 'POST',
@@ -176,7 +174,6 @@ function Products() {
       ...prevStatuses,
       [productId]: status
     }));
-    // Send the status update to the server
     fetch(`http://localhost:8081/api/products/${productId}`, {
       method: 'PUT',
       headers: {
@@ -185,9 +182,7 @@ function Products() {
       body: JSON.stringify({ status })
     })
     .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       return response.json();
     })
     .then(data => {
@@ -196,7 +191,6 @@ function Products() {
     .catch(error => {
       console.error('Error updating status:', error);
       alert('Failed to update status. Please try again later.');
-      // Revert the status change if the update fails
       setProductStatuses(prevStatuses => ({
         ...prevStatuses,
         [productId]: prevStatuses[productId]
@@ -206,56 +200,29 @@ function Products() {
 
   const handleDeleteProduct = (productId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      console.log("Deleting product with ID:", productId); // Debug statement
-      // Fetch the product to verify its existence
       fetch(`http://localhost:8081/api/products/${productId}`, {
-        method: 'GET'
+        method: 'DELETE'
       })
       .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         return response.json();
       })
-      .then(product => {
-        if (product.error) {
-          console.error("Product not found:", product.error);
-          alert("Product not found. Please try again later.");
-          return;
-        }
-        // Proceed with deletion if product exists
-        fetch(`http://localhost:8081/api/products/${productId}`, {
-          method: 'DELETE'
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          setProducts(products.filter(product => product.id !== productId));
-          alert("Product deleted successfully!");
-        })
-        .catch(error => {
-          console.error("Error deleting product:", error);
-          alert('Failed to delete product. Please try again later.');
-        });
+      .then(() => {
+        setProducts(products.filter(p => p.id !== productId));
+        alert("Product deleted successfully!");
       })
       .catch(error => {
-        console.error("Error fetching product:", error);
-        alert("Product not found. Please try again later.");
+        console.error("Error deleting product:", error);
+        alert("Failed to delete product. Please try again later.");
       });
     }
   };
 
-  // Update mode based on button click and save to localStorage
   const selectMode = (newMode) => {
     setMode(newMode);
-    localStorage.setItem('mode', newMode); // Save mode to localStorage
+    localStorage.setItem('mode', newMode);
   };
 
-  // Determine which links to show based on the mode
   const getLinks = () => {
     const hybridLinks = [
       { name: 'Home', icon: 'fa-home', path: '/dashboard' },
@@ -269,7 +236,7 @@ function Products() {
       { name: 'Instore', icon: 'fa-store', path: '/Instore' },
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Customization', type: 'header', className: 'customization-header' },
       { name: 'Pages', icon: 'fa-file', path: '/Pages' },
       { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
       { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
@@ -287,7 +254,7 @@ function Products() {
       { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Customization', type: 'header', className: 'customization-header' },
       { name: 'Pages', icon: 'fa-file', path: '/Pages' },
       { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
       { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
@@ -302,6 +269,7 @@ function Products() {
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
     ];
+
     switch (mode) {
       case 'Hybrid':
         return hybridLinks;
@@ -333,6 +301,7 @@ function Products() {
           ))}
         </ul>
       </aside>
+
       {/* MAIN CONTENT AREA */}
       <div className="main-content">
         {/* HEADER PANEL */}
@@ -346,7 +315,7 @@ function Products() {
             <Link to="/YourWeb" className="header-icon">
               <i className="fas fa-globe"></i>
             </Link>
-            {/* W Icon with Dropdown */}
+
             <div
               className={`header-icon w-icon ${isHeaderDropdownOpen ? "open" : ""}`}
               onClick={toggleHeaderDropdown}
@@ -369,7 +338,7 @@ function Products() {
                 </div>
               )}
             </div>
-            {/* Mode Toggle Button */}
+
             <div className="mode-toggle">
               <div className="toggle-container">
                 <button
@@ -394,13 +363,16 @@ function Products() {
             </div>
           </div>
         </header>
+
         <main className="content">
           <div className="products-container">
             <h1>Products</h1>
-            <div className="search-bar">
-              <input type="text" placeholder="Search..." />
+
+            {/* ✅ Removed Search Bar - Only Add Product Button Left */}
+            <div style={{ textAlign: 'right', marginBottom: '1rem' }}>
               <button onClick={openModal}>+ Add Product</button>
             </div>
+
             <table className="product-table">
               <thead>
                 <tr>
@@ -420,15 +392,15 @@ function Products() {
                       <td>{index + 1}</td>
                       <td>{product.product_name}</td>
                       <td>
-                        {product.variants.map((variant, variantIndex) => (
-                          <div key={variantIndex}>
+                        {product.variants.map((variant, idx) => (
+                          <div key={idx}>
                             {variant.variant_name} / {variant.size}
                           </div>
                         ))}
                       </td>
                       <td>
-                        {product.variants.map((variant, variantIndex) => (
-                          <div key={variantIndex}>
+                        {product.variants.map((variant, idx) => (
+                          <div key={idx}>
                             {variant.quantity}
                           </div>
                         ))}
@@ -461,7 +433,9 @@ function Products() {
                 )}
               </tbody>
             </table>
+
             {showModal && (
+              // Modal code remains unchanged
               <div className={`modal ${showModal ? 'show' : ''}`}>
                 <div className="modal-content">
                   <h2>Add Product</h2>
@@ -476,6 +450,7 @@ function Products() {
                       <p>Variants & Inventory</p>
                     </div>
                   </div>
+
                   {currentStep === 1 && (
                     <div>
                       <label htmlFor="productName">Product Name *</label>
@@ -527,6 +502,7 @@ function Products() {
                       <button onClick={() => setCurrentStep(2)}>Next: Variants & Inventory</button>
                     </div>
                   )}
+
                   {currentStep === 2 && (
                     <div>
                       <h3>Variants</h3>
@@ -567,7 +543,7 @@ function Products() {
                               <td><input type="number" /></td>
                               <td><input type="number" /></td>
                               <td><input type="number" /></td>
-                              <td><input type="text" id={`sku-${index}`} /></td> {/* Assign unique ID */}
+                              <td><input type="text" id={`sku-${index}`} /></td>
                             </tr>
                           ))}
                         </tbody>
