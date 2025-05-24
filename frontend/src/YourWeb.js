@@ -89,21 +89,21 @@ function YourWeb() {
     switch (components.navigation_type) {
       case "basic":
         return (
-          <nav className="navbar">
-            <div className="navbar-left">
-              <Link to="/YourWeb" className="brand-link">
+          <nav className="yourweb-navbar">
+            <div className="yourweb-navbar-left">
+              <Link to="/YourWeb" className="yourweb-brand-link">
                 {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
                 <img
                   src={`/uploads/${branding.brand_logo}`}
                   alt="Brand Logo"
-                  className="brand-logo"
+                  className="yourweb-brand-logo"
                 />
               </Link>
             </div>
-            <div className="navbar-right">
+            <div className="yourweb-navbar-right">
               <Link to="/YourWeb">Home</Link>
               <Link to="/ProductFilter">Shop</Link>
-              <button className="card-button">
+              <button className="yourweb-card-button">
                 <i className="fas fa-shopping-cart"></i> Cart
               </button>
             </div>
@@ -112,34 +112,34 @@ function YourWeb() {
       case "withCategories":
         return (
           <header
-            className="your-web-header"
+            className="yourweb-your-web-header"
             style={{
               backgroundColor: branding.primary_color,
               fontFamily: branding.font_family,
             }}
           >
-            <div className="logo-container">
+            <div className="yourweb-logo-container">
               {branding.brand_logo && (
-                <Link to="/YourWeb" className="brand-link">
-                <img
-                  src={`http://localhost:8081/uploads/${cleanFilename(
-                    branding.brand_logo
-                  )}`}
-                  alt={branding.brand_name || "Company Logo"}
-                  className="brand-logo"
-                />
-              </Link>
+                <Link to="/YourWeb" className="yourweb-brand-link">
+                  <img
+                    src={`http://localhost:8081/uploads/${cleanFilename(
+                      branding.brand_logo
+                    )}`}
+                    alt={branding.brand_name || "Company Logo"}
+                    className="yourweb-brand-logo"
+                  />
+                </Link>
               )}
             </div>
-            <div className="brand-info">
+            <div className="yourweb-brand-info">
               <h1>{branding.brand_name}</h1>
             </div>
-            <nav className="navbar-with-categories">
-              <div className="navbar-right">
+            <nav className="yourweb-navbar-with-categories">
+              <div className="yourweb-navbar-right">
                 <Link to="/YourWeb">Home</Link>
                 <Link to="/categories">Categories</Link>
                 <Link to="/ProductFilter">Shop</Link>
-                <button className="card-button">
+                <button className="yourweb-card-button">
                   <i className="fas fa-shopping-cart"></i> Cart
                 </button>
               </div>
@@ -149,33 +149,33 @@ function YourWeb() {
       case "centeredLogo":
         return (
           <header
-            className="your-web-header"
+            className="yourweb-your-web-header"
             style={{
               backgroundColor: branding.primary_color,
               fontFamily: branding.font_family,
             }}
           >
-            <div className="brand-info">
+            <div className="yourweb-brand-info">
               <h1>{branding.brand_name}</h1>
             </div>
-            <div className="logo-container">
+            <div className="yourweb-logo-container">
               {branding.brand_logo && (
-                <Link to="/YourWeb" className="brand-link">
-                <img
-                  src={`http://localhost:8081/uploads/${cleanFilename(
-                    branding.brand_logo
-                  )}`}
-                  alt={branding.brand_name || "Company Logo"}
-                  className="brand-logo"
-                />
-              </Link>
+                <Link to="/YourWeb" className="yourweb-brand-link">
+                  <img
+                    src={`http://localhost:8081/uploads/${cleanFilename(
+                      branding.brand_logo
+                    )}`}
+                    alt={branding.brand_name || "Company Logo"}
+                    className="yourweb-brand-logo"
+                  />
+                </Link>
               )}
             </div>
-            <nav className="navbar-centered-logo">
-              <div className="navbar-right">
+            <nav className="yourweb-navbar-centered-logo">
+              <div className="yourweb-navbar-right">
                 <Link to="/YourWeb">Home</Link>
                 <Link to="/ProductFilter">Shop</Link>
-                <button className="card-button">
+                <button className="yourweb-card-button">
                   <i className="fas fa-shopping-cart"></i> Cart
                 </button>
               </div>
@@ -184,22 +184,22 @@ function YourWeb() {
         );
       default:
         return (
-          <nav className="navbar">
-            <div className="navbar-left">
-            <Link to="/YourWeb" className="brand-link">
+          <nav className="yourweb-navbar">
+            <div className="yourweb-navbar-left">
+              <Link to="/YourWeb" className="yourweb-brand-link">
                 <img
                   src={`http://localhost:8081/uploads/${cleanFilename(
                     branding.brand_logo
                   )}`}
                   alt={branding.brand_name || "Company Logo"}
-                  className="brand-logo"
+                  className="yourweb-brand-logo"
                 />
               </Link>
             </div>
-            <div className="navbar-right">
+            <div className="yourweb-navbar-right">
               <Link to="/YourWeb">Home</Link>
               <Link to="/ProductFilter">Shop</Link>
-              <button className="card-button">
+              <button className="yourweb-card-button">
                 <i className="fas fa-shopping-cart"></i> Cart
               </button>
             </div>
@@ -210,14 +210,18 @@ function YourWeb() {
 
   const renderFooter = () => {
     return (
-      <footer className="your-web-footer">
+      <footer className="yourweb-your-web-footer">
         {footerSettings.description && (
-          <div className="footer-description">{footerSettings.description}</div>
+          <div className="yourweb-footer-description">
+            {footerSettings.description}
+          </div>
         )}
         {footerSettings.copyright && (
-          <div className="footer-copyright">{footerSettings.copyright}</div>
+          <div className="yourweb-footer-copyright">
+            {footerSettings.copyright}
+          </div>
         )}
-        <div className="footer-links">
+        <div className="yourweb-footer-links">
           {footerSettings.shippingPolicy && (
             <a
               href={footerSettings.shippingPolicy}
@@ -255,7 +259,7 @@ function YourWeb() {
             </a>
           )}
         </div>
-        <div className="footer-socials">
+        <div className="yourweb-footer-socials">
           {footerSettings.facebook && (
             <a
               href={footerSettings.facebook}
@@ -301,35 +305,27 @@ function YourWeb() {
     switch (section.type) {
       case "Full Image":
         return (
-          <div key={section.id} className="full-image-section">
-            {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
-            <img
-              src={`http://localhost:8081/uploads/${section.image}`}
-              alt={section.title || "Full Image"}
-              className="full-image"
-            />
-            {section.link && (
-              <a
-                href={section.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="full-image-link"
-              >
-                Visit Link
-              </a>
-            )}
+          <div key={section.id} className="yourweb-full-image-section">
+            <a href={section.link} target="_blank" rel="noopener noreferrer">
+              {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
+              <img
+                src={`http://localhost:8081/uploads/${section.image}`}
+                alt={section.title || "Full Image"}
+                className="yourweb-full-image"
+              />
+            </a>
           </div>
         );
       case "Image with Content":
         return (
-          <div key={section.id} className="image-with-content-section">
+          <div key={section.id} className="yourweb-image-with-content-section">
             {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
             <img
               src={`http://localhost:8081/uploads/${section.image}`}
               alt={section.title || "Image with Content"}
-              className="section-image"
+              className="yourweb-section-image"
             />
-            <div className="section-content">
+            <div className="yourweb-section-content">
               <h2>{section.title}</h2>
               <p>{section.description}</p>
               {section.button1_label && section.button1_url && (
@@ -337,7 +333,7 @@ function YourWeb() {
                   href={section.button1_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="section-button"
+                  className="yourweb-section-button"
                 >
                   {section.button1_label}
                 </a>
@@ -347,7 +343,7 @@ function YourWeb() {
                   href={section.button2_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="section-button"
+                  className="yourweb-section-button"
                 >
                   {section.button2_label}
                 </a>
@@ -357,11 +353,11 @@ function YourWeb() {
         );
       case "Category Grid":
         return (
-          <div key={section.id} className="category-grid-section">
+          <div key={section.id} className="yourweb-category-grid-section">
             <h2>{section.title}</h2>
-            <div className="category-grid">
+            <div className="yourweb-category-grid">
               {JSON.parse(section.categories).map((category, index) => (
-                <div key={index} className="category-item">
+                <div key={index} className="yourweb-category-item">
                   {category}
                 </div>
               ))}
@@ -370,14 +366,14 @@ function YourWeb() {
         );
       case "Image Slider":
         return (
-          <div key={section.id} className="image-slider-section">
-            <div className="image-slider">
+          <div key={section.id} className="yourweb-image-slider-section">
+            <div className="yourweb-image-slider">
               {JSON.parse(section.images).map((image, index) => (
                 <img
                   key={index}
                   src={`http://localhost:8081/uploads/${image}`}
                   alt={`Image ${index + 1}`}
-                  className="slider-image"
+                  className="yourweb-slider-image"
                 />
               ))}
             </div>
@@ -385,13 +381,13 @@ function YourWeb() {
         );
       case "FAQ":
         return (
-          <div key={section.id} className="faq-section">
+          <div key={section.id} className="yourweb-faq-section">
             <h2>{section.title}</h2>
-            <div className="faq-list">
+            <div className="yourweb-faq-list">
               {JSON.parse(section.questions).map((question, index) => (
-                <div key={index} className="faq-item">
-                  <h3>{question.question}</h3>
-                  <p>{question.answer}</p>
+                <div key={index} className="yourweb-faq-item">
+                  <h3 className="yourweb-faq-question">{question.question}</h3>
+                  <p className="yourweb-faq-answer">{question.answer}</p>
                 </div>
               ))}
             </div>
@@ -404,16 +400,16 @@ function YourWeb() {
 
   return (
     <div
-      className="your-web-container"
+      className="yourweb-your-web-container"
       style={{
-        fontFamily: branding.fontFamily,
-        backgroundColor: branding.primaryColor,
+        fontFamily: branding.font_family,
+        backgroundColor: branding.primary_color,
       }}
     >
       {/* HEADER */}
       {renderNavbar()}
       {/* MAIN CONTENT */}
-      <main className="your-web-main">
+      <main className="yourweb-your-web-main">
         {sections.map(renderSection)} {/* Render sections here */}
       </main>
       {/* FOOTER */}

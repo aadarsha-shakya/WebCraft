@@ -5,7 +5,7 @@ body {
     line-height: 1.6;
 }
 
-.your-web-container {
+.yourweb-your-web-container {
     padding: 20px;
     min-height: 100vh;
     display: flex;
@@ -14,27 +14,28 @@ body {
 }
 
 /* Header Styles */
-.your-web-header {
+.yourweb-your-web-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px; /* Adjust padding if needed */
     height: 80px; /* Set a fixed height for the header */
+    border: 1px solid #000; /* Add thin black outline */
 }
 
-.logo-container img {
+.yourweb-logo-container img {
     max-width: 100px;
     height: auto;
 }
 
-.brand-info h1 {
+.yourweb-brand-info h1 {
     margin: 0;
     font-size: 24px;
     color: #fff;
 }
 
 /* Navbar Styles */
-.navbar {
+.yourweb-navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -42,36 +43,35 @@ body {
     padding: 10px 20px;
 }
 
-.navbar-left, .navbar-right {
+.yourweb-navbar-left, .yourweb-navbar-right {
     display: flex;
     align-items: center;
 }
 
-.navbar-left .brand-link {
+.yourweb-navbar-left .yourweb-brand-link {
     text-decoration: none;
 }
 
 /* Navbar Logo Styles */
-.navbar-left .brand-logo,
-.navbar-right .brand-logo,
-.logo-container .brand-logo {
+.yourweb-navbar-left .yourweb-brand-logo,
+.yourweb-navbar-right .yourweb-brand-logo,
+.yourweb-logo-container .yourweb-brand-logo {
     max-width: 80px; /* Adjust this value as needed */
     height: auto;
 }
 
-
-.navbar-right a {
+.yourweb-navbar-right a {
     color: #fff;
     text-decoration: none;
     margin: 0 15px;
     font-size: 18px;
 }
 
-.navbar-right a:hover {
+.yourweb-navbar-right a:hover {
     text-decoration: underline;
 }
 
-.navbar-right .card-button {
+.yourweb-navbar-right .yourweb-card-button {
     background-color: #ff9900;
     border: none;
     color: white;
@@ -83,113 +83,80 @@ body {
     margin-left: 15px;
 }
 
-.navbar-right .card-button:hover {
+.yourweb-navbar-right .yourweb-card-button:hover {
     background-color: #e68a00;
 }
 
-.navbar-right .card-button i {
+.yourweb-navbar-right .yourweb-card-button i {
     margin-right: 5px;
 }
 
-/* Header Styles */
-.your-web-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-}
-
-.logo-container img {
-    max-width: 100px;
-    height: auto;
-}
-
-.brand-info h1 {
-    margin: 0;
-    font-size: 24px;
-    color: #fff;
-}
-
 /* Main Content Styles */
-.your-web-main {
+.yourweb-your-web-main {
     flex: 1;
     margin: 20px 0;
     text-align: center;
 }
 
-.your-web-main h1 {
+.yourweb-your-web-main h1 {
     font-size: 36px;
     color: #333;
 }
 
-.your-web-main p {
+.yourweb-your-web-main p {
     font-size: 18px;
     color: #666;
 }
 
 /* Footer Styles */
-.your-web-footer {
+.yourweb-your-web-footer {
     background-color: #333;
     color: #fff;
     padding: 20px;
     text-align: center;
 }
 
-.footer-description, .footer-copyright {
+.yourweb-footer-description, .yourweb-footer-copyright {
     margin-bottom: 10px;
 }
 
-.footer-links a {
+.yourweb-footer-links a {
     color: #fff;
     text-decoration: none;
     margin: 0 15px;
     font-size: 16px;
 }
 
-.footer-links a:hover {
+.yourweb-footer-links a:hover {
     text-decoration: underline;
 }
 
-.footer-socials a {
+.yourweb-footer-socials a {
     color: #fff;
     text-decoration: none;
     margin: 0 10px;
     font-size: 20px;
 }
 
-.footer-socials a:hover {
+.yourweb-footer-socials a:hover {
     opacity: 0.7;
 }
+
 /* Full Image Section */
-.full-image-section {
+.yourweb-full-image-section {
     text-align: center;
     margin-bottom: 20px;
 }
 
-.full-image-section .full-image {
+.yourweb-full-image-section .yourweb-full-image {
     max-width: 100%;
     height: auto;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.full-image-section .full-image-link {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 10px 20px;
-    background-color: #ff9900;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.full-image-section .full-image-link:hover {
-    background-color: #e68a00;
-}
-
 /* Image with Content Section */
-.image-with-content-section {
+.yourweb-image-with-content-section {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -200,7 +167,7 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.image-with-content-section .section-image {
+.yourweb-image-with-content-section .yourweb-section-image {
     max-width: 50%;
     height: auto;
     border-radius: 8px;
@@ -208,22 +175,22 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.image-with-content-section .section-content {
+.yourweb-image-with-content-section .yourweb-section-content {
     max-width: 50%;
     text-align: left;
 }
 
-.image-with-content-section .section-content h2 {
+.yourweb-image-with-content-section .yourweb-section-content h2 {
     font-size: 24px;
     margin-bottom: 10px;
 }
 
-.image-with-content-section .section-content p {
+.yourweb-image-with-content-section .yourweb-section-content p {
     font-size: 18px;
     margin-bottom: 10px;
 }
 
-.image-with-content-section .section-content .section-button {
+.yourweb-image-with-content-section .yourweb-section-content .yourweb-section-button {
     display: inline-block;
     margin-right: 10px;
     padding: 10px 20px;
@@ -234,12 +201,12 @@ body {
     transition: background-color 0.3s ease;
 }
 
-.image-with-content-section .section-content .section-button:hover {
+.yourweb-image-with-content-section .yourweb-section-content .yourweb-section-button:hover {
     background-color: #e68a00;
 }
 
 /* Category Grid Section */
-.category-grid-section {
+.yourweb-category-grid-section {
     margin-bottom: 20px;
     background-color: #f9f9f9;
     padding: 20px;
@@ -247,18 +214,18 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.category-grid-section h2 {
+.yourweb-category-grid-section h2 {
     font-size: 24px;
     margin-bottom: 10px;
 }
 
-.category-grid-section .category-grid {
+.yourweb-category-grid-section .yourweb-category-grid {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
 }
 
-.category-grid-section .category-grid .category-item {
+.yourweb-category-grid-section .yourweb-category-grid .yourweb-category-item {
     background-color: #ffffff;
     padding: 10px 20px;
     margin: 5px;
@@ -268,12 +235,12 @@ body {
     transition: transform 0.2s ease;
 }
 
-.category-grid-section .category-grid .category-item:hover {
+.yourweb-category-grid-section .yourweb-category-grid .yourweb-category-item:hover {
     transform: translateY(-5px);
 }
 
 /* Image Slider Section */
-.image-slider-section {
+.yourweb-image-slider-section {
     margin-bottom: 20px;
     background-color: #f9f9f9;
     padding: 20px;
@@ -281,7 +248,7 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.image-slider-section .image-slider {
+.yourweb-image-slider-section .yourweb-image-slider {
     display: flex;
     overflow-x: scroll;
     scroll-snap-type: x mandatory;
@@ -289,11 +256,11 @@ body {
     -ms-overflow-style: none;  /* IE and Edge */
 }
 
-.image-slider-section .image-slider::-webkit-scrollbar {
+.yourweb-image-slider-section .yourweb-image-slider::-webkit-scrollbar {
     display: none; /* Chrome, Safari, and Opera */
 }
 
-.image-slider-section .image-slider .slider-image {
+.yourweb-image-slider-section .yourweb-image-slider .yourweb-slider-image {
     flex: 0 0 auto;
     width: 100%;
     max-width: 300px;
@@ -305,7 +272,7 @@ body {
 }
 
 /* FAQ Section */
-.faq-section {
+.yourweb-faq-section {
     margin-bottom: 20px;
     background-color: #f9f9f9;
     padding: 20px;
@@ -313,17 +280,17 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.faq-section h2 {
+.yourweb-faq-section h2 {
     font-size: 24px;
     margin-bottom: 10px;
 }
 
-.faq-section .faq-list {
+.yourweb-faq-section .yourweb-faq-list {
     list-style: none;
     padding: 0;
 }
 
-.faq-section .faq-list .faq-item {
+.yourweb-faq-section .yourweb-faq-list .yourweb-faq-item {
     background-color: #ffffff;
     padding: 10px 20px;
     margin-bottom: 10px;
@@ -331,18 +298,18 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.faq-section .faq-list .faq-item h3 {
+.yourweb-faq-section .yourweb-faq-list .yourweb-faq-item .yourweb-faq-question {
     font-size: 18px;
+    font-weight: bold;
     margin-bottom: 5px;
 }
 
-.faq-section .faq-list .faq-item p {
+.yourweb-faq-section .yourweb-faq-list .yourweb-faq-item .yourweb-faq-answer {
     font-size: 16px;
     color: #666;
 }
 
-.no-logo {
+.yourweb-no-logo {
     font-size: 14px;
     color: #666;
-  }
-
+}
