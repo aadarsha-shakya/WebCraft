@@ -916,6 +916,7 @@ app.get('/api/sections/:userId', (req, res) => {
             SELECT id, 'Image Slider' AS type, user_id, NULL AS image, NULL AS title, NULL AS description, NULL AS link, NULL AS button1_label, NULL AS button1_url, NULL AS button2_label, NULL AS button2_url, NULL AS questions, NULL AS categories, images FROM image_slider
         ) AS combined_sections
         WHERE user_id = ?
+        ORDER BY id DESC
     `;
 
     db.query(sql, [userId], (err, data) => {

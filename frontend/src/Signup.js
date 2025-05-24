@@ -90,21 +90,7 @@ function Signup() {
             />
             {errors.password && <span className="text-danger">{errors.password}</span>}
           </div>
-          <div className="mb-3">
-            <label htmlFor="role">
-              <strong>Role</strong>
-            </label>
-            <select
-              id="role"
-              name="role"
-              value={values.role}
-              onChange={handleInput}
-              className="form-control rounded-0"
-            >
-              <option value="vendor">Vendor</option>
-              <option value="staff">Staff</option>
-            </select>
-          </div>
+          
           <button type="submit" className="btn btn-success w-100 rounded-0">
             Signup
           </button>

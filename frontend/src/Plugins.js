@@ -191,7 +191,6 @@ function Plugins() {
                 <img src={WhatsappLogo} alt="Whatsapp Logo" className="plugin-logo" />
                 <h3>Whatsapp Chat</h3>
                 <p>Show whatsapp chat box on your website</p>
-                <button className="configure-button">Configure</button>
               </div>
               <span className="coming-soon-badge">Coming Soon</span>
             </div>
@@ -202,7 +201,6 @@ function Plugins() {
                 <img src={PathaoLogo} alt="Pathao Logo" className="plugin-logo" />
                 <h3>Pathao Parcel</h3>
                 <p>Ship order to Pathao parcel dashboard</p>
-                <button className="configure-button">Configure</button>
               </div>
               <span className="coming-soon-badge">Coming Soon</span>
             </div>
@@ -213,7 +211,6 @@ function Plugins() {
                 <img src={AramexLogo} alt="Aramex Logo" className="plugin-logo" />
                 <h3>Aramex</h3>
                 <p>Ship order to Aramex dashboard</p>
-                <button className="configure-button">Configure</button>
               </div>
               <span className="coming-soon-badge">Coming Soon</span>
             </div>
@@ -224,7 +221,6 @@ function Plugins() {
                 <img src={GoogleAnalyticsLogo} alt="Google Analytics Logo" className="plugin-logo" />
                 <h3>Google Analytics</h3>
                 <p>Analyze real-time traffic, user-interaction statistics on your website</p>
-                <button className="configure-button">Configure</button>
               </div>
               <span className="coming-soon-badge">Coming Soon</span>
             </div>
