@@ -126,6 +126,19 @@ const Checkout = () => {
     navigate(-1);
   };
 
+  // Handle Khalti callback response
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get("status");
+    const orderId = urlParams.get("orderId");
+    if (status === "Completed" && orderId) {
+      // Clear the cart after successful order placement
+      clearCart();
+      // Redirect to order confirmation page
+      navigate("/YourOrders");
+    }
+  }, [navigate, clearCart]);
+
   return (
     <div className="checkout-container">
       <h1>Checkout</h1>

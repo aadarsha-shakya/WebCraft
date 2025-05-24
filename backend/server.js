@@ -1099,7 +1099,6 @@ app.post('/api/orders/initiate-payment', async (req, res) => {
 // Endpoint to handle Khalti callback
 app.get('/api/orders/callback', async (req, res) => {
     const {
-        pidx,
         status,
         transaction_id,
         amount,
@@ -1110,70 +1109,75 @@ app.get('/api/orders/callback', async (req, res) => {
     } = req.query;
     if (status === 'Completed') {
         // Lookup the payment to verify
-        const lookupResponse = await axios.post(
-            'https://dev.khalti.com/api/v2/epayment/lookup/', // Use 'https://khalti.com/api/v2/epayment/lookup/' for production
-            { pidx },
-            {
-                headers: {
-                    'Authorization': 'Key 5b5794044ba94d23914eb0f19ad3ff28', // Use your live secret key for production
-                    'Content-Type': 'application/json'
+        try {
+            const lookupResponse = await axios.post(
+                'https://dev.khalti.com/api/v2/epayment/lookup/ ', // Use 'https://khalti.com/api/v2/epayment/lookup/ ' for production
+                { pidx: req.query.idx },
+                {
+                    headers: {
+                        'Authorization': 'Key 5b5794044ba94d23914eb0f19ad3ff28', // Use your live secret key for production
+                        'Content-Type': 'application/json'
+                    }
                 }
+            );
+            if (lookupResponse.data.status === 'Completed') {
+                // Extract userId from the session or request context
+                // For demonstration, assuming userId is stored in session or can be derived
+                const userId = req.session.userId || 1; // Replace with actual user retrieval logic
+                // Store the order details in the database
+                const orderDetails = {
+                    fullName: purchase_order_name, // You might need to map this to the actual customer info
+                    email: '', // You might need to map this to the actual customer info
+                    phoneNumber: mobile,
+                    orderNote: '',
+                    cityDistrict: '', // You might need to map this to the actual customer info
+                    address: '', // You might need to map this to the actual customer info
+                    landmark: '', // You might need to map this to the actual customer info
+                    paymentMethod: 'khalti',
+                    transactionId: transaction_id,
+                    transactionAmount: total_amount / 100,
+                    transactionState: status,
+                    purchaseOrderId: purchase_order_id,
+                    totalPrice: total_amount / 100,
+                    cartItems: [], // You might need to map this to the actual cart items
+                    userId: userId // Include userId in the order details
+                };
+                const query = `
+                    INSERT INTO orders (
+                        user_id, full_name, email, phone_number, order_note, city_district, address, landmark, 
+                        payment_method, transaction_id, transaction_amount, transaction_state, purchase_order_id, total_price, cart_items
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `;
+                db.query(query, [
+                    orderDetails.userId,
+                    orderDetails.fullName,
+                    orderDetails.email,
+                    orderDetails.phoneNumber,
+                    orderDetails.orderNote,
+                    orderDetails.cityDistrict,
+                    orderDetails.address,
+                    orderDetails.landmark,
+                    orderDetails.paymentMethod,
+                    orderDetails.transactionId,
+                    orderDetails.transactionAmount,
+                    orderDetails.transactionState,
+                    orderDetails.purchaseOrderId,
+                    orderDetails.totalPrice,
+                    JSON.stringify(orderDetails.cartItems)
+                ], (err, result) => {
+                    if (err) {
+                        console.error('Error inserting order:', err);
+                        return res.status(500).json({ error: 'Failed to place the order' });
+                    }
+                    // Redirect the user to the frontend success page
+                    res.redirect(`${process.env.FRONTEND_URL}/payment-success?orderId=${result.insertId}`);
+                });
+            } else {
+                res.status(400).send('Payment verification failed');
             }
-        );
-        if (lookupResponse.data.status === 'Completed') {
-            // Extract userId from the session or request context
-            // For demonstration, assuming userId is stored in session or can be derived
-            const userId = req.session.userId || 1; // Replace with actual user retrieval logic
-
-            // Store the order details in the database
-            const orderDetails = {
-                fullName: purchase_order_name, // You might need to map this to the actual customer info
-                email: '', // You might need to map this to the actual customer info
-                phoneNumber: mobile,
-                orderNote: '',
-                cityDistrict: '', // You might need to map this to the actual customer info
-                address: '', // You might need to map this to the actual customer info
-                landmark: '', // You might need to map this to the actual customer info
-                paymentMethod: 'khalti',
-                transactionId: transaction_id,
-                transactionAmount: total_amount / 100,
-                transactionState: status,
-                purchaseOrderId: purchase_order_id,
-                totalPrice: total_amount / 100,
-                cartItems: [], // You might need to map this to the actual cart items
-                userId: userId // Include userId in the order details
-            };
-            const query = `
-                INSERT INTO orders (
-                    user_id, full_name, email, phone_number, order_note, city_district, address, landmark, 
-                    payment_method, transaction_id, transaction_amount, transaction_state, purchase_order_id, total_price, cart_items
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `;
-            db.query(query, [
-                orderDetails.userId,
-                orderDetails.fullName,
-                orderDetails.email,
-                orderDetails.phoneNumber,
-                orderDetails.orderNote,
-                orderDetails.cityDistrict,
-                orderDetails.address,
-                orderDetails.landmark,
-                orderDetails.paymentMethod,
-                orderDetails.transactionId,
-                orderDetails.transactionAmount,
-                orderDetails.transactionState,
-                orderDetails.purchaseOrderId,
-                orderDetails.totalPrice,
-                JSON.stringify(orderDetails.cartItems)
-            ], (err, result) => {
-                if (err) {
-                    console.error('Error inserting order:', err);
-                    return res.status(500).json({ error: 'Failed to place the order' });
-                }
-                res.redirect('/YourWeb.js');
-            });
-        } else {
-            res.status(400).send('Payment verification failed');
+        } catch (error) {
+            console.error('Error initiating Khalti payment:', error);
+            res.status(500).send('Failed to initiate payment');
         }
     } else {
         res.status(400).send('Payment failed');
