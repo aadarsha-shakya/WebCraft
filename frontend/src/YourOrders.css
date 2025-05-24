@@ -1,62 +1,51 @@
-/* YourOrders.css */
 .your-orders-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.order-success {
     text-align: center;
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.your-orders-container h1 {
+.tick-icon {
+    font-size: 100px;
+    color: #4caf50;
+    margin-bottom: 20px;
+}
+
+h1 {
     font-size: 24px;
-    color: #333;
-}
-
-.your-orders-container p {
-    font-size: 16px;
-    color: #666;
-}
-
-.your-orders-container .order-details {
-    margin-top: 20px;
-    text-align: left;
-}
-
-.your-orders-container .order-details h2 {
-    font-size: 20px;
-    color: #333;
-}
-
-.your-orders-container .order-details ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.your-orders-container .order-details li {
+    font-weight: bold;
     margin-bottom: 10px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border-radius: 4px;
+    color: #333;
 }
 
-.your-orders-container .order-details li span {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.back-to-home-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+p {
     font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #555;
 }
 
-.back-to-home-button:hover {
-    background-color: #218838;
+.ok-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.ok-button:hover {
+    background-color: #45a049;
 }

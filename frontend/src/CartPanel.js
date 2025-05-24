@@ -1,7 +1,13 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from './CartContext'; // Import useCart hook
+import axios from 'axios';
 import './CartPanel.css'; // Import CartPanel.css for styling
+import { useCart } from './CartContext'; // Import useCart hook
+
+// Helper function to clean up image/filename strings
+const cleanFilename = (filename) => {
+    return filename ? filename.replace(/^<|>$/g, "") : "";
+};
 
 const CartPanel = ({ isOpen, setIsOpen }) => {
     const { cartItems, updateCartItemQuantity, removeCartItem, clearCart } = useCart(); // Use useCart hook
@@ -40,7 +46,11 @@ const CartPanel = ({ isOpen, setIsOpen }) => {
                 {cartItems.length > 0 ? (
                     cartItems.map((item, index) => (
                         <li key={index} className="cart-item">
-                            <img src={`/uploads/${item.imageUrl}`} alt={item.productName} className="cart-item-image" />
+                            <img
+                                src={`http://localhost:8081/uploads/${cleanFilename(item.imageUrl || 'default.jpg')}`}
+                                alt={item.productName}
+                                className="cart-item-image"
+                            />
                             <div className="cart-item-details">
                                 <p>{item.productName}</p>
                                 <p>Variant: {item.variantName}</p>

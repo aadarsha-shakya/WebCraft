@@ -8,12 +8,17 @@ function ProductFilter() {
     const [footerSettings, setFooterSettings] = useState({});
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
-    const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 }); // Default price range
+    const [priceRange, setPriceRange] = useState(10000); // Default max price range
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [selectedVariants, setSelectedVariants] = useState([]);
     const [selectedSizes, setSelectedSizes] = useState([]);
     const userId = localStorage.getItem('userId'); // Assume userId is stored in localStorage
     const navigate = useNavigate(); // Import and use navigate
+
+    // Helper function to clean up image/filename strings
+    const cleanFilename = (filename) => {
+        return filename ? filename.replace(/^<|>$/g, "") : "";
+    };
 
     useEffect(() => {
         if (userId) {
@@ -77,9 +82,8 @@ function ProductFilter() {
     };
 
     const handlePriceChange = (event) => {
-        const value = event.target.value;
-        const [min, max] = value.split(',').map(Number);
-        setPriceRange({ min, max });
+        const value = parseInt(event.target.value, 10);
+        setPriceRange(value);
         applyFilters();
     };
 
@@ -122,8 +126,7 @@ function ProductFilter() {
         filtered = filtered.filter(product => {
             const sellingPrices = product.variants ? product.variants.map(variant => variant.selling_price) : [];
             const minSellingPrice = Math.min(...sellingPrices);
-            const maxSellingPrice = Math.max(...sellingPrices);
-            return minSellingPrice >= priceRange.min && maxSellingPrice <= priceRange.max;
+            return minSellingPrice <= priceRange;
         });
         // Filter by categories
         if (selectedCategories.length > 0) {
@@ -157,9 +160,9 @@ function ProductFilter() {
         const crossedPrices = product.variants ? product.variants.map(variant => variant.crossed_price) : [];
         const crossedPrice = Math.max(...crossedPrices);
         return (
-            <Link to={`/ProductDetail/${product.id}`} className="product-item">
+            <Link to={`/ProductDetail/${product.id}`} className="product-item" style={{ textDecoration: 'none', color: '#000' }}>
                 {mainImage && (
-                    <img src={`/uploads/${mainImage}`} alt={product.product_name} />
+                    <img src={`http://localhost:8081/uploads/${cleanFilename(mainImage)}`} alt={product.product_name} />
                 )}
                 <h3>{product.product_name}</h3>
                 <div className="price-container">
@@ -179,15 +182,15 @@ function ProductFilter() {
         switch (components.navigation_type) {
             case 'basic':
                 return (
-                    <nav className="navbar">
+                    <nav className="navbar" style={{ backgroundColor: branding.primary_color }}>
                         <div className="navbar-left">
-                            <Link to="/YourWeb" className="brand-link">
-                                <img src={`/uploads/${branding.brand_logo}`} alt="Brand Logo" className="brand-logo" />
+                            <Link to="/YourWeb" className="brand-link" style={{ textDecoration: 'none', color: '#fff' }}>
+                                <img src={`http://localhost:8081/uploads/${cleanFilename(branding.brand_logo)}`} alt="Brand Logo" className="brand-logo" />
                             </Link>
                         </div>
                         <div className="navbar-right">
-                            <Link to="/YourWeb">Home</Link>
-                            <Link to="/ProductFilter">Shop</Link>
+                            <Link to="/YourWeb" style={{ textDecoration: 'none', color: '#fff' }}>Home</Link>
+                            <Link to="/ProductFilter" style={{ textDecoration: 'none', color: '#fff' }}>Shop</Link>
                             <button className="card-button">
                                 <i className="fas fa-shopping-cart"></i> Cart
                             </button>
@@ -199,8 +202,8 @@ function ProductFilter() {
                     <header className="your-web-header" style={{ backgroundColor: branding.primary_color, fontFamily: branding.font_family }}>
                         <div className="logo-container">
                             {branding.brand_logo && (
-                                <Link to="/YourWeb" className="brand-link">
-                                    <img src={`/uploads/${branding.brand_logo}`} alt="Brand Logo" className="brand-logo" />
+                                <Link to="/YourWeb" className="brand-link" style={{ textDecoration: 'none', color: '#fff' }}>
+                                    <img src={`http://localhost:8081/uploads/${cleanFilename(branding.brand_logo)}`} alt="Brand Logo" className="brand-logo" />
                                 </Link>
                             )}
                         </div>
@@ -209,9 +212,9 @@ function ProductFilter() {
                         </div>
                         <nav className="navbar-with-categories">
                             <div className="navbar-right">
-                                <Link to="/YourWeb">Home</Link>
-                                <Link to="/categories">Categories</Link>
-                                <Link to="/ProductFilter">Shop</Link>
+                                <Link to="/YourWeb" style={{ textDecoration: 'none', color: '#fff' }}>Home</Link>
+                                <Link to="/categories" style={{ textDecoration: 'none', color: '#fff' }}>Categories</Link>
+                                <Link to="/ProductFilter" style={{ textDecoration: 'none', color: '#fff' }}>Shop</Link>
                                 <button className="card-button">
                                     <i className="fas fa-shopping-cart"></i> Cart
                                 </button>
@@ -227,15 +230,15 @@ function ProductFilter() {
                         </div>
                         <div className="logo-container">
                             {branding.brand_logo && (
-                                <Link to="/YourWeb" className="brand-link">
-                                    <img src={`/uploads/${branding.brand_logo}`} alt="Brand Logo" className="brand-logo" />
+                                <Link to="/YourWeb" className="brand-link" style={{ textDecoration: 'none', color: '#fff' }}>
+                                    <img src={`http://localhost:8081/uploads/${cleanFilename(branding.brand_logo)}`} alt="Brand Logo" className="brand-logo" />
                                 </Link>
                             )}
                         </div>
                         <nav className="navbar-centered-logo">
                             <div className="navbar-right">
-                                <Link to="/YourWeb">Home</Link>
-                                <Link to="/ProductFilter">Shop</Link>
+                                <Link to="/YourWeb" style={{ textDecoration: 'none', color: '#fff' }}>Home</Link>
+                                <Link to="/ProductFilter" style={{ textDecoration: 'none', color: '#fff' }}>Shop</Link>
                                 <button className="card-button">
                                     <i className="fas fa-shopping-cart"></i> Cart
                                 </button>
@@ -245,15 +248,15 @@ function ProductFilter() {
                 );
             default:
                 return (
-                    <nav className="navbar">
+                    <nav className="navbar" style={{ backgroundColor: branding.primary_color }}>
                         <div className="navbar-left">
-                            <Link to="/YourWeb" className="brand-link">
-                                <img src={`/uploads/${branding.brand_logo}`} alt="Brand Logo" className="brand-logo" />
+                            <Link to="/YourWeb" className="brand-link" style={{ textDecoration: 'none', color: '#fff' }}>
+                                <img src={`http://localhost:8081/uploads/${cleanFilename(branding.brand_logo)}`} alt="Brand Logo" className="brand-logo" />
                             </Link>
                         </div>
                         <div className="navbar-right">
-                            <Link to="/YourWeb">Home</Link>
-                            <Link to="/ProductFilter">Shop</Link>
+                            <Link to="/YourWeb" style={{ textDecoration: 'none', color: '#fff' }}>Home</Link>
+                            <Link to="/ProductFilter" style={{ textDecoration: 'none', color: '#fff' }}>Shop</Link>
                             <button className="card-button">
                                 <i className="fas fa-shopping-cart"></i> Cart
                             </button>
@@ -278,44 +281,44 @@ function ProductFilter() {
                 )}
                 <div className="footer-links">
                     {footerSettings.shippingPolicy && (
-                        <a href={footerSettings.shippingPolicy} target="_blank" rel="noopener noreferrer">
+                        <a href={footerSettings.shippingPolicy} target="_blank" rel="noopener noreferrer" style={{ color: '#fff' }}>
                             Shipping Policy
                         </a>
                     )}
                     {footerSettings.refundPolicy && (
-                        <a href={footerSettings.refundPolicy} target="_blank" rel="noopener noreferrer">
+                        <a href={footerSettings.refundPolicy} target="_blank" rel="noopener noreferrer" style={{ color: '#fff' }}>
                             Refund Policy
                         </a>
                     )}
                     {footerSettings.privacyPolicy && (
-                        <a href={footerSettings.privacyPolicy} target="_blank" rel="noopener noreferrer">
+                        <a href={footerSettings.privacyPolicy} target="_blank" rel="noopener noreferrer" style={{ color: '#fff' }}>
                             Privacy Policy
                         </a>
                     )}
                     {footerSettings.termsOfService && (
-                        <a href={footerSettings.termsOfService} target="_blank" rel="noopener noreferrer">
+                        <a href={footerSettings.termsOfService} target="_blank" rel="noopener noreferrer" style={{ color: '#fff' }}>
                             Terms of Service
                         </a>
                     )}
                 </div>
                 <div className="footer-socials">
                     {footerSettings.facebook && (
-                        <a href={footerSettings.facebook} target="_blank" rel="noopener noreferrer">
+                        <a href={footerSettings.facebook} target="_blank" rel="noopener noreferrer" style={{ color: '#fff' }}>
                             <i className="fab fa-facebook-f"></i>
                         </a>
                     )}
                     {footerSettings.youtube && (
-                        <a href={footerSettings.youtube} target="_blank" rel="noopener noreferrer">
+                        <a href={footerSettings.youtube} target="_blank" rel="noopener noreferrer" style={{ color: '#fff' }}>
                             <i className="fab fa-youtube"></i>
                         </a>
                     )}
                     {footerSettings.instagram && (
-                        <a href={footerSettings.instagram} target="_blank" rel="noopener noreferrer">
+                        <a href={footerSettings.instagram} target="_blank" rel="noopener noreferrer" style={{ color: '#fff' }}>
                             <i className="fab fa-instagram"></i>
                         </a>
                     )}
                     {footerSettings.whatsapp && (
-                        <a href={footerSettings.whatsapp} target="_blank" rel="noopener noreferrer">
+                        <a href={footerSettings.whatsapp} target="_blank" rel="noopener noreferrer" style={{ color: '#fff' }}>
                             <i className="fab fa-whatsapp"></i>
                         </a>
                     )}
@@ -337,17 +340,18 @@ function ProductFilter() {
                         {/* Price Filter */}
                         <div className="filter-group">
                             <label htmlFor="price-range">Price</label>
-                            <input
-                                type="range"
-                                id="price-range"
-                                min="0"
-                                max="10000"
-                                step="100"
-                                value={`${priceRange.min},${priceRange.max}`}
-                                onChange={handlePriceChange}
-                            />
-                            <span>Rs {priceRange.min}</span>
-                            <span>Rs {priceRange.max}</span>
+                            <div className="price-range-slider">
+                                <input
+                                    type="range"
+                                    id="price-range"
+                                    min="0"
+                                    max="10000"
+                                    step="100"
+                                    value={priceRange}
+                                    onChange={handlePriceChange}
+                                />
+                                <span>Rs {priceRange}</span>
+                            </div>
                         </div>
                         {/* Category Filter */}
                         <div className="filter-group">

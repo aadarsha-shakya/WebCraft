@@ -21,6 +21,11 @@ function ProductDetail() {
     const navigate = useNavigate();
     const [isCartOpen, setIsCartOpen] = useState(false); // State to toggle cart panel
 
+    // Helper function to clean up image/filename strings
+    const cleanFilename = (filename) => {
+        return filename ? filename.replace(/^<|>$/g, "") : "";
+    };
+
     useEffect(() => {
         if (userId) {
             fetchBranding(userId);
@@ -139,7 +144,7 @@ function ProductDetail() {
                     <nav className="navbar">
                         <div className="navbar-left">
                             <Link to="/YourWeb" className="brand-link">
-                                <img src={`/uploads/${branding.brand_logo || 'default.jpg'}`} alt="Brand Logo" className="brand-logo" />
+                                <img src={`http://localhost:8081/uploads/${cleanFilename(branding.brand_logo || 'default.jpg')}`} alt="Brand Logo" className="brand-logo" />
                             </Link>
                         </div>
                         <div className="navbar-right">
@@ -157,7 +162,7 @@ function ProductDetail() {
                         <div className="logo-container">
                             {branding.brand_logo && (
                                 <Link to="/YourWeb" className="brand-link">
-                                    <img src={`/uploads/${branding.brand_logo || 'default.jpg'}`} alt="Brand Logo" className="brand-logo" />
+                                    <img src={`http://localhost:8081/uploads/${cleanFilename(branding.brand_logo || 'default.jpg')}`} alt="Brand Logo" className="brand-logo" />
                                 </Link>
                             )}
                         </div>
@@ -185,7 +190,7 @@ function ProductDetail() {
                         <div className="logo-container">
                             {branding.brand_logo && (
                                 <Link to="/YourWeb" className="brand-link">
-                                    <img src={`/uploads/${branding.brand_logo || 'default.jpg'}`} alt="Brand Logo" className="brand-logo" />
+                                    <img src={`http://localhost:8081/uploads/${cleanFilename(branding.brand_logo || 'default.jpg')}`} alt="Brand Logo" className="brand-logo" />
                                 </Link>
                             )}
                         </div>
@@ -205,7 +210,7 @@ function ProductDetail() {
                     <nav className="navbar">
                         <div className="navbar-left">
                             <Link to="/YourWeb" className="brand-link">
-                                <img src={`/uploads/${branding.brand_logo || 'default.jpg'}`} alt="Brand Logo" className="brand-logo" />
+                                <img src={`http://localhost:8081/uploads/${cleanFilename(branding.brand_logo || 'default.jpg')}`} alt="Brand Logo" className="brand-logo" />
                             </Link>
                         </div>
                         <div className="navbar-right">
@@ -298,7 +303,7 @@ function ProductDetail() {
                     {/* Product Image */}
                     <div className="product-image">
                         <img
-                            src={`/uploads/${product.product_images[0] || 'default.jpg'}`}
+                            src={`http://localhost:8081/uploads/${cleanFilename(product.product_images[0] || 'default.jpg')}`}
                             alt={product.product_name}
                         />
                     </div>
