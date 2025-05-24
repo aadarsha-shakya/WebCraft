@@ -1054,6 +1054,46 @@ app.post('/api/orders', (req, res) => {
     });
 });
 
+// Update Payment Status
+app.put('/api/orders/:id/payment-status', (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+  
+    const sql = 'UPDATE orders SET payment_status = ? WHERE id = ?';
+    db.query(sql, [status, id], (err, result) => {
+      if (err) {
+        console.error('Error updating payment status:', err);
+        return res.status(500).json({ error: 'Failed to update payment status' });
+      }
+  
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Order not found' });
+      }
+  
+      res.json({ message: 'Payment status updated successfully' });
+    });
+  });
+  
+  // Update Order Status
+  app.put('/api/orders/:id/order-status', (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+  
+    const sql = 'UPDATE orders SET order_status = ? WHERE id = ?';
+    db.query(sql, [status, id], (err, result) => {
+      if (err) {
+        console.error('Error updating order status:', err);
+        return res.status(500).json({ error: 'Failed to update order status' });
+      }
+  
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Order not found' });
+      }
+  
+      res.json({ message: 'Order status updated successfully' });
+    });
+  });
+
 // Endpoint to handle Khalti payment initiation
 app.post('/api/orders/initiate-payment', async (req, res) => {
     const { return_url, website_url, amount, purchase_order_id, purchase_order_name, customer_info, userId } = req.body;

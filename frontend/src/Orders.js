@@ -1,40 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import './Dashboard.css'; // Import the CSS file for styling
-import './Orders.css'; // Import the CSS file for styling
+import './Dashboard.css';
+import './Orders.css';
 import Logo from './assets/WebCraft.png';
 
 function Orders() {
   const [orders, setOrders] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState(''); // For filtering payment status
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid'); // Load mode from localStorage or default to 'Hybrid'
+  const [mode, setMode] = useState(localStorage.getItem('mode') || 'Hybrid');
 
-  // Fetch orders from the backend
+  // Local state for persisting dropdown selections
+  const [paymentStatuses, setPaymentStatuses] = useState({});
+  const [orderStatuses, setOrderStatuses] = useState({});
+
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const loggedInUserId = localStorage.getItem('userId'); // Ensure userId is available
+      const loggedInUserId = localStorage.getItem('userId');
       if (!loggedInUserId) {
         alert('User not logged in. Redirecting to login...');
         window.location.href = '/login';
         return;
       }
       const response = await axios.get(
-        `http://localhost:8081/api/orders/user/${loggedInUserId}?search=${searchQuery}&status=${filterStatus}`
+        `http://localhost:8081/api/orders/user/${loggedInUserId}?search=${searchQuery}`
       );
-      // Parse cart_items JSON string
       const parsedOrders = response.data.map(order => ({
         ...order,
         cart_items: JSON.parse(order.cart_items)
       }));
       setOrders(parsedOrders);
       setLoading(false);
+
+      // Initialize statuses
+      const initialPaymentStatuses = {};
+      const initialOrderStatuses = {};
+      parsedOrders.forEach(order => {
+        initialPaymentStatuses[order.id] = order.payment_status || 'unpaid';
+        initialOrderStatuses[order.id] = order.order_status || 'pending';
+      });
+      setPaymentStatuses(initialPaymentStatuses);
+      setOrderStatuses(initialOrderStatuses);
+
     } catch (error) {
       console.error('Error fetching orders:', error);
       setError('Failed to fetch orders.');
@@ -44,67 +56,99 @@ function Orders() {
 
   useEffect(() => {
     fetchOrders();
-  }, [searchQuery, filterStatus]);
+  }, [searchQuery]);
 
-  // Handle search input change
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
 
-  // Handle filter status change
-  const handleFilterChange = (e) => {
-    setFilterStatus(e.target.value);
-  };
-
-  // Handle delete order
   const handleDeleteOrder = async (orderId) => {
     try {
       const confirmed = window.confirm('Are you sure you want to delete this order?');
       if (!confirmed) return;
       await axios.delete(`http://localhost:8081/api/orders/${orderId}`);
-      fetchOrders(); // Refresh the orders list
+      fetchOrders(); // Refresh orders list
     } catch (error) {
       console.error('Error deleting order:', error);
       setError('Failed to delete order.');
     }
   };
 
-  // Handle payment status change
   const handlePaymentStatusChange = (orderId, newStatus) => {
-    setOrders((prevOrders) =>
-      prevOrders.map((order) =>
-        order.id === orderId ? { ...order, payment_status: newStatus } : order
-      )
-    );
+    setPaymentStatuses((prev) => ({
+      ...prev,
+      [orderId]: newStatus
+    }));
+
+    // Send update to backend
+    axios.put(`http://localhost:8081/api/orders/${orderId}/payment-status`, { status: newStatus })
+      .then(res => console.log('Payment status updated:', res.data))
+      .catch(err => {
+        console.error('Failed to update payment status:', err);
+        alert('Failed to update payment status.');
+        setPaymentStatuses(prev => ({
+          ...prev,
+          [orderId]: prev[orderId]
+        }));
+      });
   };
 
-  // Handle order status change
-  const handleOrderStatusChange = (orderId, newStatus) => {
-    setOrders((prevOrders) =>
-      prevOrders.map((order) =>
-        order.id === orderId ? { ...order, order_status: newStatus } : order
-      )
-    );
-  };
+const handleOrderStatusChange = (orderId, newStatus) => {
+    setOrderStatuses((prev) => ({
+        ...prev,
+        [orderId]: newStatus
+    }));
 
-  // Toggle dropdown
+    // Check if payment status is "Paid" and order status is "Dispatched"
+    if (paymentStatuses[orderId] === "paid" && newStatus === "dispatched") {
+        // Fetch the order details to get cart items
+        axios.get(`http://localhost:8081/api/orders/${orderId}`)
+            .then(response => {
+                const order = response.data;
+                const cartItems = JSON.parse(order.cart_items);
+
+                // Make an API call to update inventory
+                axios.post('http://localhost:8081/api/updateInventory', { scannedSkus: cartItems })
+                    .then(inventoryResponse => {
+                        console.log('Inventory updated successfully:', inventoryResponse.data);
+                    })
+                    .catch(inventoryError => {
+                        console.error('Error updating inventory:', inventoryError);
+                        alert('Failed to update inventory.');
+                    });
+            })
+            .catch(error => {
+                console.error('Error fetching order details:', error);
+                alert('Failed to fetch order details.');
+            });
+    }
+
+    // Send update to backend
+    axios.put(`http://localhost:8081/api/orders/${orderId}/order-status`, { status: newStatus })
+        .then(res => console.log('Order status updated:', res.data))
+        .catch(err => {
+            console.error('Failed to update order status:', err);
+            alert('Failed to update order status.');
+            setOrderStatuses(prev => ({
+                ...prev,
+                [orderId]: prev[orderId]
+            }));
+        });
+};
+
   const toggleDropdown = () => {
-    setIsDropdownOpen((prevState) => !prevState); // Toggle state on each click
+    setIsDropdownOpen((prevState) => !prevState);
   };
 
-  // Handle logout
   const handleLogout = () => {
-    // Perform logout actions if needed (e.g., clearing tokens)
-    navigate('/Login'); // Redirect to login page
+    navigate('/Login');
   };
 
-  // Update mode based on button click and save to localStorage
   const selectMode = (newMode) => {
     setMode(newMode);
-    localStorage.setItem('mode', newMode); // Save mode to localStorage
+    localStorage.setItem('mode', newMode);
   };
 
-  // Determine which links to show based on the mode
   const getLinks = () => {
     const hybridLinks = [
       { name: 'Home', icon: 'fa-home', path: '/dashboard' },
@@ -118,7 +162,7 @@ function Orders() {
       { name: 'Instore', icon: 'fa-store', path: '/Instore' },
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Customization', type: 'header', className: 'customization-header' },
       { name: 'Pages', icon: 'fa-file', path: '/Pages' },
       { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
       { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
@@ -136,7 +180,7 @@ function Orders() {
       { name: 'Barcode Scanner', icon: 'fa-barcode', path: '/BarcodeGeneration' },
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
-      { name: 'Customization', type: 'header', className: 'customization-header' }, // Customization header
+      { name: 'Customization', type: 'header', className: 'customization-header' },
       { name: 'Pages', icon: 'fa-file', path: '/Pages' },
       { name: 'Plugins', icon: 'fa-plug', path: '/Plugins' },
       { name: 'Appearance', icon: 'fa-paint-brush', path: '/Appearance' },
@@ -151,6 +195,7 @@ function Orders() {
       { name: 'Settlement', icon: 'fa-wallet', path: '/Settlement' },
       { name: 'Analytics', icon: 'fa-chart-line', path: '/Analytics' },
     ];
+
     switch (mode) {
       case 'Hybrid':
         return hybridLinks;
@@ -182,22 +227,20 @@ function Orders() {
           ))}
         </ul>
       </aside>
+
       {/* MAIN CONTENT AREA */}
       <div className="main-content">
         {/* HEADER PANEL */}
         <header className="dashboard-header">
-          {/* Logo - Clickable to navigate to the dashboard */}
           <div className="logo">
             <Link to="/dashboard">
               <img src={Logo} alt="Logo" />
             </Link>
           </div>
-          {/* Icons */}
           <div className="header-icons">
             <Link to="/YourWeb" className="header-icon">
               <i className="fas fa-globe"></i>
             </Link>
-            {/* W Icon with Dropdown */}
             <div
               className={`header-icon w-icon ${isDropdownOpen ? 'open' : ''}`}
               onClick={toggleDropdown}
@@ -220,7 +263,6 @@ function Orders() {
                 </div>
               )}
             </div>
-            {/* Mode Toggle Button */}
             <div className="mode-toggle">
               <div className="toggle-container">
                 <button
@@ -245,10 +287,11 @@ function Orders() {
             </div>
           </div>
         </header>
+
         {/* CONTENT */}
         <main className="content">
           <h1>Orders</h1>
-          {/* Search and Filter Section */}
+          {/* Search Section */}
           <div className="filters">
             <input
               type="text"
@@ -257,17 +300,8 @@ function Orders() {
               onChange={handleSearchChange}
               className="search-box"
             />
-            <select
-              value={filterStatus}
-              onChange={handleFilterChange}
-              className="filter-select"
-            >
-              <option value="">Filter Status</option>
-              <option value="paid">Paid</option>
-              <option value="unpaid">Unpaid</option>
-              <option value="refunded">Refunded</option>
-            </select>
           </div>
+
           {/* Order Table */}
           <div className="order-table">
             <table>
@@ -293,7 +327,6 @@ function Orders() {
                   </tr>
                 ) : orders.length > 0 ? (
                   orders.map((order, index) => {
-                    // Ensure cart_items is an array
                     const cartItems = Array.isArray(order.cart_items)
                       ? order.cart_items
                       : [];
@@ -314,7 +347,7 @@ function Orders() {
                         <td>Rs {order.total_price}</td>
                         <td>
                           <select
-                            value={order.payment_status || ""}
+                            value={paymentStatuses[order.id] || "unpaid"}
                             onChange={(e) =>
                               handlePaymentStatusChange(
                                 order.id,
@@ -322,10 +355,9 @@ function Orders() {
                               )
                             }
                             className={`status-badge ${
-                              order.payment_status?.toUpperCase() === "PAID"
+                              paymentStatuses[order.id]?.toUpperCase() === "PAID"
                                 ? "paid"
-                                : order.payment_status?.toUpperCase() ===
-                                  "UNPAID"
+                                : paymentStatuses[order.id]?.toUpperCase() === "UNPAID"
                                 ? "unpaid"
                                 : "refunded"
                             }`}
@@ -337,7 +369,7 @@ function Orders() {
                         </td>
                         <td>
                           <select
-                            value={order.order_status || ""}
+                            value={orderStatuses[order.id] || "pending"}
                             onChange={(e) =>
                               handleOrderStatusChange(
                                 order.id,
@@ -345,19 +377,15 @@ function Orders() {
                               )
                             }
                             className={`status-badge ${
-                              order.order_status?.toUpperCase() === "PENDING"
+                              orderStatuses[order.id]?.toUpperCase() === "PENDING"
                                 ? "pending"
-                                : order.order_status?.toUpperCase() ===
-                                  "PROCESSING"
+                                : orderStatuses[order.id]?.toUpperCase() === "PROCESSING"
                                 ? "processing"
-                                : order.order_status?.toUpperCase() ===
-                                  "DISPATCHED"
+                                : orderStatuses[order.id]?.toUpperCase() === "DISPATCHED"
                                 ? "dispatched"
-                                : order.order_status?.toUpperCase() ===
-                                  "DELIVERED"
+                                : orderStatuses[order.id]?.toUpperCase() === "DELIVERED"
                                 ? "delivered"
-                                : order.order_status?.toUpperCase() ===
-                                  "CANCELLED"
+                                : orderStatuses[order.id]?.toUpperCase() === "CANCELLED"
                                 ? "cancelled"
                                 : "return"
                             }`}
@@ -393,8 +421,6 @@ function Orders() {
               </tbody>
             </table>
           </div>
-          {/* Pagination */}
-          <div className="pagination">{/* Add pagination logic here */}</div>
         </main>
       </div>
     </div>

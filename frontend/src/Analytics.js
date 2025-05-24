@@ -92,7 +92,6 @@ function Analytics() {
     acc[hour] = (acc[hour] || 0) + 1;
     return acc;
   }, {});
-
   const hourlyLabels = Array.from({ length: 24 }, (_, i) => i); // Hours of the day
   const hourlyData = hourlyLabels.map((hour) => hourlyOrderData[hour] || 0);
 
@@ -103,9 +102,36 @@ function Analytics() {
     acc[dayOfWeek] = (acc[dayOfWeek] || 0) + order.total_price;
     return acc;
   }, {});
-
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const weeklySales = weekDays.map((day) => weeklySalesData[weekDays.indexOf(day)] || 0);
+
+  // Prepare data for Monthly Sales Statistics
+  const monthlySalesData = orders.reduce((acc, order) => {
+    const createdAt = new Date(order.created_at);
+    const year = createdAt.getFullYear();
+    const month = createdAt.getMonth(); // 0 (January) to 11 (December)
+    const key = `${year}-${month}`;
+    acc[key] = (acc[key] || 0) + order.total_price;
+    return acc;
+  }, {});
+
+  const months = Array.from({ length: 12 }, (_, i) => i);
+  const monthlySales = months.map((month) => {
+    const currentYear = new Date().getFullYear();
+    const key = `${currentYear}-${month}`;
+    return monthlySalesData[key] || 0;
+  });
+
+  // Prepare data for Yearly Sales Statistics
+  const yearlySalesData = orders.reduce((acc, order) => {
+    const createdAt = new Date(order.created_at);
+    const year = createdAt.getFullYear();
+    acc[year] = (acc[year] || 0) + order.total_price;
+    return acc;
+  }, {});
+
+  const years = Object.keys(yearlySalesData).map(Number).sort((a, b) => a - b);
+  const yearlySales = years.map((year) => yearlySalesData[year] || 0);
 
   // Toggle dropdown
   const toggleDropdown = () => {
@@ -284,18 +310,20 @@ function Analytics() {
           {/* Charts */}
           <div className="dashboard-charts">
             <div className="chart-box">
-              <h3>Hourly Order Statistics</h3>
-              <Line
+              <h3>Monthly Sales Statistics</h3>
+              <Bar
                 data={{
-                  labels: hourlyLabels,
+                  labels: [
+                    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                  ],
                   datasets: [
                     {
-                      label: 'Orders',
-                      data: hourlyData,
-                      borderColor: '#6a1b9a', // Deep purple
-                      backgroundColor: 'rgba(106, 27, 154, 0.2)', // Light purple
-                      fill: true,
-                      tension: 0.4,
+                      label: 'Sales',
+                      data: monthlySales,
+                      borderColor: '#2196f3', // Blue
+                      backgroundColor: 'rgba(33, 150, 243, 0.2)', // Light blue
+                      borderWidth: 2,
                     },
                   ],
                 }}
@@ -307,7 +335,7 @@ function Analytics() {
                       type: 'category',
                       title: {
                         display: true,
-                        text: 'Hour of the Day',
+                        text: 'Month',
                         color: '#555',
                       },
                       ticks: {
@@ -318,7 +346,7 @@ function Analytics() {
                       type: 'linear',
                       title: {
                         display: true,
-                        text: 'Number of Orders',
+                        text: 'Total Sales (₹)',
                         color: '#555',
                       },
                       beginAtZero: true,
@@ -351,16 +379,16 @@ function Analytics() {
               />
             </div>
             <div className="chart-box">
-              <h3>Weekly Sales Statistics</h3>
+              <h3>Yearly Sales Statistics</h3>
               <Bar
                 data={{
-                  labels: weekDays,
+                  labels: years,
                   datasets: [
                     {
                       label: 'Sales',
-                      data: weeklySales,
-                      borderColor: '#2196f3', // Blue
-                      backgroundColor: 'rgba(33, 150, 243, 0.2)', // Light blue
+                      data: yearlySales,
+                      borderColor: '#e91e63', // Pink
+                      backgroundColor: 'rgba(233, 30, 99, 0.2)', // Light pink
                       borderWidth: 2,
                     },
                   ],
@@ -373,7 +401,7 @@ function Analytics() {
                       type: 'category',
                       title: {
                         display: true,
-                        text: 'Day of the Week',
+                        text: 'Year',
                         color: '#555',
                       },
                       ticks: {
