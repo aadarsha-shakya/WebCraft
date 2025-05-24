@@ -13,6 +13,26 @@ body {
     justify-content: space-between;
 }
 
+/* Header Styles */
+.your-web-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px; /* Adjust padding if needed */
+    height: 80px; /* Set a fixed height for the header */
+}
+
+.logo-container img {
+    max-width: 100px;
+    height: auto;
+}
+
+.brand-info h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #fff;
+}
+
 /* Navbar Styles */
 .navbar {
     display: flex;
@@ -31,10 +51,14 @@ body {
     text-decoration: none;
 }
 
-.navbar-left .brand-logo {
-    max-width: 100px;
+/* Navbar Logo Styles */
+.navbar-left .brand-logo,
+.navbar-right .brand-logo,
+.logo-container .brand-logo {
+    max-width: 80px; /* Adjust this value as needed */
     height: auto;
 }
+
 
 .navbar-right a {
     color: #fff;
@@ -316,3 +340,9 @@ body {
     font-size: 16px;
     color: #666;
 }
+
+.no-logo {
+    font-size: 14px;
+    color: #666;
+  }
+
